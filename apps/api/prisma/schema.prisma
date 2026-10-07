@@ -8,3 +8,20 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+/// Dono: raiz do agregado (P1). Limites iguais aos de OWNER_LIMITS (P3, P6).
+model Owner {
+  id        Int      @id @default(autoincrement()) @map("id")
+  firstName String   @map("first_name") @db.VarChar(30)
+  lastName  String   @map("last_name") @db.VarChar(30)
+  address   String   @map("address") @db.VarChar(255)
+  city      String   @map("city") @db.VarChar(80)
+  /// E.164 (D05)
+  telephone String   @map("telephone") @db.VarChar(14)
+  version   Int      @default(0) @map("version")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@index([lastName], map: "owners_last_name_idx")
+  @@map("owners")
+}

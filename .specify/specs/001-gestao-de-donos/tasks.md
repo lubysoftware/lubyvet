@@ -7,7 +7,7 @@
 > infraestrutura, e está dito nela. Os identificadores `UT-nnn-n` são os testes que os
 > cards do backlog já traziam, preservados como tarefa de teste própria.
 
-- [ ] **T001** Declarar o nome de toda coluna do Dono no mapeamento, sem depender de
+- [x] **T001** Declarar o nome de toda coluna do Dono no mapeamento, sem depender de
       estratégia automática de nomenclatura
       *entrega:* o mapeamento do Dono com nome de coluna explícito em cada campo, incluindo
       os campos novos de versão, criação e alteração
@@ -28,7 +28,7 @@
       *satisfaz:* CA-1.3
       *depende de:* T001
 
-- [ ] **T004** Criar a primeira migração versionada de esquema, com a tabela de donos
+- [x] **T004** Criar a primeira migração versionada de esquema, com a tabela de donos
       *entrega:* uma migração numerada que cria a tabela, aplicável do zero, e nenhum arquivo
       de criação de esquema fora do diretório de migrações
       *satisfaz:* — (infraestrutura exigida pelo princípio P5)
