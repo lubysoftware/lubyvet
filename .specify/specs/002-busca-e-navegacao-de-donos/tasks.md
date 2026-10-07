@@ -7,13 +7,13 @@
 > `UT-nnn-n` são os testes que os cards do backlog já traziam, preservados como tarefa de
 > teste própria.
 
-- [ ] **T001** Preparar a operação de busca de dono por começo de sobrenome
+- [x] **T001** Preparar a operação de busca de dono por começo de sobrenome
       *entrega:* a consulta que filtra pelo começo do sobrenome e devolve, por dono, contato
       e os nomes dos animais
       *satisfaz:* CA-1.1
       *depende de:* a feature 001 ter o Dono modelado e migrado
 
-- [ ] **T002** [P] Implementar a normalização do termo de busca
+- [x] **T002** [P] Implementar a normalização do termo de busca
       *entrega:* espaços das pontas removidos, e termo vazio ou só de espaços traduzido para
       um filtro que casa com todo sobrenome, em vez de um filtro por sobrenome igual a vazio
       *satisfaz:* CA-1.2, CA-1.3
@@ -27,7 +27,7 @@
       *satisfaz:* CA-1.4
       *depende de:* T001
 
-- [ ] **T004** Normalizar a caixa na aplicação e criar o índice sobre a forma normalizada do
+- [x] **T004** Normalizar a caixa na aplicação e criar o índice sobre a forma normalizada do
       sobrenome
       *entrega:* o filtro entregue ao repositório já normalizado, de modo que o resultado não
       dependa de qual banco responde, mais a migração que cria o índice sobre a forma
@@ -35,7 +35,7 @@
       *satisfaz:* CA-4.1
       *depende de:* T002
 
-- [ ] **T005** Implementar a guarda de faixa de página, com piso explícito de uma página no
+- [x] **T005** Implementar a guarda de faixa de página, com piso explícito de uma página no
       total
       *entrega:* página menor que um, maior que o total, negativa ou não numérica levando à
       primeira página do mesmo resultado, sem falha e sem expor a causa; base vazia
@@ -59,7 +59,7 @@
       *satisfaz:* CA-2.1
       *depende de:* T006
 
-- [ ] **T008** [P] Ler o tamanho da página da configuração
+- [x] **T008** [P] Ler o tamanho da página da configuração
       *entrega:* o tamanho de página vindo de configuração, com valor padrão declarado, e
       nenhum valor de tamanho fixo no código da operação
       *satisfaz:* CA-2.4
@@ -72,7 +72,7 @@
       *satisfaz:* CA-3.1, CA-3.2, CA-3.3
       *depende de:* T001, e a ficha do dono da feature 001
 
-- [ ] **T010** Limitar o recorte da consulta no banco, em vez de ler tudo e cortar depois
+- [x] **T010** Limitar o recorte da consulta no banco, em vez de ler tudo e cortar depois
       *entrega:* o pedido ao repositório limitando as linhas ao tamanho da página, verificável
       com uma base de quinhentos donos
       *satisfaz:* — (é a parte verificável de US-5; os dois critérios dela dependem de números

@@ -31,7 +31,6 @@ model Owner {
 
   pets Pet[]
 
-  @@index([lastName], map: "owners_last_name_idx")
   @@map("owners")
 }
 

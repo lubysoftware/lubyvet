@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { PageQuery, pageOf } from '../pagination';
 import { EMAIL_MAX, isBrazilianMobile, isValidCpf, isValidEmail } from '../rules';
 
 /** Limites do dono, os mesmos no schema do banco (P3, P6). */
@@ -86,3 +87,24 @@ export const SimilarOwner = z.object({
   city: z.string(),
 });
 export type SimilarOwner = z.infer<typeof SimilarOwner>;
+
+/** 002: busca pelo começo do sobrenome; termo vazio lista todos (D04: exige login). */
+export const SearchOwnersQuery = PageQuery.extend({
+  lastName: z.string().max(OWNER_LIMITS.lastName, { error: 'too_long' }).default(''),
+});
+export type SearchOwnersQuery = z.infer<typeof SearchOwnersQuery>;
+
+export const OwnerSummary = z.object({
+  id: z.number().int(),
+  firstName: z.string(),
+  lastName: z.string(),
+  address: z.string(),
+  city: z.string(),
+  telephone: z.string(),
+  petNames: z.array(z.string()),
+});
+export type OwnerSummary = z.infer<typeof OwnerSummary>;
+
+/** O termo normalizado volta junto, para os links de página o carregarem (002/T006). */
+export const OwnerSearchOutput = pageOf(OwnerSummary).extend({ lastName: z.string() });
+export type OwnerSearchOutput = z.infer<typeof OwnerSearchOutput>;

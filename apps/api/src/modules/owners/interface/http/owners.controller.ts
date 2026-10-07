@@ -1,5 +1,12 @@
-import { Body, Controller, Get, HttpCode, Param, Patch, Post } from '@nestjs/common';
-import { ChangeOwnerContactInput, type OwnerOutput, RegisterOwnerInput } from '@lubyvet/contracts';
+import { Body, Controller, Get, HttpCode, Param, Patch, Post, Query } from '@nestjs/common';
+import {
+  ChangeOwnerContactInput,
+  type OwnerOutput,
+  type OwnerSearchOutput,
+  RegisterOwnerInput,
+  SearchOwnersQuery,
+} from '@lubyvet/contracts';
+import { SearchOwners } from '../../application/search-owners.use-case';
 import { IdParamPipe } from '../../../../shared/interface/http/id-param.pipe';
 import { ZodValidationPipe } from '../../../../shared/interface/http/zod-validation.pipe';
 import { StaleVersion } from '../../../../shared/domain/errors';
@@ -15,7 +22,16 @@ export class OwnersController {
     private readonly registerOwner: RegisterOwner,
     private readonly getOwner: GetOwner,
     private readonly changeOwnerContact: ChangeOwnerContact,
+    private readonly searchOwners: SearchOwners,
   ) {}
+
+  /** 002: busca pelo começo do sobrenome, paginada; o termo normalizado volta para os links. */
+  @Get()
+  async search(
+    @Query(new ZodValidationPipe(SearchOwnersQuery)) query: SearchOwnersQuery,
+  ): Promise<OwnerSearchOutput> {
+    return this.searchOwners.execute(query);
+  }
 
   /** US-1: cria o dono e devolve a ficha dele (o front navega para ela). */
   @Post()
