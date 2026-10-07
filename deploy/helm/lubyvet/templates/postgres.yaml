@@ -1,28 +1,35 @@
 # D36: PostgreSQL no cluster pelo CloudNativePG, com backup contínuo (WAL) e base diária para S3 fora do cluster.
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
-metadata: { name: lubyvet-db }
+metadata:
+  name: lubyvet-db
 spec:
-  instances: { { .Values.postgres.instances } }
-  storage: { size: { { .Values.postgres.storage } } }
-  bootstrap: { initdb: { database: lubyvet, owner: lubyvet } }
+  imageName: {{ .Values.postgres.imageName }}
+  instances: {{ .Values.postgres.instances }}
+  storage:
+    size: {{ .Values.postgres.storage }}
+  bootstrap:
+    initdb:
+      database: lubyvet
+      owner: lubyvet
   backup:
-    retentionPolicy: { { .Values.postgres.backup.retentionPolicy | quote } }
+    retentionPolicy: {{ .Values.postgres.backup.retentionPolicy | quote }}
     barmanObjectStore:
-      destinationPath:
-        {
-          {
-            required "postgres.backup.destinationPath é obrigatório (D36)" .Values.postgres.backup.destinationPath | quote,
-          },
-        }
-      endpointURL: { { .Values.postgres.backup.endpointURL | quote } }
+      destinationPath: {{ required "postgres.backup.destinationPath é obrigatório (D36)" .Values.postgres.backup.destinationPath | quote }}
+      endpointURL: {{ .Values.postgres.backup.endpointURL | quote }}
       s3Credentials:
-        accessKeyId: { name: { { .Values.postgres.backup.credentialsSecret } }, key: ACCESS_KEY_ID }
-        secretAccessKey: { name: { { .Values.postgres.backup.credentialsSecret } }, key: ACCESS_SECRET_KEY }
+        accessKeyId:
+          name: {{ .Values.postgres.backup.credentialsSecret }}
+          key: ACCESS_KEY_ID
+        secretAccessKey:
+          name: {{ .Values.postgres.backup.credentialsSecret }}
+          key: ACCESS_SECRET_KEY
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: ScheduledBackup
-metadata: { name: lubyvet-db-daily }
+metadata:
+  name: lubyvet-db-daily
 spec:
-  schedule: { { .Values.postgres.backup.schedule | quote } }
-  cluster: { name: lubyvet-db }
+  schedule: {{ .Values.postgres.backup.schedule | quote }}
+  cluster:
+    name: lubyvet-db

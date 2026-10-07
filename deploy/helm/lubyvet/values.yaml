@@ -20,6 +20,7 @@ resources:
   api: { requests: { cpu: 100m, memory: 256Mi }, limits: { memory: 512Mi } }
   web: { requests: { cpu: 100m, memory: 256Mi }, limits: { memory: 512Mi } }
 postgres:
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.6
   instances: 2
   storage: 10Gi
   backup:

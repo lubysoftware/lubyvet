@@ -187,7 +187,7 @@
       *satisfaz:* — (D36; fecha DT-16 e DT-19 do legado)
       *depende de:* T009, T020
 
-- [ ] **T023** Backup do PostgreSQL e ensaio de restauração automatizado
+- [x] **T023** Backup do PostgreSQL e ensaio de restauração automatizado
       *entrega:* backup contínuo e base diária para bucket S3-compatível fora do cluster;
       um teste na CI que sobe o cluster em kind, grava dados, restaura para um ponto no
       tempo num cluster novo e confere que os dados voltaram. Sem esse teste verde, a
