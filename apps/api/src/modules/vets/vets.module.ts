@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
-import { VET_PATIENTS_READER } from './application/ports/vet-catalog.port';
+import { ListVetPatients } from './application/list-vet-patients.use-case';
 import {
   VET_CATALOG_CACHE,
   VET_CATALOG_READER,
+  VET_PATIENTS_READER,
   type VetCatalogCache,
   type VetCatalogReader,
+  type VetPatientsReader,
 } from './application/ports/vet-catalog.port';
 import { GetVetCatalog } from './application/vet-catalog.use-case';
 import { PrismaVetCatalogReader } from './infra/prisma-vet-catalog.reader';
@@ -22,6 +24,11 @@ import { VetsController } from './interface/http/vets.controller';
       provide: GetVetCatalog,
       useFactory: (r: VetCatalogReader, c: VetCatalogCache) => new GetVetCatalog(r, c),
       inject: [VET_CATALOG_READER, VET_CATALOG_CACHE],
+    },
+    {
+      provide: ListVetPatients,
+      useFactory: (r: VetPatientsReader) => new ListVetPatients(r),
+      inject: [VET_PATIENTS_READER],
     },
   ],
   exports: [VET_CATALOG_CACHE],

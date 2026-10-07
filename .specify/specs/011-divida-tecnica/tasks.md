@@ -32,7 +32,7 @@
 
 ## US-2 Deixar os controllers finos
 
-- [ ] **T004** Criar o caso de uso `ListVetPatients`
+- [x] **T004** Criar o caso de uso `ListVetPatients`
       *entrega:* o caso de uso decide "não encontrado" e devolve os animais; o controller só
       chama e serializa. 004/CA-4.4 e 008/CA-1.4 continuam verdes
       *satisfaz:* CA-2.1

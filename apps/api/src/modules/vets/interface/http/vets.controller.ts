@@ -1,8 +1,8 @@
-import { Controller, Get, Headers, Inject, Param, Query } from '@nestjs/common';
+import { Controller, Get, Headers, Param, Query } from '@nestjs/common';
 import { PageQuery, type VetCatalogOutput, type VetPatientsOutput } from '@lubyvet/contracts';
 import { IdParamPipe } from '../../../../shared/interface/http/id-param.pipe';
-import { VET_PATIENTS_READER, type VetPatientsReader } from '../../application/ports/vet-catalog.port';
-import { DomainError, NotFound } from '../../../../shared/domain/errors';
+import { ListVetPatients } from '../../application/list-vet-patients.use-case';
+import { DomainError } from '../../../../shared/domain/errors';
 import { ZodValidationPipe } from '../../../../shared/interface/http/zod-validation.pipe';
 import { GetVetCatalog } from '../../application/vet-catalog.use-case';
 
@@ -16,16 +16,12 @@ class UnsupportedFormat extends DomainError {
 export class VetsController {
   constructor(
     private readonly catalog: GetVetCatalog,
-    @Inject(VET_PATIENTS_READER) private readonly patients: VetPatientsReader,
+    private readonly patients: ListVetPatients,
   ) {}
 
   @Get(':vetId/patients')
-  async listPatients(
-    @Param('vetId', new IdParamPipe('vet_not_found')) vetId: number,
-  ): Promise<VetPatientsOutput> {
-    const patients = await this.patients.list(vetId);
-    if (!patients) throw new NotFound('vet_not_found');
-    return patients;
+  listPatients(@Param('vetId', new IdParamPipe('vet_not_found')) vetId: number): Promise<VetPatientsOutput> {
+    return this.patients.execute(vetId);
   }
 
   @Get()
