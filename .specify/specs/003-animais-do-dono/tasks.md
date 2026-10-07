@@ -30,7 +30,7 @@
       *satisfaz:* CA-1.4
       *depende de:* T001
 
-- [ ] **T004** [P] Modelar o Animal com nome, data de nascimento, espécie, dono, marca de
+- [x] **T004** [P] Modelar o Animal com nome, data de nascimento, espécie, dono, marca de
       versão e datas de criação e de alteração
       *entrega:* a entidade Animal com o limite de 30 caracteres no nome declarado, o dono e a
       espécie obrigatórios nos dois lados, e a coleção de visitas que CA-3.3 obriga a preservar
@@ -45,7 +45,7 @@
       *satisfaz:* — (infraestrutura exigida pelo princípio P5, e pré-requisito de CA-2.4)
       *depende de:* T003, T004
 
-- [ ] **T006** [P] Implementar a validação de nome, de tamanho e de data de nascimento,
+- [x] **T006** [P] Implementar a validação de nome, de tamanho e de data de nascimento,
       declarada em um só lugar e válida igualmente na criação e na alteração
       *entrega:* a validação que recusa nome em branco, nome acima de 30 caracteres, data de
       nascimento ausente e data de nascimento futura, apontando o campo, com mensagem vinda do
@@ -53,7 +53,7 @@
       *satisfaz:* CA-1.2, CA-1.3, CA-3.4
       *depende de:* T004
 
-- [ ] **T007** [P] Implementar a obrigatoriedade da espécie, declarada em um só lugar e sem
+- [x] **T007** [P] Implementar a obrigatoriedade da espécie, declarada em um só lugar e sem
       distinguir criação de alteração
       *entrega:* a regra que recusa espécie ausente antes de qualquer tentativa de gravação,
       com erro no campo de espécie, produzida pela mesma declaração nos dois caminhos. É a
@@ -61,7 +61,7 @@
       *satisfaz:* CA-4.1, CA-4.2, CA-4.3
       *depende de:* T004
 
-- [ ] **T008** Implementar a verificação preventiva de nome de animal já usado, no escopo do
+- [x] **T008** Implementar a verificação preventiva de nome de animal já usado, no escopo do
       dono e ignorando a caixa
       *entrega:* a verificação que consulta **apenas** os animais daquele dono, trata nomes
       que diferem só pela caixa como o mesmo nome, e aceita a gravação quando o nome em
@@ -69,7 +69,7 @@
       *satisfaz:* CA-2.1, CA-2.2, CA-2.5
       *depende de:* T005, T006
 
-- [ ] **T009** Implementar o reconhecimento da violação de unicidade **pelo tipo do erro**, e
+- [x] **T009** Implementar o reconhecimento da violação de unicidade **pelo tipo do erro**, e
       a tradução dele em erro no campo nome
       *entrega:* a tradução que produz a mensagem de nome já em uso tanto quando a violação
       traz o nome da restrição quanto quando a mensagem é anônima, sem jamais inspecionar o
@@ -77,14 +77,14 @@
       *satisfaz:* CA-2.3
       *depende de:* T008
 
-- [ ] **T010** Implementar a operação de cadastrar animal, terminando na ficha do dono
+- [x] **T010** Implementar a operação de cadastrar animal, terminando na ficha do dono
       *entrega:* o cadastro que grava o animal vinculado àquele dono, com exatamente um dono e
       exatamente uma espécie, devolve o identificador criado e termina na ficha do dono, e que
       não grava nada quando a validação recusa
       *satisfaz:* CA-1.1, CA-1.5
       *depende de:* T006, T007, T009
 
-- [ ] **T011** Implementar a resolução da espécie pelo nome, contra o vocabulário fechado
+- [x] **T011** Implementar a resolução da espécie pelo nome, contra o vocabulário fechado
       *entrega:* a resolução que aceita o nome em qualquer caixa, recusa qualquer valor fora
       do vocabulário com erro **no campo de espécie**, e nunca deixa falha de conversão vazar
       para a tela

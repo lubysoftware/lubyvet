@@ -49,6 +49,7 @@ export const FIELD_ERROR_CODES = [
   'specialty_already_linked',
   'out_of_range',
   'id_mismatch',
+  'unknown_species',
 ] as const;
 export type FieldErrorCode = (typeof FIELD_ERROR_CODES)[number];
 

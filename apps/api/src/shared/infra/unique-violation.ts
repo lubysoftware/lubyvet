@@ -13,3 +13,8 @@ export function violatedUniqueConstraint(error: unknown): string | null {
   const target = meta.target;
   return typeof target === 'string' ? target : null;
 }
+
+/** O erro é violação de unicidade, pelo código do Prisma (P2002), com ou sem nome de restrição. */
+export function isUniqueViolation(error: unknown): boolean {
+  return typeof error === 'object' && error !== null && (error as { code?: unknown }).code === 'P2002';
+}
