@@ -16,6 +16,10 @@ export async function login(page: Page, who: Who): Promise<void> {
   await page.getByLabel('Senha').fill(PASSWORD);
   await page.getByRole('button', { name: 'Entrar' }).click();
   await expect(page).toHaveURL(/\/owners$/);
+  // O login navega por window.location; só segue depois que a lista carregou, para a próxima
+  // navegação do teste não ser interrompida por esta.
+  await expect(page.getByLabel('Buscar por sobrenome')).toBeVisible();
+  await page.waitForLoadState('load');
 }
 
 /** D38: o tema vai no mesmo cookie que a troca de tema grava. */

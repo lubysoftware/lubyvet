@@ -17,10 +17,11 @@ import { PrismaAnonymization } from './infra/prisma-anonymization';
 import { PrismaOwnerAuthorship } from './infra/prisma-owner-authorship';
 import { OWNER_AUTHORSHIP } from './application/ports/owner-repository.port';
 import { PrismaOwnerRepository } from './infra/prisma-owner.repository';
+import { AnonymizationController } from './interface/http/anonymization.controller';
 import { OwnersController } from './interface/http/owners.controller';
 
 @Module({
-  controllers: [OwnersController],
+  controllers: [OwnersController, AnonymizationController],
   providers: [
     { provide: OWNER_REPOSITORY, useClass: PrismaOwnerRepository },
     { provide: OWNER_SEARCH, useClass: PrismaOwnerSearch },

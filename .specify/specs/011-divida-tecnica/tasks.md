@@ -38,7 +38,7 @@
       *satisfaz:* CA-2.1
       *depende de:* —
 
-- [ ] **T005** [P] Separar a anonimização num controller próprio
+- [x] **T005** [P] Separar a anonimização num controller próprio
       *entrega:* `AnonymizationController` com anonimizar, listar e confirmar texto livre; as
       rotas e a matriz de papéis não mudam (P9)
       *satisfaz:* CA-2.2
