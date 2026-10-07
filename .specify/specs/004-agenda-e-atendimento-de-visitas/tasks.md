@@ -64,7 +64,7 @@
       *satisfaz:* CA-1.1
       *depende de:* T006, e a resolução do animal pelo dono que a feature 003 entrega em T014
 
-- [ ] **T008** Testes de agendamento de visita
+- [x] **T008** Testes de agendamento de visita
       *entrega:* `UT-018-1` a `UT-018-7` passando, cobrindo caminho feliz, descrição em branco
       e acima do limite, data fora da faixa com mensagem traduzida no campo de data, o
       formulário com data sugerida e limite declarado, a descrição de 255 aceita e a de 256
@@ -89,7 +89,7 @@
       *satisfaz:* CA-2.4
       *depende de:* T009
 
-- [ ] **T011** Testes do histórico de visitas no agendamento
+- [x] **T011** Testes do histórico de visitas no agendamento
       *entrega:* `UT-019-1` a `UT-019-6` passando, incluindo as três visitas fora de ordem
       devolvidas em ordem crescente, a visita em branco descartada sem perder nenhuma gravada,
       a seção vazia com mensagem, o rótulo coerente com o recorte, e a ordenação estável para
@@ -105,7 +105,7 @@
       *satisfaz:* CA-3.1
       *depende de:* T004
 
-- [ ] **T013** Testes da coerência da faixa de data
+- [x] **T013** Testes da coerência da faixa de data
       *entrega:* `UT-020-1` a `UT-020-3` passando, incluindo a data sugerida sendo aceita pela
       validação qualquer que seja a faixa configurada, a data sugerida sendo o primeiro dia que
       a regra aceita, e o limite declarado no campo igual ao limite da validação
@@ -125,7 +125,7 @@
       *satisfaz:* CA-4.3
       *depende de:* T014
 
-- [ ] **T016** Testes da situação e da imutabilidade do atendimento
+- [x] **T016** Testes da situação e da imutabilidade do atendimento
       *entrega:* `UT-021-1` e `UT-021-5` passando, cobrindo a mudança de situação registrada
       com data sem perder a anterior e a recusa de alterar data ou descrição de uma visita já
       atendida. Os outros três testes do card, `UT-021-2`, `UT-021-3` e `UT-021-4`, dependem
@@ -148,7 +148,7 @@
       *satisfaz:* CA-5.2, CA-5.3
       *depende de:* T014
 
-- [ ] **T019** Testes de remarcação e de cancelamento
+- [x] **T019** Testes de remarcação e de cancelamento
       *entrega:* `UT-022-1` a `UT-022-5` passando, incluindo a alteração de data e descrição,
       o cancelamento com data e saída da contagem de compromissos, a visita cancelada ainda
       consultável, a recusa de remarcar e de cancelar o que já foi atendido, e nenhuma
