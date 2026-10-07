@@ -131,7 +131,7 @@
       *satisfaz:* CA-3.1, CA-3.2, CA-3.3, CA-3.4
       *depende de:* T015
 
-- [ ] **T017** Testes da obrigatoriedade da espécie, pela **requisição** e não pelo
+- [x] **T017** Testes da obrigatoriedade da espécie, pela **requisição** e não pelo
       formulário renderizado
       *entrega:* `UT-016-1` a `UT-016-5` passando, incluindo a edição com espécie vazia
       recusada com mensagem traduzida, nenhuma gravação chegando ao repositório, a mesma
