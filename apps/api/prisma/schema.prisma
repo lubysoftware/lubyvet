@@ -72,7 +72,64 @@ model Pet {
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
   owner     Owner    @relation(fields: [ownerId], references: [id], onDelete: Restrict, map: "pets_owner_id_fkey")
   species   Species  @relation(fields: [speciesId], references: [id], onDelete: Restrict, map: "pets_species_id_fkey")
+  appointments Appointment[]
+  encounters   Encounter[]
 
   @@index([ownerId], map: "pets_owner_id_idx")
   @@map("pets")
+}
+
+/// Agendamento (004, Pergunta 1): compromisso futuro do animal. Situações de D10.
+model Appointment {
+  id          Int      @id @default(autoincrement()) @map("id")
+  petId       Int      @map("pet_id")
+  scheduledAt DateTime @map("scheduled_at") @db.Timestamptz(3)
+  description String   @map("description") @db.VarChar(255)
+  /// scheduled | done | cancelled | no_show
+  status      String   @default("scheduled") @map("status") @db.VarChar(12)
+  version     Int      @default(0) @map("version")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  pet         Pet      @relation(fields: [petId], references: [id], onDelete: Restrict, map: "appointments_pet_id_fkey")
+  changes     AppointmentStatusChange[]
+  encounter   Encounter?
+
+  @@index([petId, scheduledAt], map: "appointments_pet_id_scheduled_at_idx")
+  @@map("appointments")
+}
+
+/// 004/T014: registro datado de cada mudança de situação; nunca apagado.
+model AppointmentStatusChange {
+  id            Int         @id @default(autoincrement()) @map("id")
+  appointmentId Int         @map("appointment_id")
+  fromStatus    String?     @map("from_status") @db.VarChar(12)
+  toStatus      String      @map("to_status") @db.VarChar(12)
+  changedAt     DateTime    @map("changed_at") @db.Timestamptz(3)
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Restrict, map: "appointment_status_changes_appointment_id_fkey")
+
+  @@index([appointmentId], map: "appointment_status_changes_appointment_id_idx")
+  @@map("appointment_status_changes")
+}
+
+/// Atendimento (004/T012, D26): entidade própria, imutável depois de registrada.
+model Encounter {
+  id             Int          @id @default(autoincrement()) @map("id")
+  petId          Int          @map("pet_id")
+  appointmentId  Int?         @unique(map: "encounters_appointment_id_key") @map("appointment_id")
+  date           DateTime     @map("date") @db.Date
+  chiefComplaint String       @map("chief_complaint") @db.VarChar(500)
+  weightKg       Decimal?     @map("weight_kg") @db.Decimal(5, 2)
+  diagnosis      String?      @map("diagnosis") @db.VarChar(2000)
+  conduct        String?      @map("conduct") @db.VarChar(2000)
+  returnDate     DateTime?    @map("return_date") @db.Date
+  /// D01: veterinário opcional; a referência ao catálogo entra com a 005
+  vetId          Int?         @map("vet_id")
+  version        Int          @default(0) @map("version")
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
+  pet            Pet          @relation(fields: [petId], references: [id], onDelete: Restrict, map: "encounters_pet_id_fkey")
+  appointment    Appointment? @relation(fields: [appointmentId], references: [id], onDelete: Restrict, map: "encounters_appointment_id_fkey")
+
+  @@index([petId, date], map: "encounters_pet_id_date_idx")
+  @@map("encounters")
 }

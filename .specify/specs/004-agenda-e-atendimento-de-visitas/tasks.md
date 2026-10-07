@@ -10,7 +10,7 @@
 > Três dos dezoito critérios desta feature **não têm tarefa**, e nenhum por esquecimento. Ver
 > a seção `Sem tarefa` no fim.
 
-- [ ] **T001** Declarar o nome de toda coluna do Agendamento e do Atendimento no mapeamento,
+- [x] **T001** Declarar o nome de toda coluna do Agendamento e do Atendimento no mapeamento,
       sem depender de estratégia automática de nomenclatura
       *entrega:* o mapeamento das duas entidades com nome de coluna explícito em cada campo,
       incluindo a coluna de animal, que no legado era nulável e não tinha campo correspondente
@@ -33,7 +33,7 @@
       *satisfaz:* CA-1.2
       *depende de:* T001
 
-- [ ] **T004** Criar a migração versionada com a tabela de agendamento e o registro de
+- [x] **T004** Criar a migração versionada com a tabela de agendamento e o registro de
       mudanças de situação
       *entrega:* uma migração numerada, aplicável do zero, em que a mudança de situação é
       registrada **sem perder a anterior**, como `UT-021-1` exige; nenhum arquivo de criação de
