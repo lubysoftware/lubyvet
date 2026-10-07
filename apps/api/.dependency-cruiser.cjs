@@ -3,11 +3,16 @@ module.exports = {
   forbidden: [
     {
       name: 'domain-is-pure',
-      comment: 'domain/ não importa framework, banco, contrato nem outras camadas.',
+      comment:
+        'domain/ não importa framework, banco nem outras camadas. Exceção única: as regras puras e os limites de @lubyvet/contracts, para valerem igual no formulário e no domínio (P6).',
       severity: 'error',
       from: { path: '^src/(modules/[^/]+|shared)/domain/' },
       to: {
-        pathNot: ['^src/(modules/[^/]+|shared)/domain/', '^node_modules/(typescript|@types)/'],
+        pathNot: [
+          '^src/(modules/[^/]+|shared)/domain/',
+          '^node_modules/(typescript|@types)/',
+          '^(node_modules/@lubyvet/contracts|\\.\\./\\.\\./packages/contracts)/',
+        ],
         dependencyTypesNot: ['type-only'],
       },
     },

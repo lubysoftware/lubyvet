@@ -21,7 +21,7 @@
       *satisfaz:* — (infraestrutura, P3)
       *depende de:* T001
 
-- [ ] **T003** Modelar o Dono com os cinco campos de contato, a marca de versão e as datas de
+- [x] **T003** Modelar o Dono com os cinco campos de contato, a marca de versão e as datas de
       criação e de alteração
       *entrega:* a entidade Dono com nome, sobrenome, endereço, cidade, telefone, versão,
       criação e alteração, e os limites de tamanho de 30, 30, 255 e 80 declarados
@@ -34,14 +34,14 @@
       *satisfaz:* — (infraestrutura exigida pelo princípio P5)
       *depende de:* T003
 
-- [ ] **T005** [P] Implementar a validação de obrigatoriedade e de tamanho dos cinco campos,
+- [x] **T005** [P] Implementar a validação de obrigatoriedade e de tamanho dos cinco campos,
       válida igualmente na criação e na alteração
       *entrega:* a validação que recusa campo obrigatório vazio e campo acima do limite,
       apontando o campo, sem gravar nada
       *satisfaz:* CA-1.2, CA-1.3, CA-4.3
       *depende de:* T003
 
-- [ ] **T006** [P] Implementar a regra de formato de telefone num único ponto, configurável,
+- [x] **T006** [P] Implementar a regra de formato de telefone num único ponto, configurável,
       com a mensagem vinda do catálogo de traduções
       *entrega:* a regra de celular brasileiro (D05) isolada em um só lugar, com o valor gravado
       normalizado em E.164 quando ela é satisfeita e recusado no próprio campo quando não é

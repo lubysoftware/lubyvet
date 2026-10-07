@@ -32,7 +32,7 @@ modules/owners/
 
 | pasta | pode importar | não pode importar |
 |---|---|---|
-| `domain/` | `domain/` do próprio módulo, `src/shared/domain/` | NestJS, Prisma, zod, `@lubyvet/contracts`, qualquer outra pasta |
+| `domain/` | `domain/` do próprio módulo, `src/shared/domain/`, e só as regras puras e os limites de `@lubyvet/contracts` (`rules/`, `*_LIMITS`), para valerem igual no formulário e no domínio (P6) | NestJS, Prisma, zod, qualquer outra pasta |
 | `application/` | `domain/`, `application/` do próprio módulo, `src/shared/` | NestJS, Prisma, Redis, RabbitMQ, `infra/`, `interface/` |
 | `infra/` | `application/ports`, `domain/`, bibliotecas de infraestrutura | `interface/` |
 | `interface/http/` | `application/`, `@lubyvet/contracts`, NestJS | `infra/`, `@prisma/client` |

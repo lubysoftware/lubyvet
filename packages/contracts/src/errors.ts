@@ -21,6 +21,7 @@ export const ERROR_CODES = [
   'invalid_transition',
   'idempotency_key_required',
   'unsupported_format',
+  'similar_owner',
   'internal_error',
 ] as const;
 export type ErrorCode = (typeof ERROR_CODES)[number];
