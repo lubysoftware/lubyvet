@@ -144,7 +144,7 @@
       *satisfaz:* CA-1.5, CA-1.6, CA-1.7, CA-1.8
       *depende de:* T004, T005
 
-- [ ] **T020** Testes de CPF, e-mail e consentimento
+- [x] **T020** Testes de CPF, e-mail e consentimento
       *entrega:* CPF válido, CPF com dígito verificador errado, CPF repetido (inclusive em
       gravação concorrente contra o banco real), CPF de dono anonimizado liberado para reuso,
       e-mail ausente, inválido, com 254 e com 255 caracteres, e consentimento desmarcado por

@@ -31,9 +31,9 @@ describe('regra de CPF (D13)', () => {
 });
 
 describe('regra de e-mail (D13)', () => {
-  it('aceita formato válido até 254 caracteres e recusa o resto', () => {
+  it('aceita formato válido e recusa o resto; o tamanho é regra separada', () => {
     expect(isValidEmail('mariana@exemplo.com.br')).toBe(true);
     expect(isValidEmail('sem-arroba')).toBe(false);
-    expect(isValidEmail(`${'a'.repeat(243)}@exemplo.com`)).toBe(false);
+    expect(isValidEmail('a@b')).toBe(false);
   });
 });
