@@ -11,7 +11,7 @@ entregue, e os testes que os cards trouxeram (`UT-nnn-n`) existem com esse nome.
 | **Integração** | adaptador contra a tecnologia real: repositório Prisma, restrições do banco, migrações, cache, fila, concorrência | Jest + Testcontainers | `apps/api/test/integration/*.int-spec.ts` | Docker |
 | **API ponta a ponta** | a rota como contrato: campos de entrada, forma da resposta, status, autorização, P1 | Jest + supertest + Testcontainers | `apps/api/test/e2e/*.e2e-spec.ts` | Docker |
 | **Componente** | tela e componente do web: renderização, validação do formulário, tradução, acessibilidade | Vitest + Testing Library + jsdom | ao lado do arquivo: `*.test.tsx` | nada |
-| **E2E do web** | fluxo do usuário de ponta a ponta, contraste e acessibilidade nos dois temas | Playwright + axe | `apps/web/e2e/*.spec.ts` | a stack do `docker-compose.yml` |
+| **E2E do web** | fluxo do usuário de ponta a ponta, contraste e acessibilidade nos dois temas | Playwright + axe | `apps/web/e2e/*.e2e.ts` (o Vitest ignora) | Testcontainers, API compilada e Next de produção, subidos em `e2e/stack.ts` |
 | **Desempenho** | D08: p95 < 500 ms com 50 mil donos | script dedicado | `apps/api/test/perf/` | Docker; fora do `verify` |
 
 Proporção esperada: muitos testes de unidade, integração para cada adaptador, uma suíte de
@@ -211,7 +211,7 @@ it('mostra o erro de CPF no próprio campo, sem perder o que foi digitado', asyn
 ### E2E do web: fluxo e acessibilidade
 
 ```ts
-// apps/web/e2e/encounter.spec.ts
+// apps/web/e2e/encounter.e2e.ts
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 

@@ -10,6 +10,8 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version-file: .nvmrc }
       - run: bun install --frozen-lockfile
+      # O E2E do web roda no Chromium do Playwright (D07, D38: axe nos dois temas).
+      - run: bun run --cwd apps/web playwright install --with-deps chromium
       - run: bun run verify
   restore-drill:
     runs-on: ubuntu-latest

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Clonou, roda. ./run.sh [dev|verify|infra|stop]
+# Clonou, roda. ./run.sh [dev|verify|infra|stop|user]
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -25,7 +25,21 @@ case "${1:-dev}" in
     set -a; . apps/api/.env; set +a
     bun run --cwd packages/contracts build
     (cd apps/api && npx prisma migrate deploy)
-    bun run --cwd apps/api dev
+    # API em segundo plano, web na frente (http://localhost:3000); Ctrl+C derruba os dois.
+    bun run --cwd apps/api dev &
+    api=$!
+    trap 'kill $api 2>/dev/null' EXIT
+    bun run --cwd apps/web dev
     ;;
-  *) echo "uso: ./run.sh [dev|verify|infra|stop]"; exit 1 ;;
+  user)
+    # D18: cria ou atualiza um usuário. A senha vem do ambiente, nunca de arquivo:
+    #   LV_LOGIN=ana@clinica LV_NAME="Ana" LV_ROLE=admin LV_PASSWORD=... ./run.sh user
+    install
+    [ -f apps/api/.env ] || cp .env.example apps/api/.env
+    set -a; . apps/api/.env; set +a
+    bun run --cwd packages/contracts build
+    bun run --cwd apps/api build >/dev/null
+    node apps/api/dist/commands/create-user.js
+    ;;
+  *) echo "uso: ./run.sh [dev|verify|infra|stop|user]"; exit 1 ;;
 esac

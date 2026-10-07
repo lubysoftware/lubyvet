@@ -2,7 +2,7 @@
   "name": "lubyvet",
   "private": true,
   "version": "0.0.0",
-  "description": "LubyVet: sistema de balc\u00e3o de cl\u00ednica veterin\u00e1ria",
+  "description": "LubyVet: sistema de balcão de clínica veterinária",
   "engines": {
     "node": ">=24 <25"
   },
@@ -20,7 +20,7 @@
     "boundaries": "bun run --cwd apps/api boundaries",
     "test:unit": "bun run --cwd packages/contracts test:unit && bun run --cwd apps/api test:unit && bun run --cwd apps/web test:unit",
     "test:int": "bun run --cwd apps/api test:int",
-    "test:e2e": "bun run --cwd apps/api test:e2e",
+    "test:e2e": "bun run --cwd apps/api test:e2e && bun run --cwd apps/web test:e2e",
     "test:cov": "bun run --cwd packages/contracts test:cov && bun run --cwd apps/api test:cov && bun run --cwd apps/web test:unit",
     "verify": "bun run --cwd packages/contracts build && bun run secrets && bun run lint && bun run format:check && bun run typecheck && bun run boundaries && bun run test:cov && bun run test:int && bun run test:e2e",
     "verify:perf": "bun run --cwd apps/api test:perf",

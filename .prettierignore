@@ -2,6 +2,9 @@ node_modules
 dist
 coverage
 .next
+.next-e2e
+playwright-report
+test-results
 apps/api/src/generated
 packages/contracts/openapi.json
 .specify
