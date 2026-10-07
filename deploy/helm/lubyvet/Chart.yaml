@@ -1,0 +1,6 @@
+apiVersion: v2
+name: lubyvet
+description: LubyVet, uma clínica por instalação (D30), em qualquer Kubernetes (D36).
+type: application
+version: 0.1.0
+appVersion: '0.1.0'

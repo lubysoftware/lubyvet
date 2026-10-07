@@ -1,0 +1,48 @@
+{{- if not (contains "@sha256:" .Values.images.api) }}{{ fail "images.api precisa ser fixada por digest (repo@sha256:...)" }}{{ end }}
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: lubyvet-api }
+spec:
+  replicas: 2
+  selector: { matchLabels: { app: lubyvet-api } }
+  template:
+    metadata: { labels: { app: lubyvet-api } }
+    spec:
+      containers:
+        - name: api
+          image: {{ .Values.images.api }}
+          ports: [{ containerPort: 3001 }]
+          env: {{- include "lubyvet.env" . | nindent 12 }}
+          resources: {{- toYaml .Values.resources.api | nindent 12 }}
+          # 008/T009: só as duas sondas abertas (D03), com os tempos de P-16.
+          livenessProbe: { httpGet: { path: /api/health/live, port: 3001 }, {{ include "lubyvet.probe" .Values.probes.liveness }} }
+          readinessProbe: { httpGet: { path: /api/health/ready, port: 3001 }, {{ include "lubyvet.probe" .Values.probes.readiness }} }
+          startupProbe: { httpGet: { path: /api/health/live, port: 3001 }, {{ include "lubyvet.probe" .Values.probes.startup }} }
+        - name: worker
+          image: {{ .Values.images.api }}
+          command: ["node", "dist/worker.js"]
+          env: {{- include "lubyvet.env" . | nindent 12 }}
+          resources: {{- toYaml .Values.resources.api | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata: { name: lubyvet-api }
+spec: { selector: { app: lubyvet-api }, ports: [{ port: 3001, targetPort: 3001 }] }
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata: { name: lubyvet-reminders-d1 }
+spec:
+  schedule: {{ .Values.reminders.schedule | quote }}
+  timeZone: {{ .Values.reminders.timeZone | quote }}
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: reminders
+              image: {{ .Values.images.api }}
+              command: ["node", "dist/commands/reminders-d1.js"]
+              env: {{- include "lubyvet.env" . | nindent 16 }}

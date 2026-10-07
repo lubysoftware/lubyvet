@@ -73,7 +73,7 @@
       carregar nome de dependência, endereço, credencial ou causa
       *satisfaz:* CA-3.1, CA-3.2, CA-3.3
 
-- [ ] **T009** Declarar as duas sondas no manifesto de publicação, com os tempos de espera
+- [x] **T009** Declarar as duas sondas no manifesto de publicação, com os tempos de espera
       *entrega:* os dois caminhos declarados no manifesto com os tempos definidos. A dívida
       DT-19 registra que o manifesto do legado também não trazia limites de recurso, sonda de
       inicialização nem transporte seguro: nenhum card pede os três, e eles ficam como
@@ -163,7 +163,7 @@
       *satisfaz:* CA-4.3
       *depende de:* T018
 
-- [ ] **T020** Credenciais fora do repositório
+- [x] **T020** Credenciais fora do repositório
       *entrega:* `Secret`s do Kubernetes consumidos por nome pelo chart (P-13, D36); `.env.example`
       só com os nomes; uma verificação em `npm run verify` que falha se encontrar valor de
       credencial versionado
@@ -178,7 +178,7 @@
       *satisfaz:* CA-5.4
       *depende de:* T020, e os eventos das features 001, 003, 004 e 007
 
-- [ ] **T022** Helm chart do LubyVet
+- [x] **T022** Helm chart do LubyVet
       *entrega:* um chart que implanta web, api, worker, o `CronJob` do D-1 (D29), o cluster
       CloudNativePG, o Redis, o RabbitMQ (pelo operador oficial) e as rotas de Gateway API com
       TLS; `values.yaml` sem nenhum valor secreto; imagens fixadas por digest; recursos, sondas

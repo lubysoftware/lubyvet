@@ -10,3 +10,4 @@ memory
 index.md
 *.md
 package-lock.json
+deploy/helm

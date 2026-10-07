@@ -1,0 +1,36 @@
+# Nenhum valor secreto aqui (P-13, D36): o chart lê Secrets existentes pelo nome.
+clinic:
+  name: ''
+  phone: ''
+images:
+  # Fixe por digest na instalação: repo@sha256:...
+  api: ''
+  web: ''
+secrets:
+  database: lubyvet-db-app # criado pelo CloudNativePG (chave: uri)
+  redis: lubyvet-redis # chave: url
+  rabbitmq: lubyvet-rabbitmq # chave: url
+  meta: lubyvet-meta # chaves: token, phoneNumberId (D28)
+probes:
+  # P-16: tempos declarados.
+  liveness: { timeoutSeconds: 1, periodSeconds: 10, failureThreshold: 3 }
+  readiness: { timeoutSeconds: 2, periodSeconds: 10, failureThreshold: 3 }
+  startup: { timeoutSeconds: 2, periodSeconds: 5, failureThreshold: 30 }
+resources:
+  api: { requests: { cpu: 100m, memory: 256Mi }, limits: { memory: 512Mi } }
+  web: { requests: { cpu: 100m, memory: 256Mi }, limits: { memory: 512Mi } }
+postgres:
+  instances: 2
+  storage: 10Gi
+  backup:
+    # Bucket S3-compatível FORA do cluster (D36). Credenciais num Secret existente.
+    destinationPath: ''
+    endpointURL: ''
+    credentialsSecret: lubyvet-backup-s3
+    retentionPolicy: 30d
+    schedule: '0 0 3 * * *'
+reminders:
+  # D29: lembrete do D-1 às 10:00 de America/Sao_Paulo.
+  schedule: '0 10 * * *'
+  timeZone: America/Sao_Paulo
+host: ''

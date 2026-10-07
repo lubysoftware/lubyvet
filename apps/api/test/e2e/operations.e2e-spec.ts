@@ -55,7 +55,9 @@ describe('operação, erros e observabilidade', () => {
   it('T013: o log remove dado pessoal e mascara credencial em URL', () => {
     for (const f of ['*.cpf', '*.telephone', '*.email', '*.firstName', 'req.headers.cookie'])
       expect(REDACTED_PATHS).toContain(f);
-    expect(maskSecrets('postgresql://lubyvet:s3nh4@db:5432/x')).toBe('postgresql://lubyvet:***@db:5432/x');
+    expect(maskSecrets('postgresql://lubyvet:s3nh4@localhost:5432/x')).toBe(
+      'postgresql://lubyvet:***@localhost:5432/x',
+    );
   });
 
   it('T014/T015: nenhum caminho de falha deliberada nem console de banco é servido', async () => {
