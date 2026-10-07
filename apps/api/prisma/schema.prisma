@@ -29,6 +29,8 @@ model Owner {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
+  pets Pet[]
+
   @@index([lastName], map: "owners_last_name_idx")
   @@map("owners")
 }
@@ -43,4 +45,33 @@ model IdempotencyKey {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
 
   @@map("idempotency_keys")
+}
+
+/// Espécie: vocabulário fechado, dirigido por dados (009). Nome único sem diferenciar maiúsculas (SQL cru).
+model Species {
+  id        Int      @id @default(autoincrement()) @map("id")
+  name      String   @map("name") @db.VarChar(80)
+  version   Int      @default(0) @map("version")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  pets      Pet[]
+
+  @@map("species")
+}
+
+/// Animal: sempre dentro do dono (P1). Nome único por dono sem diferenciar maiúsculas (SQL cru).
+model Pet {
+  id        Int      @id @default(autoincrement()) @map("id")
+  ownerId   Int      @map("owner_id")
+  name      String   @map("name") @db.VarChar(30)
+  birthDate DateTime @map("birth_date") @db.Date
+  speciesId Int      @map("species_id")
+  version   Int      @default(0) @map("version")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  owner     Owner    @relation(fields: [ownerId], references: [id], onDelete: Restrict, map: "pets_owner_id_fkey")
+  species   Species  @relation(fields: [speciesId], references: [id], onDelete: Restrict, map: "pets_species_id_fkey")
+
+  @@index([ownerId], map: "pets_owner_id_idx")
+  @@map("pets")
 }

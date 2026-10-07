@@ -7,7 +7,7 @@
 > infraestrutura, e está dito nela. Os identificadores `UT-nnn-n` são os testes que os
 > cards do backlog já traziam, preservados como tarefa de teste própria.
 
-- [ ] **T001** Declarar o nome de toda coluna do Animal e da Espécie no mapeamento, sem
+- [x] **T001** Declarar o nome de toda coluna do Animal e da Espécie no mapeamento, sem
       depender de estratégia automática de nomenclatura
       *entrega:* o mapeamento das duas entidades com nome de coluna explícito em cada campo,
       incluindo a coluna de dono do animal, que no legado não tinha campo correspondente
@@ -15,14 +15,14 @@
       da Pergunta 14)
       *depende de:* a feature 001 ter o Dono modelado e migrado
 
-- [ ] **T002** Escrever o teste que compara, campo por campo, o nome declarado no mapeamento
+- [x] **T002** Escrever o teste que compara, campo por campo, o nome declarado no mapeamento
       do Animal e da Espécie com o nome presente na migração de esquema
       *entrega:* um teste que falha se qualquer coluna das duas entidades passar a depender de
       derivação automática de nome
       *satisfaz:* — (infraestrutura, P3)
       *depende de:* T001
 
-- [ ] **T003** Modelar a Espécie com nome único, resolução insensível à caixa, e carregar o
+- [x] **T003** Modelar a Espécie com nome único, resolução insensível à caixa, e carregar o
       vocabulário de seis valores
       *entrega:* a entidade Espécie com o nome declarado único, a carga inicial dos seis
       valores do legado, e a garantia de que duas espécies que diferem só pela caixa não
@@ -37,7 +37,7 @@
       *satisfaz:* CA-1.5
       *depende de:* T001
 
-- [ ] **T005** Criar a migração versionada com as tabelas de animal e de espécie, e a
+- [x] **T005** Criar a migração versionada com as tabelas de animal e de espécie, e a
       restrição de unicidade **nomeada** do par dono e nome
       *entrega:* uma migração numerada, aplicável do zero, com a restrição de unicidade
       declarada com nome próprio e explicitamente insensível à caixa, em vez de depender do
