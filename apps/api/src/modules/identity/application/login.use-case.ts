@@ -1,6 +1,9 @@
 import type { Clock } from '../../../shared/domain/clock';
 import { DomainError } from '../../../shared/domain/errors';
+import { Account } from '../domain/account';
 import type { PasswordHasher, SessionStore, UserRecord, UserStore } from './ports/identity.port';
+
+export { LOCK_MINUTES, MAX_ATTEMPTS } from '../domain/account';
 
 /** T003: a recusa é genérica; não diz se o login existe, se a senha errou ou se está bloqueado. */
 export class InvalidCredentials extends DomainError {
@@ -8,10 +11,10 @@ export class InvalidCredentials extends DomainError {
   readonly kind = 'unauthenticated';
 }
 
-/** P-15: 5 tentativas erradas bloqueiam o login por 15 minutos. */
-export const MAX_ATTEMPTS = 5;
-export const LOCK_MINUTES = 15;
-
+/**
+ * 011/T008: o login só orquestra. Lê o usuário pela porta, pede a decisão à conta (P-15 mora no
+ * domínio) e grava o resultado. A senha só é conferida quando a conta pode tentar.
+ */
 export class Login {
   constructor(
     private readonly users: UserStore,
@@ -23,15 +26,13 @@ export class Login {
   async execute(login: string, password: string): Promise<{ token: string; user: UserRecord }> {
     const now = this.clock.now();
     const user = await this.users.byLogin(login.trim().toLowerCase());
-    if (!user || user.status !== 'active' || (user.lockedUntil && user.lockedUntil > now))
-      throw new InvalidCredentials('invalid_credentials');
-    if (!(await this.hasher.verify(user.passwordHash, password))) {
-      const attempts = user.failedAttempts + 1;
-      await this.users.recordFailure(
-        user.id,
-        attempts,
-        attempts >= MAX_ATTEMPTS ? new Date(now.getTime() + LOCK_MINUTES * 60_000) : null,
-      );
+    if (!user) throw new InvalidCredentials('invalid_credentials');
+    const account = Account.restore(user);
+    const passwordOk = account.canTry(now) && (await this.hasher.verify(user.passwordHash, password));
+    const result = account.attempt(passwordOk, now);
+    if (result.outcome === 'blocked') throw new InvalidCredentials('invalid_credentials');
+    if (result.outcome === 'refused') {
+      await this.users.recordFailure(user.id, result.failedAttempts, result.lockedUntil);
       throw new InvalidCredentials('invalid_credentials');
     }
     await this.users.recordSuccess(user.id);

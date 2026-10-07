@@ -62,7 +62,7 @@
       *satisfaz:* CA-1.1
       *depende de:* —
 
-- [ ] **T008** Reduzir o caso de uso de login a orquestração
+- [x] **T008** Reduzir o caso de uso de login a orquestração
       *entrega:* `Login` lê o usuário pela porta, pede a decisão à conta e grava o resultado;
       os testes de 007 continuam verdes
       *satisfaz:* CA-1.2

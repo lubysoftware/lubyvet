@@ -5,6 +5,8 @@ import { OwnersController } from '../../src/modules/owners/interface/http/owners
 import { anOwnerInput } from '../builders/owner.builder';
 import request from 'supertest';
 import { Account } from '../../src/modules/identity/domain/account';
+import { InvalidCredentials, Login } from '../../src/modules/identity/application/login.use-case';
+import { FixedClock } from '../../src/shared/domain/clock';
 import { bootApp, idem, type TestApp } from '../support/app';
 import { testDb } from '../support/test-db';
 
@@ -101,5 +103,43 @@ describe('011 Dívida técnica: critérios de aceite', () => {
     });
     expect(locked.canTry(new Date('2026-10-07T15:14:59Z'))).toBe(false);
     expect(locked.canTry(new Date('2026-10-07T15:15:00Z'))).toBe(true);
+  });
+
+  it('011/CA-1.2 o login só orquestra: lê pela porta, pede a decisão à conta e grava o resultado', async () => {
+    const now = '2026-10-07T12:00:00Z';
+    const user = {
+      id: 7,
+      name: 'Rui',
+      role: 'reader' as const,
+      status: 'active',
+      passwordHash: 'h',
+      failedAttempts: 4,
+      lockedUntil: null,
+    };
+    const users = {
+      byLogin: jest.fn(async () => user),
+      byId: jest.fn(),
+      recordFailure: jest.fn(),
+      recordSuccess: jest.fn(),
+    };
+    const verify = jest.fn(async (_h: string, p: string) => p === 'certa');
+    const sessions = { create: jest.fn(async () => 'tok'), touch: jest.fn(), destroy: jest.fn() };
+    const login = new Login(users, sessions, { verify }, FixedClock.at(now));
+    await expect(login.execute('rui', 'errada')).rejects.toBeInstanceOf(InvalidCredentials);
+    const expected = Account.restore(user).attempt(false, new Date(now));
+    expect(users.recordFailure).toHaveBeenCalledWith(
+      7,
+      5,
+      expected.outcome === 'refused' ? expected.lockedUntil : null,
+    );
+    users.byLogin.mockResolvedValue({
+      ...user,
+      failedAttempts: 5,
+      lockedUntil: new Date('2026-10-07T12:15:00Z'),
+    } as never);
+    verify.mockClear();
+    await expect(login.execute('rui', 'certa')).rejects.toBeInstanceOf(InvalidCredentials);
+    expect(verify).not.toHaveBeenCalled();
+    expect(sessions.create).not.toHaveBeenCalled();
   });
 });
