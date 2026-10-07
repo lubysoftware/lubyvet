@@ -125,3 +125,17 @@ export const AuthorshipOutput = z.object({
   updatedAt: z.string(),
 });
 export type AuthorshipOutput = z.infer<typeof AuthorshipOutput>;
+
+/** 007/T019, D25: trecho de texto livre com dado do dono, a revisar depois da anonimização. */
+export const FreeTextSpan = z.object({
+  entity: z.enum(['appointment', 'encounter']),
+  id: z.number().int(),
+  field: z.string(),
+  start: z.number().int(),
+  end: z.number().int(),
+});
+export type FreeTextSpan = z.infer<typeof FreeTextSpan>;
+export const FreeTextItemOutput = FreeTextSpan.extend({ text: z.string() });
+export type FreeTextItemOutput = z.infer<typeof FreeTextItemOutput>;
+export const RedactFreeTextInput = z.object({ spans: z.array(FreeTextSpan) });
+export type RedactFreeTextInput = z.infer<typeof RedactFreeTextInput>;

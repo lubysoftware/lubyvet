@@ -185,5 +185,54 @@
     "patientsOf": "Pets seen by {name}",
     "noPatients": "No visits recorded by this veterinarian.",
     "encounters": "{count, plural, one {# visit} other {# visits}}"
+  },
+  "admin": {
+    "sections": "Administration sections",
+    "addSpecies": "Add species",
+    "speciesName": "Species",
+    "status": "Status",
+    "petsCount": "Pets",
+    "actions": "Actions",
+    "activate": "Reactivate",
+    "deactivate": "Deactivate",
+    "dismiss": "Dismiss",
+    "activateNamed": "Reactivate {name}",
+    "deactivateNamed": "Deactivate {name}",
+    "dismissNamed": "Dismiss {name}",
+    "addVet": "Add veterinarian",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "vetName": "Veterinarian",
+    "specialties": "Specialties",
+    "owners": "Owners",
+    "pets": "Pets",
+    "encountersTotal": "Visits recorded",
+    "pendingRecord": "Pending record",
+    "anonymizations": "Anonymizations",
+    "noShowRate": "No-show rate",
+    "appointmentsByStatus": "Appointments by status"
+  },
+  "adminTabs": {
+    "indicators": "Indicators",
+    "species": "Species",
+    "vets": "Veterinarians"
+  },
+  "vocabularyStatus": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "dismissed": "Dismissed"
+  },
+  "anonymize": {
+    "action": "Anonymize owner",
+    "title": "Anonymize this owner?",
+    "warning": "Name, contact and ID are replaced for good. Pets and clinical history stay.",
+    "reviewTitle": "Review free text",
+    "reviewHelp": "These parts of visits and records still mention the owner. Remove the ones that identify the person.",
+    "nothingLeft": "Nothing left to review.",
+    "redact": "Remove excerpt"
+  },
+  "freeTextEntity": {
+    "appointment": "Scheduled visit",
+    "encounter": "Visit record"
   }
 }

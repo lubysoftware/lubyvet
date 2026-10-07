@@ -185,5 +185,54 @@
     "patientsOf": "Animais atendidos por {name}",
     "noPatients": "Nenhum atendimento registrado por este veterinário.",
     "encounters": "{count, plural, one {# atendimento} other {# atendimentos}}"
+  },
+  "admin": {
+    "sections": "Seções da administração",
+    "addSpecies": "Incluir espécie",
+    "speciesName": "Espécie",
+    "status": "Situação",
+    "petsCount": "Animais",
+    "actions": "Ações",
+    "activate": "Reativar",
+    "deactivate": "Inativar",
+    "dismiss": "Desligar",
+    "activateNamed": "Reativar {name}",
+    "deactivateNamed": "Inativar {name}",
+    "dismissNamed": "Desligar {name}",
+    "addVet": "Incluir veterinário",
+    "firstName": "Nome",
+    "lastName": "Sobrenome",
+    "vetName": "Veterinário",
+    "specialties": "Especialidades",
+    "owners": "Donos",
+    "pets": "Animais",
+    "encountersTotal": "Atendimentos",
+    "pendingRecord": "Pendentes de registro",
+    "anonymizations": "Anonimizações",
+    "noShowRate": "Taxa de não comparecimento",
+    "appointmentsByStatus": "Agendamentos por situação"
+  },
+  "adminTabs": {
+    "indicators": "Indicadores",
+    "species": "Espécies",
+    "vets": "Veterinários"
+  },
+  "vocabularyStatus": {
+    "active": "Ativa",
+    "inactive": "Inativa",
+    "dismissed": "Desligado"
+  },
+  "anonymize": {
+    "action": "Anonimizar dono",
+    "title": "Anonimizar este dono?",
+    "warning": "Nome, contato e documento são trocados e não voltam. Animais e histórico clínico ficam.",
+    "reviewTitle": "Revisar textos livres",
+    "reviewHelp": "Estes trechos de visitas e atendimentos ainda citam o dono. Remova os que identificam a pessoa.",
+    "nothingLeft": "Nenhum trecho a revisar.",
+    "redact": "Remover trecho"
+  },
+  "freeTextEntity": {
+    "appointment": "Visita agendada",
+    "encounter": "Atendimento"
   }
 }

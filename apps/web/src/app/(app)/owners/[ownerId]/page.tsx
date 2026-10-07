@@ -9,6 +9,7 @@ import { getTranslations } from 'next-intl/server';
 import { LinkButton } from '@/components/ui/button';
 import { PageHeader } from '@/components/ui/page-header';
 import { type ResultCode, ResultMessage } from '@/features/forms/components/result-message';
+import { AnonymizeOwner } from '@/features/owners/components/anonymization';
 import { OwnerContact, PetList } from '@/features/owners/components/owner-record-view';
 import { VisitHistory } from '@/features/visits/components/visit-history';
 import { currentSession, load } from '@/lib/api';
@@ -54,6 +55,7 @@ export default async function OwnerRecordPage({
         actions={
           canWrite && (
             <>
+              {session.role === 'admin' && <AnonymizeOwner ownerId={owner.id} />}
               <LinkButton variant="secondary" href={`/owners/${owner.id}/edit`}>
                 {t('owners.edit')}
               </LinkButton>

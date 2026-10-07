@@ -5,13 +5,13 @@ import {
   type OwnerAuthorshipReader,
 } from '../../application/ports/owner-repository.port';
 import { OwnerNotFound } from '../../domain/owner.errors';
-import { z } from 'zod';
 import type { Actor } from '../../../../shared/interface/http/roles';
 import { AnonymizeOwner, type FreeTextItem } from '../../application/anonymize-owner.use-case';
 import {
   ChangeOwnerContactInput,
   type OwnerOutput,
   type OwnerSearchOutput,
+  RedactFreeTextInput,
   RegisterOwnerInput,
   SearchOwnersQuery,
 } from '@lubyvet/contracts';
@@ -24,18 +24,6 @@ import { Owner, type OwnerProps } from '../../domain/owner';
 import { GetOwner } from '../../application/get-owner.use-case';
 import { RegisterOwner } from '../../application/register-owner.use-case';
 import { presentOwner } from './owner.presenter';
-
-const RedactInput = z.object({
-  spans: z.array(
-    z.object({
-      entity: z.enum(['appointment', 'encounter']),
-      id: z.number().int(),
-      field: z.string(),
-      start: z.number().int(),
-      end: z.number().int(),
-    }),
-  ),
-});
 
 @Controller('owners')
 export class OwnersController {
@@ -78,7 +66,7 @@ export class OwnersController {
   @HttpCode(204)
   async redact(
     @Param('ownerId', new IdParamPipe('owner_not_found')) ownerId: number,
-    @Body(new ZodValidationPipe(RedactInput)) body: z.infer<typeof RedactInput>,
+    @Body(new ZodValidationPipe(RedactFreeTextInput)) body: RedactFreeTextInput,
     @Req() req: { actor: Actor },
   ): Promise<void> {
     await this.anonymizeOwner.redact(ownerId, body.spans, req.actor.userId);

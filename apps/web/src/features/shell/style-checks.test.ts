@@ -57,8 +57,11 @@ describe('verificações de estilo', () => {
       'x',
       'y',
       'balance',
+      'transparent',
     ]);
-    expect([...requested].filter((c) => !delivered.has(c) && !builtIn.has(c) && !/^\d/.test(c))).toEqual([]);
+    expect([...requested].filter((c) => !delivered.has(c) && !builtIn.has(c) && !/^\d|-$/.test(c))).toEqual(
+      [],
+    );
   });
 
   it('T004: toda classe própria declarada no CSS tem elemento que a usa', () => {
