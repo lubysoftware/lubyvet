@@ -193,3 +193,17 @@ model User {
   @@unique([login], map: "users_login_key")
   @@map("users")
 }
+
+/// 007/T011: registro de cada anonimização, com data e Administrador (D24, D25).
+model OwnerAnonymization {
+  id            Int      @id @default(autoincrement()) @map("id")
+  ownerId       Int      @unique(map: "owner_anonymizations_owner_id_key") @map("owner_id")
+  anonymizedAt  DateTime @map("anonymized_at") @db.Timestamptz(3)
+  anonymizedBy  Int      @map("anonymized_by")
+  /// D25: posições de texto livre a revisar (entidade, id, campo, início, fim), nunca o dado em si
+  pendingSpans  Json     @map("pending_spans")
+  reviewedAt    DateTime? @map("reviewed_at") @db.Timestamptz(3)
+  reviewedBy    Int?     @map("reviewed_by")
+
+  @@map("owner_anonymizations")
+}

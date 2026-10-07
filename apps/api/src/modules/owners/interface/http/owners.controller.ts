@@ -1,4 +1,7 @@
-import { Body, Controller, Get, HttpCode, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Patch, Post, Query, Req } from '@nestjs/common';
+import { z } from 'zod';
+import type { Actor } from '../../../../shared/interface/http/roles';
+import { AnonymizeOwner, type FreeTextItem } from '../../application/anonymize-owner.use-case';
 import {
   ChangeOwnerContactInput,
   type OwnerOutput,
@@ -16,6 +19,18 @@ import { GetOwner } from '../../application/get-owner.use-case';
 import { RegisterOwner } from '../../application/register-owner.use-case';
 import { presentOwner } from './owner.presenter';
 
+const RedactInput = z.object({
+  spans: z.array(
+    z.object({
+      entity: z.enum(['appointment', 'encounter']),
+      id: z.number().int(),
+      field: z.string(),
+      start: z.number().int(),
+      end: z.number().int(),
+    }),
+  ),
+});
+
 @Controller('owners')
 export class OwnersController {
   constructor(
@@ -23,7 +38,34 @@ export class OwnersController {
     private readonly getOwner: GetOwner,
     private readonly changeOwnerContact: ChangeOwnerContact,
     private readonly searchOwners: SearchOwners,
+    private readonly anonymizeOwner: AnonymizeOwner,
   ) {}
+
+  /** 007/US-3, D24: anonimiza o dono (Administrador); o histórico clínico fica. */
+  @Post(':ownerId/anonymize')
+  @HttpCode(200)
+  anonymize(
+    @Param('ownerId', new IdParamPipe('owner_not_found')) ownerId: number,
+    @Req() req: { actor: Actor },
+  ): Promise<{ pendingReview: number }> {
+    return this.anonymizeOwner.execute(ownerId, req.actor.userId);
+  }
+
+  /** 007/T019, D25: trechos de texto livre a revisar, com o dado do dono destacado. */
+  @Get(':ownerId/free-text')
+  freeText(@Param('ownerId', new IdParamPipe('owner_not_found')) ownerId: number): Promise<FreeTextItem[]> {
+    return this.anonymizeOwner.review(ownerId);
+  }
+
+  @Post(':ownerId/free-text/redact')
+  @HttpCode(204)
+  async redact(
+    @Param('ownerId', new IdParamPipe('owner_not_found')) ownerId: number,
+    @Body(new ZodValidationPipe(RedactInput)) body: z.infer<typeof RedactInput>,
+    @Req() req: { actor: Actor },
+  ): Promise<void> {
+    await this.anonymizeOwner.redact(ownerId, body.spans, req.actor.userId);
+  }
 
   /** 002: busca pelo começo do sobrenome, paginada; o termo normalizado volta para os links. */
   @Get()

@@ -11,7 +11,7 @@
 > humanas. Um terceiro é entregue com uma exceção declarada, pelo mesmo motivo. Ver a seção
 > `Sem tarefa` no fim.
 
-- [ ] **T001** Declarar, em arquivo do projeto, o inventário dos caminhos que leem ou escrevem
+- [x] **T001** Declarar, em arquivo do projeto, o inventário dos caminhos que leem ou escrevem
       dado pessoal
       *entrega:* a lista dos caminhos, derivada dos 17 pares de método e rota que
       `permissions.md` enumera um a um, marcando cada um como de leitura, de escrita ou de dado
@@ -54,7 +54,7 @@
       *satisfaz:* CA-1.1
       *depende de:* T003, T005
 
-- [ ] **T007** Escrever o teste de acesso não identificado a partir da **lista** de caminhos
+- [x] **T007** Escrever o teste de acesso não identificado a partir da **lista** de caminhos
       *entrega:* um teste que percorre o inventário de T001 e exige recusa em cada caminho, de
       modo que um caminho novo acrescentado à lista nasça coberto. É a mesma técnica de
       `UT-017-3` na feature 003, e existe porque no legado não havia **um único** teste de
@@ -68,7 +68,7 @@
       *satisfaz:* CA-1.3
       *depende de:* T003
 
-- [ ] **T009** Implementar a anonimização do dono, alcançando **todos** os caminhos de leitura
+- [x] **T009** Implementar a anonimização do dono, alcançando **todos** os caminhos de leitura
       *entrega:* a operação que, por um caminho do próprio sistema, retira nome, sobrenome,
       endereço, cidade e telefone do dono, mais o e-mail e o documento se existirem, e a
       garantia de que nenhum caminho de leitura devolve mais esses valores. **Inclui os
@@ -77,21 +77,21 @@
       *satisfaz:* CA-3.1, CA-3.2
       *depende de:* T006
 
-- [ ] **T010** Preservar animais e visitas do dono anonimizado, desvinculados da identificação
+- [x] **T010** Preservar animais e visitas do dono anonimizado, desvinculados da identificação
       *entrega:* os animais e as visitas continuando a existir depois da operação, sem que
       nenhum deles permita voltar à identificação da pessoa, e **nenhuma exclusão solicitada ao
       repositório**, como `UT-035-4` exige e o princípio P2 da constituição manda
       *satisfaz:* CA-3.3
       *depende de:* T009
 
-- [ ] **T011** Registrar a operação de anonimização, com data e executor identificado
+- [x] **T011** Registrar a operação de anonimização, com data e executor identificado
       *entrega:* o registro da operação com o momento do relógio e a identidade de quem
       executou, em registro próprio e não no Dono, mais a recusa da operação quando não há
       executor identificado
       *satisfaz:* CA-3.4
       *depende de:* T009
 
-- [ ] **T012** Testes da anonimização
+- [x] **T012** Testes da anonimização
       *entrega:* `UT-035-1` a `UT-035-5` passando, cobrindo o dono deixando de carregar os
       valores sem acesso direto ao banco, os dois animais e as três visitas preservados sem
       caminho de volta à pessoa, o registro com momento e executor, nenhuma exclusão de animal
@@ -107,7 +107,7 @@
       *satisfaz:* CA-4.3
       *depende de:* T005
 
-- [ ] **T014** Testes de autorização por papel, para cada caminho de escrita
+- [x] **T014** Testes de autorização por papel, para cada caminho de escrita
       *entrega:* `UT-034-1` a `UT-034-3` passando, incluindo as ações de cada papel vindas da
       mesma declaração, a ação fora do papel recusada com resposta que não distingue dado
       existente de inexistente, e a identidade sem papel recusada em vez de permitida por
@@ -116,7 +116,7 @@
       *satisfaz:* CA-2.1, CA-2.2, CA-2.3
       *depende de:* T005
 
-- [ ] **T015** Testes da exigência de identificação e da autenticação
+- [x] **T015** Testes da exigência de identificação e da autenticação
       *entrega:* `UT-033-1` a `UT-033-4` passando, cobrindo o pedido sem identificação recusado
       **antes de qualquer leitura**, as duas recusas de credencial indistinguíveis, a sessão
       válida no limite do tempo e inválida no instante seguinte, e as três gravações sem
@@ -147,7 +147,7 @@
       *satisfaz:* CA-4.1, CA-4.2
       *depende de:* T017
 
-- [ ] **T019** Revisão de texto livre na anonimização
+- [x] **T019** Revisão de texto livre na anonimização
       *entrega:* a lista de textos livres do dono anonimizado com nome, sobrenome, CPF,
       celular e e-mail destacados (comparação sem caixa, acento nem máscara); a confirmação por
       trecho que troca por `[removido]`; a marca de revisão pendente no dono; e o registro da

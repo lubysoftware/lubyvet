@@ -17,3 +17,18 @@ export const OWNER_PET_ROUTES: readonly InventoryRoute[] = [
   { method: 'post', path: '/api/owners/:ownerId/pets/:petId/appointments/:appointmentId/no-show' },
   { method: 'post', path: '/api/owners/:ownerId/pets/:petId/encounters' },
 ];
+
+/**
+ * 007/T001: caminhos que leem ou escrevem dado pessoal (dono, animal, visita, sessão). Todos exigem
+ * identificação, sem exceção (D04); os testes de acesso anônimo percorrem esta lista.
+ */
+export const PERSONAL_DATA_ROUTES: readonly InventoryRoute[] = [
+  { method: 'get', path: '/api/owners' },
+  { method: 'post', path: '/api/owners' },
+  { method: 'get', path: '/api/owners/:ownerId' },
+  { method: 'patch', path: '/api/owners/:ownerId' },
+  { method: 'get', path: '/api/owners/:ownerId/record' },
+  { method: 'post', path: '/api/owners/:ownerId/pets' },
+  ...OWNER_PET_ROUTES,
+  { method: 'get', path: '/api/vets/:vetId/patients' },
+];

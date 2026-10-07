@@ -7,6 +7,12 @@ import { RegisterOwner } from './application/register-owner.use-case';
 import { OWNER_SEARCH, type OwnerSearchPort } from './application/ports/owner-search.port';
 import { SearchOwners } from './application/search-owners.use-case';
 import { PrismaOwnerSearch } from './infra/prisma-owner-search';
+import {
+  ANONYMIZATION,
+  AnonymizeOwner,
+  type AnonymizationPort,
+} from './application/anonymize-owner.use-case';
+import { PrismaAnonymization } from './infra/prisma-anonymization';
 import { PrismaOwnerRepository } from './infra/prisma-owner.repository';
 import { OwnersController } from './interface/http/owners.controller';
 
@@ -15,6 +21,12 @@ import { OwnersController } from './interface/http/owners.controller';
   providers: [
     { provide: OWNER_REPOSITORY, useClass: PrismaOwnerRepository },
     { provide: OWNER_SEARCH, useClass: PrismaOwnerSearch },
+    { provide: ANONYMIZATION, useClass: PrismaAnonymization },
+    {
+      provide: AnonymizeOwner,
+      useFactory: (a: AnonymizationPort, c: Clock) => new AnonymizeOwner(a, c),
+      inject: [ANONYMIZATION, CLOCK],
+    },
     {
       provide: SearchOwners,
       useFactory: (s: OwnerSearchPort) => new SearchOwners(s),
