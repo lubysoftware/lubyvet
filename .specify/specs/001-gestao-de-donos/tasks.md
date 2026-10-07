@@ -83,7 +83,7 @@
       *satisfaz:* CA-5.1, CA-5.2, CA-5.3
       *depende de:* T010
 
-- [ ] **T012** Implementar a leitura da ficha do dono, com o histórico de visitas paginado
+- [x] **T012** Implementar a leitura da ficha do dono, com o histórico de visitas paginado
       dentro dela
       *entrega:* a ficha com os cinco campos de contato, os animais em ordem alfabética, as
       visitas de cada animal em ordem crescente de data e paginadas, os atalhos de edição,
@@ -91,7 +91,7 @@
       *satisfaz:* CA-6.1, CA-6.2, CA-6.3, CA-6.4, CA-6.5
       *depende de:* T003
 
-- [ ] **T013** Testes de alteração, de concorrência e de leitura da ficha
+- [x] **T013** Testes de alteração, de concorrência e de leitura da ficha
       *entrega:* `UT-004-1` a `UT-004-7`, `UT-005-1` a `UT-005-4` e `UT-006-1` a `UT-006-7`
       passando, incluindo a preservação dos animais e visitas após alterar só o contato, a
       comparação de versão antes de aceitar e a ordenação estável de visitas de data igual

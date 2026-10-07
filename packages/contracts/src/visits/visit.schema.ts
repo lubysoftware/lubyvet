@@ -102,3 +102,19 @@ export const PetVisitsOutput = z.object({
   encounters: z.array(EncounterOutput),
 });
 export type PetVisitsOutput = z.infer<typeof PetVisitsOutput>;
+
+export const OwnerRecordPet = z.object({
+  id: z.number().int(),
+  name: z.string(),
+  birthDate: z.string(),
+  species: z.object({ id: z.number().int(), name: z.string() }),
+  status: z.string(),
+  visits: z.object({
+    items: z.array(AppointmentOutput),
+    page: z.number().int(),
+    pageSize: z.number().int(),
+    total: z.number().int(),
+  }),
+});
+export const OwnerRecordOutput = z.object({ ownerId: z.number().int(), pets: z.array(OwnerRecordPet) });
+export type OwnerRecordOutput = z.infer<typeof OwnerRecordOutput>;

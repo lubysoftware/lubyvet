@@ -108,3 +108,10 @@ export type OwnerSummary = z.infer<typeof OwnerSummary>;
 /** O termo normalizado volta junto, para os links de página o carregarem (002/T006). */
 export const OwnerSearchOutput = pageOf(OwnerSummary).extend({ lastName: z.string() });
 export type OwnerSearchOutput = z.infer<typeof OwnerSearchOutput>;
+
+/** 001/US-6: a ficha do dono, com os animais em ordem alfabética e as visitas paginadas. */
+export const OwnerRecordQuery = z.object({
+  visitsPage: z.coerce.number().int().min(1).default(1),
+  visitsPageSize: z.coerce.number().int().min(5).max(50).default(10),
+});
+export type OwnerRecordQuery = z.infer<typeof OwnerRecordQuery>;

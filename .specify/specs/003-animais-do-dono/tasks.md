@@ -124,7 +124,7 @@
       *satisfaz:* CA-3.1, CA-3.2, CA-3.3
       *depende de:* T010, T014
 
-- [ ] **T016** Testes de alteração de animal
+- [x] **T016** Testes de alteração de animal
       *entrega:* `UT-015-1` a `UT-015-6` passando, incluindo as três visitas intactas depois
       de alterar nome e data de nascimento, o identificador mantido, as mesmas validações do
       cadastro na edição, o nome de 30 aceito e o de 31 recusado, e o destino na ficha do dono
