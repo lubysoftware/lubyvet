@@ -1,4 +1,4 @@
-import { METRICS, type Metrics } from '../../shared/domain/metrics';
+import { DOMAIN_EVENTS, type DomainEvents } from '../../shared/domain/events';
 import { Module } from '@nestjs/common';
 import { CLOCK, type Clock } from '../../shared/domain/clock';
 import { PET_REPOSITORY, type PetRepository } from '../pets/application/ports/pet-repository.port';
@@ -32,9 +32,9 @@ import { VisitsController } from './interface/http/visits.controller';
     },
     {
       provide: Visits,
-      useFactory: (v: VisitRepository, p: PetRepository, c: Clock, d: VetDirectory, m: Metrics) =>
+      useFactory: (v: VisitRepository, p: PetRepository, c: Clock, d: VetDirectory, m: DomainEvents) =>
         new Visits(v, p, c, d, m),
-      inject: [VISIT_REPOSITORY, PET_REPOSITORY, CLOCK, VET_DIRECTORY, METRICS],
+      inject: [VISIT_REPOSITORY, PET_REPOSITORY, CLOCK, VET_DIRECTORY, DOMAIN_EVENTS],
     },
   ],
   exports: [VISIT_REPOSITORY],

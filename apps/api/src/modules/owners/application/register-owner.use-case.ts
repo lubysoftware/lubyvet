@@ -1,4 +1,4 @@
-import { type Metrics, NO_METRICS } from '../../../shared/domain/metrics';
+import { type DomainEvents, NO_EVENTS } from '../../../shared/domain/events';
 import type { Clock } from '../../../shared/domain/clock';
 import { Owner, type RegisterOwnerFields } from '../domain/owner';
 import { SimilarOwnerFound } from '../domain/owner.errors';
@@ -12,7 +12,7 @@ export class RegisterOwner {
   constructor(
     private readonly owners: OwnerRepository,
     private readonly clock: Clock,
-    private readonly metrics: Metrics = NO_METRICS,
+    private readonly events: DomainEvents = NO_EVENTS,
   ) {}
 
   async execute(fields: RegisterOwnerFields, confirmSimilar = false): Promise<Owner> {
@@ -21,14 +21,14 @@ export class RegisterOwner {
     const similar = await this.owners.findByTelephone(owner.telephone);
     if (similar.length > 0) {
       if (!confirmSimilar) {
-        this.metrics.increment('similar_owner_shown');
+        this.events.publish({ type: 'similar_owner_warned' });
         throw new SimilarOwnerFound(similar);
       }
       owner.dismissSimilarity(now);
-      this.metrics.increment('similar_owner_dismissed');
+      this.events.publish({ type: 'similar_owner_dismissed' });
     }
     const saved = await this.owners.insert(owner);
-    this.metrics.increment('owners_created');
+    this.events.publish({ type: 'owner_registered', ownerId: saved.id ?? 0 });
     return saved;
   }
 }

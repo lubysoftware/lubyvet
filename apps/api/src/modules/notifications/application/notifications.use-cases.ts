@@ -1,4 +1,4 @@
-import { type Metrics, NO_METRICS } from '../../../shared/domain/metrics';
+import { type DomainEvents, NO_EVENTS } from '../../../shared/domain/events';
 import type { Clock } from '../../../shared/domain/clock';
 import type { MessageQueue, OutboxRepository, OwnerNotifier } from './ports/notification.port';
 
@@ -12,7 +12,7 @@ export class Notifications {
     private readonly queue: MessageQueue,
     private readonly notifier: OwnerNotifier,
     private readonly clock: Clock,
-    private readonly metrics: Metrics = NO_METRICS,
+    private readonly events: DomainEvents = NO_EVENTS,
   ) {}
 
   /** Leva à fila o que a transação do agendamento gravou na caixa de saída. */
@@ -21,7 +21,7 @@ export class Notifications {
     for (const id of ids) {
       await this.queue.publish(id);
       await this.outbox.markPublished(id);
-      this.metrics.increment('whatsapp_enqueued');
+      this.events.publish({ type: 'whatsapp_enqueued', outboxId: id });
     }
     return ids.length;
   }
@@ -32,17 +32,17 @@ export class Notifications {
     if (!d) return 'gone';
     if (!d.consent) {
       await this.outbox.mark(outboxId, 'skipped');
-      this.metrics.increment('whatsapp_skipped_no_consent', { type: d.kind });
+      this.events.publish({ type: 'whatsapp_skipped_no_consent', outboxId, kind: d.kind });
       return 'skipped';
     }
     await this.notifier.send(d.to, d.kind, d.facts);
     await this.outbox.mark(outboxId, 'sent');
-    this.metrics.increment('whatsapp_sent', { type: d.kind });
+    this.events.publish({ type: 'whatsapp_sent', outboxId, kind: d.kind });
     return 'sent';
   }
 
   failed(outboxId: number): Promise<void> {
-    this.metrics.increment('whatsapp_failed');
+    this.events.publish({ type: 'whatsapp_failed', outboxId });
     return this.outbox.mark(outboxId, 'failed');
   }
 

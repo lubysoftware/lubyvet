@@ -10,6 +10,10 @@ import { FixedClock } from '../../src/shared/domain/clock';
 import { bootApp, idem, type TestApp } from '../support/app';
 import { listRepo, readRepo } from '../support/structural';
 import { testDb } from '../support/test-db';
+import type { DomainEvent } from '../../src/shared/domain/events';
+import { InProcessEvents } from '../../src/shared/infra/in-process-events';
+import { countersFor } from '../../src/shared/infra/metrics-subscriber';
+import { aPetInput, postPet } from '../support/pets';
 
 /**
  * 011: dívida técnica. Nenhum comportamento muda; estes testes provam a forma nova (casos de uso,
@@ -152,5 +156,99 @@ describe('011 Dívida técnica: critérios de aceite', () => {
     const doc = readRepo('docs/padroes/arquitetura.md');
     expect(doc).toMatch(/Módulo sem `domain\/`, de propósito/);
     expect(doc).toMatch(/`operations` e `vocabularies` não têm pasta de\s+domínio/);
+  });
+
+  const record = () => {
+    const seen: DomainEvent[] = [];
+    t.app.get(InProcessEvents).subscribe((e) => void seen.push(e));
+    return seen;
+  };
+
+  it('011/CA-3.1 os casos de uso publicam eventos de domínio, só com ids e tipos', async () => {
+    const seen = record();
+    const o = (await t.api.post('/api/owners').set(idem()).send(anOwnerInput()).expect(201)).body;
+    const p = (await postPet(t, o.id, aPetInput()).expect(201)).body;
+    const a = (
+      await t.api
+        .post(`/api/owners/${o.id}/pets/${p.id}/appointments`)
+        .set(idem())
+        .send({ scheduledAt: '2026-10-20T10:00:00-03:00', description: 'Vacina Mariana' })
+        .expect(201)
+    ).body;
+    expect(seen.map((e) => e.type)).toEqual(['owner_registered', 'pet_registered', 'appointment_scheduled']);
+    expect(seen).toContainEqual({ type: 'appointment_scheduled', appointmentId: a.id });
+    expect(JSON.stringify(seen)).not.toMatch(/Mariana|Vacina|\+55/);
+  });
+
+  it('011/CA-3.2 nenhum módulo conta métrica: só o assinante, pela regra de fronteira', () => {
+    interface Rule {
+      name: string;
+      from: { path: string };
+      to: { path: string };
+    }
+    const rule = jest
+      .requireActual<{ forbidden: Rule[] }>('../../.dependency-cruiser.cjs')
+      .forbidden.find((r) => r.name === 'metrics-only-from-events');
+    expect(
+      new RegExp(rule?.from.path ?? '$^').test('src/modules/visits/application/visits.use-cases.ts'),
+    ).toBe(true);
+    expect(new RegExp(rule?.to.path ?? '$^').test('src/shared/domain/metrics.ts')).toBe(true);
+    expect(new RegExp(rule?.from.path ?? '$^').test('src/shared/infra/metrics-subscriber.ts')).toBe(false);
+  });
+
+  it('011/CA-3.3 recusa e conflito não publicam evento de gravação', async () => {
+    const seen = record();
+    await t.api
+      .post('/api/owners')
+      .set(idem())
+      .send(anOwnerInput({ cpf: '1' }))
+      .expect(422);
+    const o = (await t.api.post('/api/owners').set(idem()).send(anOwnerInput()).expect(201)).body;
+    await t.api.patch(`/api/owners/${o.id}`).set(idem()).send({ version: 0, city: 'A' }).expect(200);
+    await t.api.patch(`/api/owners/${o.id}`).set(idem()).send({ version: 0, city: 'B' }).expect(409);
+    await postPet(t, 999_999, aPetInput()).expect(404);
+    expect(seen.map((e) => e.type)).toEqual(['owner_registered']);
+  });
+
+  it('011/CA-3.4 os eventos viram exatamente as métricas e os rótulos de D27 que a 008 confere', () => {
+    const all: DomainEvent[] = [
+      { type: 'owner_registered', ownerId: 1 },
+      { type: 'similar_owner_warned' },
+      { type: 'similar_owner_dismissed' },
+      { type: 'owner_anonymized', ownerId: 1 },
+      { type: 'pet_registered', petId: 1 },
+      { type: 'appointment_scheduled', appointmentId: 1 },
+      { type: 'appointment_cancelled', appointmentId: 1 },
+      { type: 'appointment_no_show', appointmentId: 1 },
+      { type: 'encounter_recorded', encounterId: 1, vetId: 4, returnSuggested: true },
+      { type: 'whatsapp_enqueued', outboxId: 1 },
+      { type: 'whatsapp_sent', outboxId: 1, kind: 'confirmation' },
+      { type: 'whatsapp_skipped_no_consent', outboxId: 1, kind: 'reminder' },
+      { type: 'whatsapp_failed', outboxId: 1 },
+    ];
+    expect(
+      all
+        .flatMap(countersFor)
+        .map(([name]) => name)
+        .sort(),
+    ).toEqual(
+      [
+        'appointments_cancelled',
+        'appointments_created',
+        'appointments_no_show',
+        'encounters_recorded',
+        'owners_anonymized',
+        'owners_created',
+        'pets_created',
+        'returns_suggested',
+        'similar_owner_dismissed',
+        'similar_owner_shown',
+        'whatsapp_enqueued',
+        'whatsapp_failed',
+        'whatsapp_sent',
+        'whatsapp_skipped_no_consent',
+      ].sort(),
+    );
+    expect(countersFor(all[8] as DomainEvent)[0]).toEqual(['encounters_recorded', { vet_id: '4' }]);
   });
 });

@@ -46,6 +46,14 @@ module.exports = {
       to: { path: '^src/modules/[^/]+/application/ports/' },
     },
     {
+      name: 'metrics-only-from-events',
+      comment:
+        '011/T012, D27: nenhum módulo conta métrica; os casos de uso publicam eventos e o assinante único (shared/infra/metrics-subscriber.ts) traduz em métrica.',
+      severity: 'error',
+      from: { path: '^src/modules/' },
+      to: { path: '^src/shared/domain/metrics\\.ts$' },
+    },
+    {
       name: 'modules-talk-through-ports',
       comment: 'um módulo só usa outro pela porta pública (application/ports).',
       severity: 'error',

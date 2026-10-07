@@ -1,4 +1,4 @@
-import { type Metrics, NO_METRICS } from '../../../shared/domain/metrics';
+import { type DomainEvents, NO_EVENTS } from '../../../shared/domain/events';
 import type { Clock } from '../../../shared/domain/clock';
 import { FieldRuleViolation } from '../../../shared/domain/errors';
 import type { PetRepository } from '../../pets/application/ports/pet-repository.port';
@@ -26,7 +26,7 @@ export class Visits {
     private readonly pets: PetRepository,
     private readonly clock: Clock,
     private readonly vets: VetDirectory = { exists: async () => true },
-    private readonly metrics: Metrics = NO_METRICS,
+    private readonly events: DomainEvents = NO_EVENTS,
   ) {}
 
   private async pet(ref: PetRef) {
@@ -49,7 +49,7 @@ export class Visits {
     const saved = await this.visits.insertAppointment(
       Appointment.schedule(ref.petId, input, this.clock.now()),
     );
-    this.metrics.increment('appointments_created');
+    this.events.publish({ type: 'appointment_scheduled', appointmentId: saved.id ?? 0 });
     return saved;
   }
 
@@ -68,7 +68,7 @@ export class Visits {
     const a = await this.appointment(ref, id);
     a.cancel(version, this.clock.now());
     const saved = await this.visits.updateAppointment(a, version);
-    this.metrics.increment('appointments_cancelled');
+    this.events.publish({ type: 'appointment_cancelled', appointmentId: id });
     return saved;
   }
 
@@ -76,7 +76,7 @@ export class Visits {
     const a = await this.appointment(ref, id);
     a.markNoShow(version, this.clock.now());
     const saved = await this.visits.updateAppointment(a, version);
-    this.metrics.increment('appointments_no_show');
+    this.events.publish({ type: 'appointment_no_show', appointmentId: id });
     return saved;
   }
 
@@ -103,12 +103,12 @@ export class Visits {
         version: input.appointmentVersion,
       });
     }
-    // D27: por veterinário, o rótulo é o id, nunca o nome.
-    this.metrics.increment(
-      'encounters_recorded',
-      input.vetId === undefined ? {} : { vet_id: String(input.vetId) },
-    );
-    if (input.returnDate) this.metrics.increment('returns_suggested');
+    this.events.publish({
+      type: 'encounter_recorded',
+      encounterId: saved.snapshot().id ?? 0,
+      vetId: input.vetId ?? null,
+      returnSuggested: Boolean(input.returnDate),
+    });
     return saved;
   }
 

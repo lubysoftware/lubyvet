@@ -1,4 +1,4 @@
-import { type Metrics, NO_METRICS } from '../../../shared/domain/metrics';
+import { type DomainEvents, NO_EVENTS } from '../../../shared/domain/events';
 import type { Clock } from '../../../shared/domain/clock';
 import { OwnerNotFound } from '../domain/owner.errors';
 
@@ -59,7 +59,7 @@ export class AnonymizeOwner {
   constructor(
     private readonly port: AnonymizationPort,
     private readonly clock: Clock,
-    private readonly metrics: Metrics = NO_METRICS,
+    private readonly events: DomainEvents = NO_EVENTS,
   ) {}
 
   async execute(ownerId: number, actorId: number): Promise<{ pendingReview: number }> {
@@ -70,7 +70,7 @@ export class AnonymizeOwner {
       for (const s of findSpans(t.text, identity.terms))
         spans.push({ entity: t.entity, id: t.id, field: t.field, ...s });
     await this.port.anonymize(ownerId, this.clock.now(), actorId, spans);
-    this.metrics.increment('owners_anonymized');
+    this.events.publish({ type: 'owner_anonymized', ownerId });
     return { pendingReview: spans.length };
   }
 

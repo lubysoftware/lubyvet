@@ -82,14 +82,14 @@
       *satisfaz:* — (infraestrutura, pré-requisito de CA-3.1 e CA-3.2)
       *depende de:* a resposta à pergunta "Barramento de eventos" da spec
 
-- [ ] **T011** Publicar eventos nos casos de uso, depois da gravação
+- [x] **T011** Publicar eventos nos casos de uso, depois da gravação
       *entrega:* os sete casos de uso que hoje chamam `metrics.increment` passam a publicar o
       evento só depois de a gravação dar certo; teste de unidade de que recusa e conflito não
       publicam
       *satisfaz:* CA-3.1, CA-3.3
       *depende de:* T010, T004
 
-- [ ] **T012** Assinante único de métricas
+- [x] **T012** Assinante único de métricas
       *entrega:* `MetricsSubscriber` traduz evento em contador e é o único chamador da porta de
       métricas; 008/CA-5.4 continua verde com os mesmos nomes e rótulos
       *satisfaz:* CA-3.2, CA-3.4

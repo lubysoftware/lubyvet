@@ -7,6 +7,7 @@ import { IdempotencyInterceptor } from '../interface/http/idempotency.intercepto
 import { IdempotencyStore } from './idempotency.store';
 import { PrismaService } from './prisma.service';
 import { InProcessEvents } from './in-process-events';
+import { MetricsSubscriber } from './metrics-subscriber';
 import { OtelMetrics } from './otel-metrics';
 import { SystemClock } from './system-clock';
 
@@ -19,6 +20,7 @@ import { SystemClock } from './system-clock';
     { provide: METRICS, useClass: OtelMetrics },
     InProcessEvents,
     { provide: DOMAIN_EVENTS, useExisting: InProcessEvents },
+    MetricsSubscriber,
     { provide: APP_INTERCEPTOR, useClass: IdempotencyInterceptor },
   ],
   exports: [PrismaService, CLOCK, METRICS, DOMAIN_EVENTS, InProcessEvents],
