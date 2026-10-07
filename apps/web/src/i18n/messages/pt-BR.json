@@ -112,7 +112,8 @@
     "chooseSpecies": "Escolha a espécie",
     "status": "Situação",
     "empty": "Nenhum animal cadastrado.",
-    "register": "Cadastrar animal"
+    "register": "Cadastrar animal",
+    "edit": "Alterar animal"
   },
   "visits": {
     "schedule": "Agendar visita",

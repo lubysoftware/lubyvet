@@ -54,7 +54,18 @@ export default async function OwnerRecordPage({
           </h2>
           <PetList ownerId={owner.id} pets={record.pets} selected={pet?.id ?? null} />
         </div>
-        <div className="min-w-0">{pet && <h2 className="text-lg font-semibold">{pet.name}</h2>}</div>
+        <div className="grid min-w-0 content-start gap-4">
+          {pet && (
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="text-lg font-semibold">{pet.name}</h2>
+              {canWrite && (
+                <LinkButton variant="secondary" href={`/owners/${owner.id}/pets/${pet.id}/edit`}>
+                  {t('pets.edit')}
+                </LinkButton>
+              )}
+            </div>
+          )}
+        </div>
       </section>
     </>
   );

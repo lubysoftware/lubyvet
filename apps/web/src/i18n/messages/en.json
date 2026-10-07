@@ -112,7 +112,8 @@
     "chooseSpecies": "Choose the species",
     "status": "Status",
     "empty": "No pets registered.",
-    "register": "Register pet"
+    "register": "Register pet",
+    "edit": "Edit pet"
   },
   "visits": {
     "schedule": "Schedule visit",
