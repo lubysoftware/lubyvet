@@ -12,7 +12,10 @@ const swc = [
 const base = {
   testEnvironment: 'node',
   transform: { '^.+\\.ts$': swc },
-  moduleNameMapper: { '^@lubyvet/contracts$': '<rootDir>/../../packages/contracts/src' },
+  moduleNameMapper: {
+    '^@lubyvet/contracts$': '<rootDir>/../../packages/contracts/src',
+    '^(\\.{1,2}/.*)\\.js$': '$1',
+  },
   setupFiles: ['<rootDir>/test/support/env.ts'],
 };
 /** @type {import('jest').Config} */

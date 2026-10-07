@@ -14,7 +14,7 @@
       *satisfaz:* — (infraestrutura exigida pelo princípio P3 da constituição e pela
       decisão da Pergunta 14)
 
-- [ ] **T002** Escrever o teste que compara, campo por campo, o nome declarado no mapeamento
+- [x] **T002** Escrever o teste que compara, campo por campo, o nome declarado no mapeamento
       com o nome presente na migração de esquema
       *entrega:* um teste que falha se qualquer coluna do Dono passar a depender de
       derivação automática de nome
