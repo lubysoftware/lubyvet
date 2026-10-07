@@ -35,8 +35,9 @@ describe('SearchOwners', () => {
     expect(p.calls).toEqual([['', 20, 10]]);
   });
 
-  it('T005: página além da última vira a última; abaixo de 1 vira 1', async () => {
-    expect((await new SearchOwners(port(25)).execute({ lastName: '', page: 9, pageSize: 10 })).page).toBe(3);
+  it('T005: página além da última ou abaixo de 1 leva à primeira (CA-2.2)', async () => {
+    expect((await new SearchOwners(port(25)).execute({ lastName: '', page: 9, pageSize: 10 })).page).toBe(1);
+    expect((await new SearchOwners(port(25)).execute({ lastName: '', page: 3, pageSize: 10 })).page).toBe(3);
     expect((await new SearchOwners(port(25)).execute({ lastName: '', page: 0, pageSize: 10 })).page).toBe(1);
   });
 

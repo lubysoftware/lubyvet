@@ -56,9 +56,9 @@ describe('GET /api/owners', () => {
     await t.api.get('/api/owners?pageSize=51').expect(422);
   });
 
-  it('T012: página fora da faixa vira a última; base vazia tem uma página', async () => {
+  it('T012: página fora da faixa vira a primeira (002/CA-2.2); base vazia tem uma página', async () => {
     for (let i = 0; i < 6; i++) await add('Lima', `Dono${i}`);
-    expect((await search('lastName=Lima&page=99&pageSize=5')).body.page).toBe(2);
+    expect((await search('lastName=Lima&page=99&pageSize=5')).body.page).toBe(1);
     expect((await search('lastName=Nada&page=3')).body.page).toBe(1);
   });
 

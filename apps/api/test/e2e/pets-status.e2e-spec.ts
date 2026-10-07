@@ -1,4 +1,5 @@
-import { bootApp, type TestApp } from '../support/app';
+import request from 'supertest';
+import { bootApp, idem, loginAs, type TestApp } from '../support/app';
 import { anOwner, aPetInput, patchPet, postPet } from '../support/pets';
 import { testDb } from '../support/test-db';
 
@@ -33,10 +34,16 @@ describe('situação do animal', () => {
       (await patchPet(t, o.id, p.id, { version: dead.version, status: 'transferred' }).expect(422)).body.error
         .code,
     ).toBe('invalid_transition');
-    expect(
-      (await patchPet(t, o.id, p.id, { version: dead.version, status: 'active' }).expect(403)).body.error
-        .code,
-    ).toBe('forbidden');
+    const writer = await loginAs(t.http, 'writer');
+    const refused = await request(t.http)
+      .patch(`/api/owners/${o.id}/pets/${p.id}`)
+      .set('Cookie', writer)
+      .set(idem())
+      .send({ version: dead.version, status: 'active' })
+      .expect(403);
+    expect(refused.body.error.code).toBe('forbidden');
+    // O cliente do teste é o Administrador: para ele a volta é permitida (D09).
+    await patchPet(t, o.id, p.id, { version: dead.version, status: 'active' }).expect(200);
   });
 
   it('situação fora da lista é erro de campo', async () => {

@@ -1,6 +1,7 @@
-import { Body, Controller, Get, HttpCode, Inject, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Inject, Param, Patch, Post, Req } from '@nestjs/common';
 import { ChangePetInput, type PetOutput, RegisterPetInput, type SpeciesOutput } from '@lubyvet/contracts';
 import { StaleVersion } from '../../../../shared/domain/errors';
+import type { Actor } from '../../../../shared/interface/http/roles';
 import { ChangePet } from '../../application/change-pet.use-case';
 import { GetPet } from '../../application/get-pet.use-case';
 import { Pet, type PetProps } from '../../domain/pet';
@@ -57,11 +58,14 @@ export class PetsController {
     @Param('ownerId', new IdParamPipe('pet_not_found')) ownerId: number,
     @Param('petId', new IdParamPipe('pet_not_found')) petId: number,
     @Body(new ZodValidationPipe(ChangePetInput)) body: ChangePetInput,
+    @Req() req: { actor: Actor },
   ): Promise<PetOutput> {
     const { id, version, status, ...patch } = body;
+    // D09: só o Administrador volta um animal para Ativo; o papel vem da sessão (D18).
+    const actorIsAdmin = req.actor.role === 'admin';
     try {
       return await this.present(
-        await this.changePet.execute({ ownerId, petId, bodyId: id, version, patch, status }),
+        await this.changePet.execute({ ownerId, petId, bodyId: id, version, patch, status, actorIsAdmin }),
       );
     } catch (e) {
       if (e instanceof StaleVersion)

@@ -49,6 +49,15 @@ module.exports = {
       globalTeardown: '<rootDir>/test/support/global-teardown.ts',
     },
     {
+      // Um teste por critério de aceite das specs, nomeado NNN/CA-x.y (rastreabilidade em traceability).
+      ...base,
+      displayName: 'acceptance',
+      roots: ['<rootDir>/test/acceptance'],
+      testMatch: ['**/*.acceptance-spec.ts'],
+      globalSetup: '<rootDir>/test/support/global-setup.ts',
+      globalTeardown: '<rootDir>/test/support/global-teardown.ts',
+    },
+    {
       ...base,
       displayName: 'perf',
       roots: ['<rootDir>/test/perf'],

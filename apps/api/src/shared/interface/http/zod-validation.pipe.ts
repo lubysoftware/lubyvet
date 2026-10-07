@@ -19,8 +19,12 @@ export class ZodValidationPipe<T extends z.ZodType> implements PipeTransform {
   transform(value: unknown): z.infer<T> {
     const result = this.schema.safeParse(value ?? {});
     if (result.success) return result.data;
-    throw new FieldRuleViolation(
-      result.error.issues.map((i) => ({ path: i.path.join('.') || '_', code: codeOf(i) })),
-    );
+    // Um código por campo, o primeiro: campo em branco é "required", não também "formato inválido".
+    const fields = new Map<string, FieldErrorCode>();
+    for (const i of result.error.issues) {
+      const path = i.path.join('.') || '_';
+      if (!fields.has(path)) fields.set(path, codeOf(i));
+    }
+    throw new FieldRuleViolation([...fields].map(([path, code]) => ({ path, code })));
   }
 }

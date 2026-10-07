@@ -24,7 +24,8 @@ export class SearchOwners {
     const lastName = normalizeTerm(query.lastName);
     const total = await this.search.count(lastName);
     const lastPage = Math.max(1, Math.ceil(total / query.pageSize));
-    const page = Math.min(Math.max(1, query.page), lastPage);
+    // 002/CA-2.2: página fora da faixa leva à primeira página do mesmo resultado.
+    const page = query.page >= 1 && query.page <= lastPage ? query.page : 1;
     const items =
       total === 0 ? [] : await this.search.page(lastName, (page - 1) * query.pageSize, query.pageSize);
     return { items, page, pageSize: query.pageSize, total, lastName };
