@@ -1,0 +1,21 @@
+# P8: a CI executa o mesmo veredito do repositório. D36: o ensaio de restauração roda em kind.
+name: verify
+on: [push, pull_request]
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc }
+      - run: bun install --frozen-lockfile
+      - run: bun run verify
+  restore-drill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: helm/kind-action@v1
+        with: { install_only: true }
+      - uses: azure/setup-helm@v4
+      - run: deploy/drill/restore-drill.sh
