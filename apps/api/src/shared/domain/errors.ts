@@ -50,3 +50,15 @@ export class Forbidden extends DomainError {
   readonly code = 'forbidden';
   readonly kind = 'forbidden';
 }
+
+/** D16/P-25: toda gravação traz a chave de idempotência do formulário. */
+export class IdempotencyKeyRequired extends DomainError {
+  readonly code = 'idempotency_key_required';
+  readonly kind = 'rule';
+}
+
+/** A mesma chave ainda está sendo processada por outra requisição. */
+export class RequestInProgress extends DomainError {
+  readonly code = 'request_in_progress';
+  readonly kind = 'conflict';
+}

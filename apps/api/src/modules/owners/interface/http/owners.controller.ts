@@ -23,7 +23,8 @@ export class OwnersController {
   async register(
     @Body(new ZodValidationPipe(RegisterOwnerInput)) body: RegisterOwnerInput,
   ): Promise<OwnerOutput> {
-    return presentOwner(await this.registerOwner.execute(body));
+    const { confirmSimilar, ...fields } = body;
+    return presentOwner(await this.registerOwner.execute(fields, confirmSimilar));
   }
 
   @Get(':ownerId')

@@ -1,7 +1,7 @@
 import request from 'supertest';
 import { OwnerOutput } from '@lubyvet/contracts';
 import { anOwnerInput } from '../builders/owner.builder';
-import { bootApp, type TestApp } from '../support/app';
+import { bootApp, idem, type TestApp } from '../support/app';
 import { testDb } from '../support/test-db';
 
 // 001/T011: marca de versão e recusa de gravação com versão vencida (US-5).
@@ -20,15 +20,18 @@ describe('edição concorrente do dono', () => {
     const owner = (
       await request(t.http)
         .post('/api/owners')
+        .set(idem())
         .send(anOwnerInput({ city: 'São Paulo' }))
         .expect(201)
     ).body;
     await request(t.http)
       .patch(`/api/owners/${owner.id}`)
+      .set(idem())
       .send({ version: owner.version, city: 'Campinas' })
       .expect(200);
     const res = await request(t.http)
       .patch(`/api/owners/${owner.id}`)
+      .set(idem())
       .send({ version: owner.version, city: 'Santos' })
       .expect(409);
     expect(res.body.error.code).toBe('stale_version');
@@ -38,13 +41,16 @@ describe('edição concorrente do dono', () => {
   });
 
   it('CA-5.3: edição isolada grava normalmente, sem aviso', async () => {
-    const owner = (await request(t.http).post('/api/owners').send(anOwnerInput()).expect(201)).body;
+    const owner = (await request(t.http).post('/api/owners').set(idem()).send(anOwnerInput()).expect(201))
+      .body;
     const first = await request(t.http)
       .patch(`/api/owners/${owner.id}`)
+      .set(idem())
       .send({ version: owner.version, city: 'Campinas' })
       .expect(200);
     await request(t.http)
       .patch(`/api/owners/${owner.id}`)
+      .set(idem())
       .send({ version: first.body.version, city: 'Santos' })
       .expect(200);
   });

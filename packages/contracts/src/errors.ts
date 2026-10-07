@@ -20,6 +20,7 @@ export const ERROR_CODES = [
   'stale_version',
   'invalid_transition',
   'idempotency_key_required',
+  'request_in_progress',
   'unsupported_format',
   'similar_owner',
   'internal_error',

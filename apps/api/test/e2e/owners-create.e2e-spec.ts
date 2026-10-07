@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { anOwnerInput } from '../builders/owner.builder';
-import { bootApp, type TestApp } from '../support/app';
+import { bootApp, idem, type TestApp } from '../support/app';
 import { testDb } from '../support/test-db';
 
 // 001/T008: UT-001-1 a UT-001-7 e UT-002-1 a UT-002-3, pela rota até o banco (P6).
@@ -9,6 +9,7 @@ describe('criação de dono', () => {
   const post = (body: unknown) =>
     request(t.http)
       .post('/api/owners')
+      .set(idem())
       .send(body as object);
   beforeAll(async () => {
     t = await bootApp();

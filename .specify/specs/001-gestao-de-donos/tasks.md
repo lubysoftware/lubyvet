@@ -122,7 +122,7 @@
       *satisfaz:* CA-5.1
       *depende de:* T011
 
-- [ ] **T017** Implementar o aviso de dono parecido dispensável e a proteção contra dupla
+- [x] **T017** Implementar o aviso de dono parecido dispensável e a proteção contra dupla
       submissão do formulário
       *entrega:* o aviso que nunca bloqueia por conta própria, a confirmação explícita que
       grava e registra que o aviso foi dispensado, e a garantia de que dois envios do mesmo

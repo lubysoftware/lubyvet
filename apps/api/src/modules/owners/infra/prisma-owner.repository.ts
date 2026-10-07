@@ -17,7 +17,7 @@ const toDomain = (r: OwnerRow): Owner =>
     cpf: r.cpf,
     email: r.email,
     messagingConsentAt: r.messagingConsentAt,
-    similarityDismissedAt: null,
+    similarityDismissedAt: r.similarityDismissedAt,
     version: r.version,
     createdAt: r.createdAt,
     updatedAt: r.updatedAt,
@@ -47,6 +47,7 @@ export class PrismaOwnerRepository implements OwnerRepository {
           cpf: s.cpf,
           email: s.email,
           messagingConsentAt: s.messagingConsentAt,
+          similarityDismissedAt: s.similarityDismissedAt,
         },
       })
       .catch(translate);
@@ -72,6 +73,7 @@ export class PrismaOwnerRepository implements OwnerRepository {
           telephone: s.telephone,
           email: s.email,
           messagingConsentAt: s.messagingConsentAt,
+          similarityDismissedAt: s.similarityDismissedAt,
           version: { increment: 1 },
         },
       })

@@ -1,7 +1,7 @@
 import { FixedClock } from '../../../shared/domain/clock';
 import { FieldRuleViolation } from '../../../shared/domain/errors';
 import { Owner } from '../domain/owner';
-import { OwnerNotFound } from '../domain/owner.errors';
+import { OwnerNotFound, SimilarOwnerFound } from '../domain/owner.errors';
 import { GetOwner } from './get-owner.use-case';
 import type { OwnerRepository } from './ports/owner-repository.port';
 import { RegisterOwner } from './register-owner.use-case';
@@ -18,6 +18,10 @@ const fields = {
 
 function memoryRepo(): OwnerRepository & { rows: Owner[] } {
   const rows: Owner[] = [];
+  const byPhone = (tel: string) =>
+    rows
+      .filter((r) => r.telephone === tel)
+      .map((r) => ({ id: r.id ?? 0, firstName: 'Mariana', lastName: 'Teixeira', city: 'São Paulo' }));
   return {
     rows,
     insert: async (o) => {
@@ -32,7 +36,7 @@ function memoryRepo(): OwnerRepository & { rows: Owner[] } {
     },
     findById: async (id) => rows.find((r) => r.id === id) ?? null,
     update: async (o) => o,
-    findByTelephone: async () => [],
+    findByTelephone: async (tel) => byPhone(tel),
   };
 }
 
@@ -61,5 +65,31 @@ describe('GetOwner', () => {
     await new RegisterOwner(repo, FixedClock.at('2026-10-07T12:00:00Z')).execute(fields);
     await expect(new GetOwner(repo).execute(1)).resolves.toBeInstanceOf(Owner);
     await expect(new GetOwner(repo).execute(99)).rejects.toBeInstanceOf(OwnerNotFound);
+  });
+});
+
+describe('RegisterOwner: dono parecido (D14)', () => {
+  const clock = FixedClock.at('2026-10-07T12:00:00-03:00');
+
+  it('apresenta o candidato antes de gravar quando o celular já existe (CA-3.1)', async () => {
+    const repo = memoryRepo();
+    await new RegisterOwner(repo, clock).execute(fields);
+    await expect(
+      new RegisterOwner(repo, clock).execute({ ...fields, cpf: '111.444.777-35' }),
+    ).rejects.toBeInstanceOf(SimilarOwnerFound);
+    expect(repo.rows).toHaveLength(1);
+  });
+
+  it('com a confirmação explícita, grava e registra que o aviso foi dispensado (CA-3.2)', async () => {
+    const repo = memoryRepo();
+    await new RegisterOwner(repo, clock).execute(fields);
+    const second = await new RegisterOwner(repo, clock).execute({ ...fields, cpf: '111.444.777-35' }, true);
+    expect(second.snapshot().similarityDismissedAt).toEqual(clock.now());
+  });
+
+  it('sem coincidência, grava sem aviso e sem registro de dispensa', async () => {
+    const repo = memoryRepo();
+    const owner = await new RegisterOwner(repo, clock).execute(fields, true);
+    expect(owner.snapshot().similarityDismissedAt).toBeNull();
   });
 });

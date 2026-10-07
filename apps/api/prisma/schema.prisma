@@ -23,10 +23,24 @@ model Owner {
   email              String?   @map("email") @db.VarChar(254)
   /// Data do consentimento de mensagens; nulo significa sem consentimento (D12)
   messagingConsentAt DateTime? @map("messaging_consent_at") @db.Timestamptz(3)
+  /// CA-3.2: o aviso de dono parecido foi visto e dispensado nesta data (D14)
+  similarityDismissedAt DateTime? @map("similarity_dismissed_at") @db.Timestamptz(3)
   version   Int      @default(0) @map("version")
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   @@index([lastName], map: "owners_last_name_idx")
   @@map("owners")
+}
+
+/// D16/P-25: resultado da primeira execução de cada gravação, repetido para a mesma chave por 24 horas.
+model IdempotencyKey {
+  key       String   @id @map("key") @db.VarChar(100)
+  method    String   @map("method") @db.VarChar(10)
+  path      String   @map("path") @db.VarChar(255)
+  status    Int?     @map("status")
+  body      Json?    @map("body")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@map("idempotency_keys")
 }
