@@ -76,7 +76,7 @@
       *satisfaz:* CA-4.1, CA-4.2, CA-4.4
       *depende de:* T009
 
-- [ ] **T011** Implementar a marca de versão e a recusa de gravação com versão vencida
+- [x] **T011** Implementar a marca de versão e a recusa de gravação com versão vencida
       *entrega:* a segunda gravação concorrente recusada com aviso de cadastro alterado, os
       valores digitados preservados e os valores atuais entregues ao lado deles; edição sem
       concorrência grava sem aviso

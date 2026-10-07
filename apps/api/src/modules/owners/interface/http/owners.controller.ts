@@ -2,7 +2,9 @@ import { Body, Controller, Get, HttpCode, Param, Patch, Post } from '@nestjs/com
 import { ChangeOwnerContactInput, type OwnerOutput, RegisterOwnerInput } from '@lubyvet/contracts';
 import { IdParamPipe } from '../../../../shared/interface/http/id-param.pipe';
 import { ZodValidationPipe } from '../../../../shared/interface/http/zod-validation.pipe';
+import { StaleVersion } from '../../../../shared/domain/errors';
 import { ChangeOwnerContact } from '../../application/change-owner-contact.use-case';
+import { Owner, type OwnerProps } from '../../domain/owner';
 import { GetOwner } from '../../application/get-owner.use-case';
 import { RegisterOwner } from '../../application/register-owner.use-case';
 import { presentOwner } from './owner.presenter';
@@ -36,6 +38,13 @@ export class OwnersController {
     @Body(new ZodValidationPipe(ChangeOwnerContactInput)) body: ChangeOwnerContactInput,
   ): Promise<OwnerOutput> {
     const { id, version, confirmSimilar: _confirm, ...patch } = body;
-    return presentOwner(await this.changeOwnerContact.execute({ ownerId, bodyId: id, version, patch }));
+    try {
+      return presentOwner(await this.changeOwnerContact.execute({ ownerId, bodyId: id, version, patch }));
+    } catch (e) {
+      // CA-5.2: os valores atuais vão junto, no formato do contrato (P9), para o usuário decidir se regrava.
+      if (e instanceof StaleVersion)
+        throw new StaleVersion(presentOwner(Owner.restore(e.current as OwnerProps)));
+      throw e;
+    }
   }
 }
