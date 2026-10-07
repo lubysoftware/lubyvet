@@ -7,7 +7,7 @@
 > infraestrutura, e está dito nela. Os identificadores `UT-nnn-n` são os testes que os
 > cards do backlog já traziam, preservados como tarefa de teste própria.
 
-- [ ] **T001** Declarar o nome de toda coluna do Veterinário, da Especialidade e do vínculo
+- [x] **T001** Declarar o nome de toda coluna do Veterinário, da Especialidade e do vínculo
       entre as duas, sem depender de estratégia automática de nomenclatura
       *entrega:* o mapeamento das duas entidades e da tabela de vínculo com nome de coluna
       explícito em cada campo, mais o teste que compara declaração e migração
@@ -23,7 +23,7 @@
       *satisfaz:* CA-1.1
       *depende de:* T001
 
-- [ ] **T003** Criar a migração versionada com as três tabelas e a restrição de unicidade
+- [x] **T003** Criar a migração versionada com as três tabelas e a restrição de unicidade
       **nomeada** do par veterinário e especialidade
       *entrega:* uma migração numerada, aplicável do zero, com a unicidade do par declarada
       com nome próprio e com as chaves estrangeiras também nomeadas; nenhum arquivo de criação
@@ -32,7 +32,7 @@
       *satisfaz:* — (infraestrutura exigida pelo princípio P5)
       *depende de:* T002
 
-- [ ] **T004** Escrever o teste que prova que o par veterinário e especialidade repetido é
+- [x] **T004** Escrever o teste que prova que o par veterinário e especialidade repetido é
       recusado pelo banco
       *entrega:* um teste que grava o mesmo par duas vezes e espera recusa. No legado o
       dialeto padrão aceitava **e a aplicação escondia a duplicata**, porque a coleção não

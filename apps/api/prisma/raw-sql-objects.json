@@ -4,6 +4,7 @@
     "owners_cpf_key": "D15: CPF único só enquanto presente",
     "species_lower_name_key": "003/T003, P-10: espécie única sem diferenciar maiúsculas",
     "pets_owner_id_lower_name_key": "003/T005, REQ-014: nome de animal único por dono, sem diferenciar maiúsculas",
-    "owners_lower_last_name_idx": "002/T004: busca por prefixo de sobrenome sem diferenciar maiúsculas"
+    "owners_lower_last_name_idx": "002/T004: busca por prefixo de sobrenome sem diferenciar maiúsculas",
+    "specialties_lower_name_key": "005: especialidade única sem diferenciar maiúsculas"
   }
 }

@@ -133,3 +133,37 @@ model Encounter {
   @@index([petId, date], map: "encounters_pet_id_date_idx")
   @@map("encounters")
 }
+
+/// Veterinário (005): catálogo institucional; atende opcionalmente (D01).
+model Vet {
+  id          Int              @id @default(autoincrement()) @map("id")
+  firstName   String           @map("first_name") @db.VarChar(30)
+  lastName    String           @map("last_name") @db.VarChar(30)
+  version     Int              @default(0) @map("version")
+  createdAt   DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime         @updatedAt @map("updated_at") @db.Timestamptz(3)
+  specialties VetSpecialty[]
+
+  @@map("vets")
+}
+
+model Specialty {
+  id        Int            @id @default(autoincrement()) @map("id")
+  name      String         @map("name") @db.VarChar(80)
+  createdAt DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
+  vets      VetSpecialty[]
+
+  @@map("specialties")
+}
+
+/// Vínculo veterinário e especialidade: o par é único pela chave composta (Pergunta 6, C4).
+model VetSpecialty {
+  vetId       Int       @map("vet_id")
+  specialtyId Int       @map("specialty_id")
+  vet         Vet       @relation(fields: [vetId], references: [id], onDelete: Restrict, map: "vet_specialties_vet_id_fkey")
+  specialty   Specialty @relation(fields: [specialtyId], references: [id], onDelete: Restrict, map: "vet_specialties_specialty_id_fkey")
+
+  @@id([vetId, specialtyId], map: "vet_specialties_pkey")
+  @@map("vet_specialties")
+}

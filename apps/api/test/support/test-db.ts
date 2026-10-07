@@ -37,6 +37,9 @@ export const testDb = {
       `insert into species (name, updated_at) values ${SPECIES_SEED.map((_, i) => `($${i + 1}, now())`).join(', ')}`,
       [...SPECIES_SEED],
     );
+    await testDb.sql.query(
+      "insert into specialties (name, updated_at) values ('Radiologia', now()), ('Cirurgia', now()), ('Odontologia', now())",
+    );
   },
   async count(table: string, where: Record<string, unknown> = {}): Promise<number> {
     const keys = Object.keys(where);
