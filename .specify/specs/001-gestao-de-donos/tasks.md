@@ -48,7 +48,7 @@
       *satisfaz:* CA-2.1, CA-2.2
       *depende de:* T003
 
-- [ ] **T007** Implementar a operação de criar dono, terminando na ficha do dono criado
+- [x] **T007** Implementar a operação de criar dono, terminando na ficha do dono criado
       *entrega:* a criação que grava o dono e devolve o identificador e a ficha dele, e que
       não grava nada quando a validação recusa
       *satisfaz:* CA-1.1, CA-1.4
@@ -136,7 +136,7 @@
       *satisfaz:* CA-3.2, CA-3.3
       *depende de:* T017
 
-- [ ] **T019** Acrescentar ao Dono o CPF, o e-mail e o consentimento de mensagens, com a
+- [x] **T019** Acrescentar ao Dono o CPF, o e-mail e o consentimento de mensagens, com a
       migração e o índice único parcial do CPF
       *entrega:* os três campos no mapeamento com nome declarado (P3), a validação do dígito
       verificador e do formato do e-mail, e a violação de unicidade do CPF reconhecida pelo

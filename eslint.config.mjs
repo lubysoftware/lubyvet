@@ -33,6 +33,11 @@ export default tseslint.config(
     },
   },
   {
+    // NestJS injeta pelo tipo do construtor: o metadado de decorator precisa do import real.
+    files: ['apps/api/**/*.ts'],
+    languageOptions: { parserOptions: { emitDecoratorMetadata: true, experimentalDecorators: true } },
+  },
+  {
     files: [
       '**/*.spec.ts',
       '**/*.int-spec.ts',

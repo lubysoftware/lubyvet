@@ -1,0 +1,6 @@
+{
+  "$comment": "Objetos criados em SQL cru dentro das migrações, que o schema.prisma não consegue declarar (docs/padroes/banco.md). O teste de divergência (P5) aceita só estes; cada um tem teste de integração próprio.",
+  "indexes": {
+    "owners_cpf_key": "D15: CPF único só enquanto presente"
+  }
+}

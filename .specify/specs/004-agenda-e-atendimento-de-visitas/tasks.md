@@ -18,7 +18,7 @@
       da Pergunta 14)
       *depende de:* a feature 003 ter o Animal modelado e migrado
 
-- [ ] **T002** Entregar o relógio como dependência injetável, antes de qualquer regra de data
+- [x] **T002** Entregar o relógio como dependência injetável, antes de qualquer regra de data
       *entrega:* uma fonte de tempo que os testes controlam, e a garantia de que nenhuma regra
       de data desta feature lê o relógio do sistema diretamente. 14 dos 26 testes dos cards
       pedem relógio controlado no `given`
