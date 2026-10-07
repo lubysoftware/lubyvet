@@ -50,21 +50,26 @@ const encounterOf = (r: EncounterRow): Encounter =>
 export class PrismaVisitRepository implements VisitRepository {
   constructor(private readonly db: PrismaService) {}
 
+  /** D12/T023: a confirmação ao dono entra na caixa de saída na MESMA transação do agendamento. */
   async insertAppointment(a: Appointment): Promise<Appointment> {
     const s = a.snapshot();
-    const row = await this.db.appointment.create({
-      data: {
-        createdBy: requestContext.actorId(),
-        updatedBy: requestContext.actorId(),
-        petId: s.petId,
-        scheduledAt: s.scheduledAt,
-        description: s.description,
-        status: s.status,
-        changes: {
-          create: a.newChanges().map((c) => ({ fromStatus: c.from, toStatus: c.to, changedAt: c.at })),
+    const row = await this.db.$transaction(async (tx) => {
+      const created = await tx.appointment.create({
+        data: {
+          createdBy: requestContext.actorId(),
+          updatedBy: requestContext.actorId(),
+          petId: s.petId,
+          scheduledAt: s.scheduledAt,
+          description: s.description,
+          status: s.status,
+          changes: {
+            create: a.newChanges().map((c) => ({ fromStatus: c.from, toStatus: c.to, changedAt: c.at })),
+          },
         },
-      },
-      include: { changes: true },
+        include: { changes: true },
+      });
+      await tx.notificationOutbox.create({ data: { kind: 'confirmation', appointmentId: created.id } });
+      return created;
     });
     return appointmentOf(row);
   }

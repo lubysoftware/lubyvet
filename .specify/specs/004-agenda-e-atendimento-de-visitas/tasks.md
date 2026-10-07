@@ -178,7 +178,7 @@
       *satisfaz:* CA-4.1, CA-4.5, CA-4.6
       *depende de:* T012
 
-- [ ] **T023** Porta de notificação ao dono, com o envio pelo RabbitMQ
+- [x] **T023** Porta de notificação ao dono, com o envio pelo RabbitMQ
       *entrega:* a porta `NotificacaoAoDono`; a gravação do agendamento escreve a mensagem
       numa caixa de saída na **mesma transação**, e um publicador a leva ao RabbitMQ; o
       consumidor envia com retentativa e fila de descarte. Dono sem consentimento (D12) não
@@ -187,7 +187,7 @@
       *satisfaz:* — (infraestrutura de D12)
       *depende de:* T022
 
-- [ ] **T024** Confirmação ao agendar e lembrete no D-1
+- [x] **T024** Confirmação ao agendar e lembrete no D-1
       *entrega:* a mensagem de confirmação publicada ao agendar; um comando
       `lembretes:d-1`, executado por um `CronJob` diário, que publica um lembrete por
       agendamento de amanhã ainda Agendado. Cancelado não recebe lembrete. Rodar o comando
@@ -195,7 +195,7 @@
       *satisfaz:* — (D12)
       *depende de:* T023
 
-- [ ] **T025** Adaptador da Meta Cloud API
+- [x] **T025** Adaptador da Meta Cloud API
       *entrega:* o adaptador real, com os dois templates parametrizados e as credenciais lidas
       de `Secret` (P-13), selecionado por configuração. Em homologação, usa o número de
       teste da Cloud API (D28); em produção, só é ligado depois da conta verificada e dos
