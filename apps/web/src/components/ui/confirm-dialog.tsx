@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useRef } from 'react';
+import { useId, useRef } from 'react';
 import { Button, type Variant } from './button';
 
 /** Dialog: confirma o que não se desfaz (README do design system: navegação). */
@@ -24,6 +24,7 @@ export function ConfirmDialog({
 }) {
   const t = useTranslations('common');
   const ref = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
   const close = () => ref.current?.close();
   return (
     <>
@@ -32,10 +33,10 @@ export function ConfirmDialog({
       </Button>
       <dialog
         ref={ref}
-        aria-labelledby={`${title}-t`}
+        aria-labelledby={titleId}
         className="m-auto max-w-[480px] rounded-lg border border-border bg-surface-raised p-6 text-foreground backdrop:bg-foreground/40"
       >
-        <h2 id={`${title}-t`} className="mb-2 text-lg font-semibold">
+        <h2 id={titleId} className="mb-2 text-lg font-semibold">
           {title}
         </h2>
         <p className="mb-6">{body}</p>

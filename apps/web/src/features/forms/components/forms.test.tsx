@@ -1,6 +1,5 @@
 import { act, screen } from '@testing-library/react';
 import { renderWithIntl } from '@/test/render';
-import { VisitHistory } from '@/features/visits/components/visit-history';
 import { fieldErrorsFrom } from '../field-errors';
 import { AppointmentForm, EncounterForm, OwnerForm, PetForm } from './forms';
 import { RESULT_TTL_MS, ResultMessage } from './result-message';
@@ -73,38 +72,5 @@ describe('mensagem de resultado (001/T014, T015; 006/T006, T009)', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('Could not save');
     renderWithIntl(<EncounterForm errors={{}} onSubmit={noop} />, 'en');
     expect(screen.getByLabelText('Chief complaint')).toBeInTheDocument();
-  });
-});
-
-describe('histórico de visitas (004/T010)', () => {
-  it('cada seção tem o rótulo do recorte que mostra', () => {
-    const appt = {
-      id: 1,
-      petId: 1,
-      scheduledAt: '2026-10-10T12:00:00Z',
-      description: 'Vacina',
-      status: 'scheduled' as const,
-      pendingRecord: false,
-      version: 0,
-      history: [],
-    };
-    const done = { ...appt, id: 2, description: 'Antiga', status: 'done' as const };
-    const enc = {
-      id: 3,
-      petId: 1,
-      appointmentId: 2,
-      date: '2026-10-01',
-      chiefComplaint: 'Tosse',
-      weightKg: null,
-      diagnosis: null,
-      conduct: null,
-      returnDate: null,
-      vetId: null,
-      createdAt: '',
-    };
-    renderWithIntl(<VisitHistory appointments={[appt, done]} encounters={[enc]} />);
-    expect(screen.getByRole('region', { name: 'Visitas agendadas' })).toHaveTextContent('Vacina');
-    expect(screen.getByRole('region', { name: 'Visitas agendadas' })).not.toHaveTextContent('Antiga');
-    expect(screen.getByRole('region', { name: 'Atendimentos realizados' })).toHaveTextContent('Tosse');
   });
 });

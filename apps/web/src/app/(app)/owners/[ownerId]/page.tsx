@@ -1,9 +1,16 @@
-import type { AuthorshipOutput, OwnerOutput, OwnerRecordOutput } from '@lubyvet/contracts';
+import type {
+  AuthorshipOutput,
+  OwnerOutput,
+  OwnerRecordOutput,
+  PetVisitsOutput,
+  VetCatalogOutput,
+} from '@lubyvet/contracts';
 import { getTranslations } from 'next-intl/server';
 import { LinkButton } from '@/components/ui/button';
 import { PageHeader } from '@/components/ui/page-header';
 import { type ResultCode, ResultMessage } from '@/features/forms/components/result-message';
 import { OwnerContact, PetList } from '@/features/owners/components/owner-record-view';
+import { VisitHistory } from '@/features/visits/components/visit-history';
 import { currentSession, load } from '@/lib/api';
 
 const RESULTS: readonly ResultCode[] = ['ownerSaved', 'petSaved', 'appointmentSaved', 'encounterSaved'];
@@ -27,6 +34,16 @@ export default async function OwnerRecordPage({
   ]);
   const canWrite = session.role !== 'reader';
   const pet = record.pets.find((p) => String(p.id) === sp.pet) ?? record.pets[0] ?? null;
+  const [visits, vets] = pet
+    ? await Promise.all([
+        load<PetVisitsOutput>(`/api/owners/${owner.id}/pets/${pet.id}/visits`),
+        load<VetCatalogOutput>('/api/vets?page=1&pageSize=50'),
+      ])
+    : [null, null];
+  const vetNames = Object.fromEntries((vets?.items ?? []).map((v) => [v.id, `${v.firstName} ${v.lastName}`]));
+  const basePath = pet ? `/owners/${owner.id}/pets/${pet.id}` : '';
+  // D09: animal Falecido ou Transferido não aceita agendamento novo; o botão some, a API recusa.
+  const canSchedule = canWrite && pet?.status === 'active';
   const saved = RESULTS.find((r) => r === sp.saved) ?? null;
   return (
     <>
@@ -58,12 +75,31 @@ export default async function OwnerRecordPage({
           {pet && (
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 className="text-lg font-semibold">{pet.name}</h2>
-              {canWrite && (
-                <LinkButton variant="secondary" href={`/owners/${owner.id}/pets/${pet.id}/edit`}>
-                  {t('pets.edit')}
-                </LinkButton>
-              )}
+              <div className="flex flex-wrap gap-2">
+                {canWrite && (
+                  <LinkButton variant="secondary" href={`${basePath}/edit`}>
+                    {t('pets.edit')}
+                  </LinkButton>
+                )}
+                {canWrite && (
+                  <LinkButton variant="secondary" href={`${basePath}/encounters/new`}>
+                    {t('visits.record')}
+                  </LinkButton>
+                )}
+                {canSchedule && (
+                  <LinkButton href={`${basePath}/appointments/new`}>{t('visits.schedule')}</LinkButton>
+                )}
+              </div>
             </div>
+          )}
+          {visits && (
+            <VisitHistory
+              appointments={visits.appointments}
+              encounters={visits.encounters}
+              basePath={basePath}
+              canWrite={canWrite}
+              vetNames={vetNames}
+            />
           )}
         </div>
       </section>

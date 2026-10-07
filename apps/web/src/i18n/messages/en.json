@@ -129,7 +129,18 @@
     "conduct": "Treatment",
     "returnDate": "Return date",
     "vet": "Veterinarian",
-    "noVet": "No veterinarian"
+    "noVet": "No veterinarian",
+    "reschedule": "Reschedule",
+    "cancel": "Cancel visit",
+    "cancelTitle": "Cancel this visit?",
+    "noShow": "Mark as no-show",
+    "noShowTitle": "Mark that the pet did not show up?",
+    "finalWarning": "The status becomes final and cannot return to Scheduled.",
+    "noneScheduled": "No scheduled visits.",
+    "noneAttended": "No visits recorded.",
+    "closedSection": "Visits closed without a record",
+    "returnOn": "Return on {date}",
+    "fromAppointment": "Record for the visit scheduled for {when}: {description}"
   },
   "login": {
     "title": "Sign in",

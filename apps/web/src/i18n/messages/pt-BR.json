@@ -129,7 +129,18 @@
     "conduct": "Conduta",
     "returnDate": "Data de retorno",
     "vet": "Veterinário",
-    "noVet": "Sem veterinário"
+    "noVet": "Sem veterinário",
+    "reschedule": "Remarcar",
+    "cancel": "Cancelar visita",
+    "cancelTitle": "Cancelar esta visita?",
+    "noShow": "Marcar não comparecimento",
+    "noShowTitle": "Marcar que o animal não compareceu?",
+    "finalWarning": "A situação passa a ser final e não volta a Agendada.",
+    "noneScheduled": "Nenhuma visita agendada.",
+    "noneAttended": "Nenhum atendimento registrado.",
+    "closedSection": "Visitas encerradas sem atendimento",
+    "returnOn": "Retorno em {date}",
+    "fromAppointment": "Atendimento da visita agendada para {when}: {description}"
   },
   "login": {
     "title": "Entrar",
