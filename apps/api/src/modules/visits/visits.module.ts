@@ -3,7 +3,8 @@ import { CLOCK, type Clock } from '../../shared/domain/clock';
 import { PET_REPOSITORY, type PetRepository } from '../pets/application/ports/pet-repository.port';
 import { PetsModule } from '../pets/pets.module';
 import { VISIT_REPOSITORY, type VisitRepository } from './application/ports/visit-repository.port';
-import { Visits } from './application/visits.use-cases';
+import { VET_DIRECTORY, type VetDirectory, Visits } from './application/visits.use-cases';
+import { PrismaVetDirectory } from './infra/prisma-vet-directory';
 import { PrismaVisitRepository } from './infra/prisma-visit.repository';
 import {
   GetOwnerRecord,
@@ -20,6 +21,7 @@ import { VisitsController } from './interface/http/visits.controller';
   imports: [PetsModule, OwnersModule],
   controllers: [VisitsController, OwnerRecordController],
   providers: [
+    { provide: VET_DIRECTORY, useClass: PrismaVetDirectory },
     { provide: VISIT_REPOSITORY, useClass: PrismaVisitRepository },
     { provide: OWNER_RECORD_READER, useClass: PrismaOwnerRecordReader },
     {
@@ -29,8 +31,8 @@ import { VisitsController } from './interface/http/visits.controller';
     },
     {
       provide: Visits,
-      useFactory: (v: VisitRepository, p: PetRepository, c: Clock) => new Visits(v, p, c),
-      inject: [VISIT_REPOSITORY, PET_REPOSITORY, CLOCK],
+      useFactory: (v: VisitRepository, p: PetRepository, c: Clock, d: VetDirectory) => new Visits(v, p, c, d),
+      inject: [VISIT_REPOSITORY, PET_REPOSITORY, CLOCK, VET_DIRECTORY],
     },
   ],
   exports: [VISIT_REPOSITORY],

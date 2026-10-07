@@ -14,3 +14,14 @@ export type VetOutput = z.infer<typeof VetOutput>;
 
 export const VetCatalogOutput = pageOf(VetOutput);
 export type VetCatalogOutput = z.infer<typeof VetCatalogOutput>;
+
+/** 004/CA-4.4: animais que este veterinário atendeu, a partir dos atendimentos que o registraram (D01). */
+export const VetPatientsOutput = z.array(
+  z.object({
+    petId: z.number().int(),
+    petName: z.string(),
+    ownerId: z.number().int(),
+    encounters: z.number().int(),
+  }),
+);
+export type VetPatientsOutput = z.infer<typeof VetPatientsOutput>;

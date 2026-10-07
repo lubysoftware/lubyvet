@@ -162,7 +162,7 @@
       *satisfaz:* CA-3.2
       *depende de:* T012
 
-- [ ] **T021** Registrar o veterinário opcional no atendimento e a consulta por veterinário
+- [x] **T021** Registrar o veterinário opcional no atendimento e a consulta por veterinário
       *entrega:* a escolha opcional entre os veterinários **ativos** (P-09), a gravação com e
       sem veterinário, e a consulta "quais animais este veterinário atendeu" sobre os
       atendimentos que o registraram; desligar o veterinário depois não apaga o vínculo.

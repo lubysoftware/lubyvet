@@ -7,6 +7,12 @@ import { Encounter, type EncounterFields } from '../domain/encounter';
 import { AppointmentNotFound, PetNotSchedulable } from '../domain/visit.errors';
 import type { VisitRepository } from './ports/visit-repository.port';
 
+/** D01: o veterinário escolhido precisa existir no catálogo. */
+export interface VetDirectory {
+  exists(vetId: number): Promise<boolean>;
+}
+export const VET_DIRECTORY = Symbol('VetDirectory');
+
 export interface PetRef {
   ownerId: number;
   petId: number;
@@ -18,6 +24,7 @@ export class Visits {
     private readonly visits: VisitRepository,
     private readonly pets: PetRepository,
     private readonly clock: Clock,
+    private readonly vets: VetDirectory = { exists: async () => true },
   ) {}
 
   private async pet(ref: PetRef) {
@@ -69,6 +76,8 @@ export class Visits {
     input: EncounterFields & { appointmentId?: number | undefined; appointmentVersion?: number | undefined },
   ): Promise<Encounter> {
     await this.pet(ref);
+    if (input.vetId !== undefined && !(await this.vets.exists(input.vetId)))
+      throw new FieldRuleViolation([{ path: 'vetId', code: 'vet_inactive' }]);
     const now = this.clock.now();
     if (input.appointmentId === undefined)
       return this.visits.recordEncounter(Encounter.record(ref.petId, null, input, now));

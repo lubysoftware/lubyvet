@@ -91,7 +91,7 @@
       *satisfaz:* CA-3.1, CA-3.2
       *depende de:* T009
 
-- [ ] **T011** ~~Resposta de dados do catálogo~~ **removida por D22**: não existe rota de
+- [x] **T011** ~~Resposta de dados do catálogo~~ **removida por D22**: não existe rota de
       dados para sistema externo; o front é servido por T012
 
 - [x] **T012** Servir o catálogo ao front num formato só, sem estado de persistência

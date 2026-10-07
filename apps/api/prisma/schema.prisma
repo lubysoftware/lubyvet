@@ -128,9 +128,11 @@ model Encounter {
   createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt      DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
   pet            Pet          @relation(fields: [petId], references: [id], onDelete: Restrict, map: "encounters_pet_id_fkey")
+  vet            Vet?         @relation(fields: [vetId], references: [id], onDelete: Restrict, map: "encounters_vet_id_fkey")
   appointment    Appointment? @relation(fields: [appointmentId], references: [id], onDelete: Restrict, map: "encounters_appointment_id_fkey")
 
   @@index([petId, date], map: "encounters_pet_id_date_idx")
+  @@index([vetId], map: "encounters_vet_id_idx")
   @@map("encounters")
 }
 
@@ -143,6 +145,7 @@ model Vet {
   createdAt   DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt   DateTime         @updatedAt @map("updated_at") @db.Timestamptz(3)
   specialties VetSpecialty[]
+  encounters  Encounter[]
 
   @@map("vets")
 }

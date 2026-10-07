@@ -25,3 +25,9 @@ export interface VetCatalogCache {
   invalidate(): Promise<void>;
 }
 export const VET_CATALOG_CACHE = Symbol('VetCatalogCache');
+
+/** 004/CA-4.4: animais atendidos por um veterinário. */
+export interface VetPatientsReader {
+  list(vetId: number): Promise<{ petId: number; petName: string; ownerId: number; encounters: number }[]>;
+}
+export const VET_PATIENTS_READER = Symbol('VetPatientsReader');
