@@ -6,10 +6,10 @@ Especificações de um sistema **novo**, derivadas da engenharia reversa de spri
 
 | | |
 |---|---|
-| features | 10 |
-| histórias | 49 |
+| features | 11 (001–010 entregues; 011 é dívida técnica planejada) |
+| histórias | 54 |
 | critérios de aceite | 176 (3 fora do escopo por D22) |
-| tarefas | 172 |
+| tarefas | 188 (16 em aberto, da 011) |
 | cards que entraram | 49 de 49 |
 | princípios da constituição | 9 |
 | stack | **decidida**: Portas e adaptadores · Next.js + shadcn/ui → NestJS · contrato zod/OpenAPI · PostgreSQL/Prisma · Redis · RabbitMQ · Kubernetes agnóstico de provedor (`memory/decisoes.md` D20, D30–D36) |
@@ -90,6 +90,12 @@ _A ordem de dependência coincide com a numérica: dá para seguir as pastas de 
       sem dependência dentro do pacote, pode começar por ela
       [spec](.specify/specs/010-interface-e-identidade-visual/spec.md) · [plan](.specify/specs/010-interface-e-identidade-visual/plan.md) · [tasks](.specify/specs/010-interface-e-identidade-visual/tasks.md)
       <sub>vem de REQ-047, REQ-048, REQ-049</sub>
+
+- [ ] **11. Dívida técnica da primeira entrega** · `011-divida-tecnica` · revisão de estrutura
+      5 histórias · 18 critérios · 16 tarefas
+      depois de `001` a `010`; nenhum comportamento novo, só refatoração presa pelos testes de aceitação
+      [spec](.specify/specs/011-divida-tecnica/spec.md) · [plan](.specify/specs/011-divida-tecnica/plan.md) · [tasks](.specify/specs/011-divida-tecnica/tasks.md)
+      <sub>vem da revisão de estrutura de 07/10/2026</sub>
 
 ## Perguntas em aberto · 0 de 56 (todas respondidas em `memory/decisoes.md`)
 

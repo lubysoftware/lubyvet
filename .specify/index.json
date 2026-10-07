@@ -207,6 +207,30 @@
       "plan": "specs/010-interface-e-identidade-visual/plan.md",
       "tasks_file": "specs/010-interface-e-identidade-visual/tasks.md",
       "depends_on": []
+    },
+    {
+      "cards": [],
+      "criteria": 18,
+      "depends_on": [
+        "001-gestao-de-donos",
+        "002-busca-e-navegacao-de-donos",
+        "003-animais-do-dono",
+        "004-agenda-e-atendimento-de-visitas",
+        "005-catalogo-de-veterinarios",
+        "006-idioma-e-comunicacao",
+        "007-acesso-identidade-e-dados-pessoais",
+        "008-operacao-erros-e-observabilidade",
+        "009-vocabularios-do-dominio",
+        "010-interface-e-identidade-visual"
+      ],
+      "epic": "—",
+      "id": "011-divida-tecnica",
+      "name": "Dívida técnica da primeira entrega",
+      "plan": "specs/011-divida-tecnica/plan.md",
+      "spec": "specs/011-divida-tecnica/spec.md",
+      "stories": 5,
+      "tasks": 16,
+      "tasks_file": "specs/011-divida-tecnica/tasks.md"
     }
   ],
   "excluded": [],

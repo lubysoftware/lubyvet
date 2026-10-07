@@ -4,7 +4,8 @@ import { join } from 'node:path';
 /**
  * Rastreabilidade: todo critério de aceite das specs (linha "- [ ] CA-x.y" ou "- [x] CA-x.y")
  * tem ao menos um teste cujo título cita "NNN/CA-x.y". Os testes ficam na suíte de aceitação da
- * API, nos componentes do web (Vitest) e no E2E do web (Playwright).
+ * API, nos componentes do web (Vitest) e no E2E do web (Playwright). A exigência vale para a
+ * feature entregue, a que tem todas as tarefas marcadas no tasks.md; a planejada fica listada.
  */
 const repo = join(__dirname, '../../../..');
 const specsDir = join(repo, '.specify/specs');
@@ -31,6 +32,10 @@ export function citedIn(source: string): Set<string> {
 const features = readdirSync(specsDir)
   .filter((d) => /^\d{3}-/.test(d))
   .sort();
+/** Entregue: tem tarefas e nenhuma ainda em aberto ("- [ ] **T"). */
+export const delivered = (tasks: string): boolean =>
+  /- \[x\] \*\*T/.test(tasks) && !/- \[ \] \*\*T/.test(tasks);
+const done = features.filter((f) => delivered(readFileSync(join(specsDir, f, 'tasks.md'), 'utf8')));
 const testFiles = [
   ...walk(join(repo, 'apps/api/test'), /\.(acceptance-spec|e2e-spec|int-spec|perf-spec)\.ts$/),
   ...walk(join(repo, 'apps/web/src'), /\.test\.tsx?$/),
@@ -39,8 +44,8 @@ const testFiles = [
 const cited = new Set(testFiles.flatMap((f) => [...citedIn(readFileSync(f, 'utf8'))]));
 
 describe('rastreabilidade dos critérios de aceite', () => {
-  it('as dez features do planejamento estão nas specs', () => {
-    expect(features.map((f) => f.slice(0, 3))).toEqual([
+  it('as dez features da primeira entrega estão entregues (todas as tarefas marcadas)', () => {
+    expect(done.map((f) => f.slice(0, 3))).toEqual([
       '001',
       '002',
       '003',
@@ -65,7 +70,13 @@ describe('rastreabilidade dos critérios de aceite', () => {
     ]).toEqual(['001/CA-1.1', '006/CA-3.2', '002/CA-2.2']);
   });
 
-  it.each(features)('%s: todo critério de aceite tem teste', (feature) => {
+  it('o leitor de tarefas distingue entregue de planejada', () => {
+    expect(delivered('- [x] **T001** a\n- [x] **T002** b')).toBe(true);
+    expect(delivered('- [x] **T001** a\n- [ ] **T002** b')).toBe(false);
+    expect(delivered('sem tarefa')).toBe(false);
+  });
+
+  it.each(done)('%s: todo critério de aceite tem teste', (feature) => {
     const spec = readFileSync(join(specsDir, feature, 'spec.md'), 'utf8');
     const ids = criteriaOf(spec).map((ca) => `${feature.slice(0, 3)}/${ca}`);
     expect(ids.length).toBeGreaterThan(0);
