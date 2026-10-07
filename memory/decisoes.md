@@ -500,3 +500,16 @@ Os casos de uso publicam eventos (só ids e tipos, P-16) num barramento em proce
 mesmo request. O assinante de métricas (D27) é o primeiro consumidor. Evento que precise sair do
 processo usa a caixa de saída de D12. Tomada pela recomendação da spec da 011, com autorização
 para seguir sem nova consulta.
+
+**D46. Formulários pelo `useApiForm`, ratificado.** *(fecha a pergunta "Formulário" da 011)*
+Os formulários seguem não controlados, validados pelo schema de entrada do contrato no
+`useApiForm`, que também manda a `Idempotency-Key` e põe o 422 no campo. A recomendação da spec
+era react-hook-form; ao executar, a troca acrescentaria um segundo estado de formulário sem
+ganho de regra ou de teste, e a CA-5.1 admite a ratificação registrada. Quem quiser
+react-hook-form numa tela nova reabre esta decisão.
+
+**D47. Peças de interface pelo CLI do shadcn/ui, via bunx.** *(fecha a pergunta "shadcn/ui pelo CLI" da 011)*
+`bunx --bun shadcn@latest add <peça> --path src/components/ui/base` funciona nesta máquina (o
+`npx` não). As peças geradas ficam em `components/ui/base/`, ajustadas aos tokens (D42) e à
+densidade de D39; as peças do design system em `components/ui/` se apoiam nelas. O `init` não se
+usa, porque sobrescreveria os tokens do `globals.css`.

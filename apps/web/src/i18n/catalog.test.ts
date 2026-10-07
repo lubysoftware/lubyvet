@@ -77,7 +77,10 @@ const ALLOWED_LITERALS = new Set(['Luby', 'Vet']);
 export function hardcodedTexts(tsx: string): string[] {
   return [...tsx.matchAll(/(?<![=-])>([^<>{}]*[A-Za-zÀ-ú][^<>{}]*)</g)]
     .map((m) => (m[1] ?? '').trim())
-    .filter((s) => s && !ALLOWED_LITERALS.has(s) && !/^[\w.]+\s*=>/.test(s) && !/[;=()]/.test(s));
+    .filter(
+      (s) =>
+        s && !ALLOWED_LITERALS.has(s) && !/^[&|]/.test(s) && !/^[\w.]+\s*=>/.test(s) && !/[;=()]/.test(s),
+    );
 }
 
 describe('texto fixo na interface (006/US-2)', () => {
@@ -85,6 +88,7 @@ describe('texto fixo na interface (006/US-2)', () => {
     expect(hardcodedTexts('<p>{t("x")}</p><span className="a">Salvar</span>')).toEqual(['Salvar']);
     expect(hardcodedTexts('<p>Luby<span>Vet</span></p>')).toEqual([]);
     expect(hardcodedTexts('const f = () => apiSend<Out>(x);')).toEqual([]);
+    expect(hardcodedTexts('type P = Props<"button"> & VariantProps<typeof v>;')).toEqual([]);
   });
 
   it('006/CA-2.2 nenhum componente tem rótulo ou mensagem fixa: tudo vem do catálogo', () => {

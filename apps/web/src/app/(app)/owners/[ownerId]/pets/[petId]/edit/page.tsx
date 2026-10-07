@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import { PageHeader } from '@/components/ui/page-header';
 import { PetEditor } from '@/features/pets/components/pet-editor';
 import { load } from '@/lib/api';
+import { ownerRecordUrl } from '@/lib/url-state';
 
 export default async function EditPetPage({
   params,
@@ -25,7 +26,7 @@ export default async function EditPetPage({
         crumbs={[
           { href: '/owners', label: t('nav.owners') },
           { href: `/owners/${owner.id}`, label: `${owner.firstName} ${owner.lastName}` },
-          { href: `/owners/${owner.id}?pet=${pet.id}`, label: pet.name },
+          { href: ownerRecordUrl(`/owners/${owner.id}`, { pet: pet.id }), label: pet.name },
         ]}
       />
       <PetEditor ownerId={owner.id} species={species} pet={pet} />

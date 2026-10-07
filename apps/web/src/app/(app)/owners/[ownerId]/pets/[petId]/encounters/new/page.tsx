@@ -9,6 +9,7 @@ import { PageHeader } from '@/components/ui/page-header';
 import { EncounterEditor } from '@/features/visits/components/visit-editors';
 import { petContext } from '@/features/visits/server/pet-context';
 import { load } from '@/lib/api';
+import { loadFromAppointment, vetCatalogApiUrl } from '@/lib/url-state';
 
 export default async function NewEncounterPage({
   params,
@@ -18,15 +19,15 @@ export default async function NewEncounterPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const { ownerId, petId } = await params;
-  const sp = await searchParams;
+  const sp = await loadFromAppointment(searchParams);
   const t = await getTranslations('visits');
   const format = await getFormatter();
   const { owner, pet, crumbs, crumbsLabel } = await petContext(ownerId, petId);
   const [vets, visits] = await Promise.all([
-    load<VetCatalogOutput>('/api/vets?page=1&pageSize=50'),
-    sp.appointment ? load<PetVisitsOutput>(`/api/owners/${owner.id}/pets/${pet.id}/visits`) : null,
+    load<VetCatalogOutput>(vetCatalogApiUrl('/api/vets', { page: 1, pageSize: 50 })),
+    sp.appointment !== null ? load<PetVisitsOutput>(`/api/owners/${owner.id}/pets/${pet.id}/visits`) : null,
   ]);
-  const appointment = visits?.appointments.find((a) => String(a.id) === sp.appointment);
+  const appointment = visits?.appointments.find((a) => a.id === sp.appointment);
   return (
     <>
       <PageHeader title={t('record')} crumbs={crumbs} crumbsLabel={crumbsLabel} />

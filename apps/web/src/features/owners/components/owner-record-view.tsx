@@ -3,6 +3,7 @@ import { useFormatter, useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';
 import { SpeciesIcon } from '@/features/shell/components/species-icon';
 import { dateOnly, formatCpf, formatPhone } from '@/lib/format';
+import { ownerRecordUrl } from '@/lib/url-state';
 
 type Pet = OwnerRecordOutput['pets'][number];
 
@@ -76,7 +77,7 @@ export function PetList({
       {pets.map((p) => (
         <li key={p.id}>
           <a
-            href={`/owners/${ownerId}?pet=${p.id}`}
+            href={ownerRecordUrl(`/owners/${ownerId}`, { pet: p.id })}
             aria-current={p.id === selected ? 'true' : undefined}
             className={`flex min-h-11 items-center gap-3 rounded-md border border-border px-3 py-2 ${
               p.id === selected ? 'bg-primary-soft text-primary' : 'bg-surface-raised'

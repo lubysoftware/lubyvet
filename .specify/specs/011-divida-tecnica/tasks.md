@@ -97,26 +97,26 @@
 
 ## US-5 Alinhar o front ao padrão escrito
 
-- [ ] **T013** Decidir formulário e componentes
+- [x] **T013** Decidir formulário e componentes
       *entrega:* as duas perguntas em aberto da spec respondidas em `memory/decisoes.md` (D45 e
       D46), depois de tentar `bunx shadcn add` nesta máquina
       *satisfaz:* — (decisão, pré-requisito de CA-5.1 e CA-5.2)
       *depende de:* —
 
-- [ ] **T014** Formulários pela decisão
+- [x] **T014** Formulários pela decisão
       *entrega:* os formulários de dono, animal, agendamento, atendimento, login e
       administração na forma decidida em T013, com `docs/padroes/frontend.md` atualizado; os
       testes de componente continuam provando os mesmos critérios
       *satisfaz:* CA-5.1, CA-5.4
       *depende de:* T013
 
-- [ ] **T015** [P] Peças de interface pela decisão
+- [x] **T015** [P] Peças de interface pela decisão
       *entrega:* botão, diálogo, selo e campo vindos do shadcn/ui e ajustados aos tokens, ou a
       decisão de mantê-los registrada; o axe nos dois temas continua verde
       *satisfaz:* CA-5.2, CA-5.4
       *depende de:* T013
 
-- [ ] **T016** [P] Estado na URL por `nuqs`
+- [x] **T016** [P] Estado na URL por `nuqs`
       *entrega:* busca de donos, página do catálogo, aba da administração e animal escolhido na
       ficha lidos e escritos por `nuqs`; nenhuma tela monta query string à mão
       *satisfaz:* CA-5.3, CA-5.4

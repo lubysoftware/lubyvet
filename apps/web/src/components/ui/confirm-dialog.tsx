@@ -1,10 +1,19 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useId, useRef } from 'react';
+import { useState } from 'react';
 import { Button, type Variant } from './button';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle,
+  DialogTrigger,
+} from './base/dialog';
 
-/** Dialog: confirma o que não se desfaz (README do design system: navegação). */
+/** Dialog do shadcn/ui (Radix): confirma o que não se desfaz (README do design system: navegação). */
 export function ConfirmDialog({
   trigger,
   title,
@@ -23,38 +32,32 @@ export function ConfirmDialog({
   onConfirm: () => void;
 }) {
   const t = useTranslations('common');
-  const ref = useRef<HTMLDialogElement>(null);
-  const titleId = useId();
-  const close = () => ref.current?.close();
+  const [open, setOpen] = useState(false);
   return (
-    <>
-      <Button variant="secondary" disabled={disabled} onClick={() => ref.current?.showModal()}>
-        {trigger}
-      </Button>
-      <dialog
-        ref={ref}
-        aria-labelledby={titleId}
-        className="m-auto max-w-[480px] rounded-lg border border-border bg-surface-raised p-6 text-foreground backdrop:bg-foreground/40"
-      >
-        <h2 id={titleId} className="mb-2 text-lg font-semibold">
-          {title}
-        </h2>
-        <p className="mb-6">{body}</p>
-        <div className="flex justify-end gap-2">
-          <Button variant="secondary" onClick={close}>
-            {t('back')}
-          </Button>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="secondary" disabled={disabled}>
+          {trigger}
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-[480px] text-foreground">
+        <DialogTitle className="text-lg font-semibold">{title}</DialogTitle>
+        <DialogDescription className="text-foreground">{body}</DialogDescription>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="secondary">{t('back')}</Button>
+          </DialogClose>
           <Button
             variant={variant}
             onClick={() => {
-              close();
+              setOpen(false);
               onConfirm();
             }}
           >
             {confirm}
           </Button>
-        </div>
-      </dialog>
-    </>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

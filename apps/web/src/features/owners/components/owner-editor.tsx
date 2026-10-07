@@ -15,6 +15,7 @@ import { apiSend } from '@/lib/api-client';
 import { optional } from '@/features/forms/form-values';
 import { OwnerForm } from '@/features/forms/components/forms';
 import { useApiForm } from '@/features/forms/use-api-form';
+import { ownerRecordUrl } from '@/lib/url-state';
 
 type Raw = Record<string, string>;
 const go = (href: string) => window.location.assign(href);
@@ -49,7 +50,7 @@ export function OwnerEditor({ owner }: { owner?: OwnerOutput }) {
       owner
         ? apiSend<OwnerOutput>('PATCH', `/api/owners/${owner.id}`, input, key)
         : apiSend<OwnerOutput>('POST', '/api/owners', input, key),
-    (saved) => go(`/owners/${saved.id}?saved=ownerSaved`),
+    (saved) => go(ownerRecordUrl(`/owners/${saved.id}`, { saved: 'ownerSaved' })),
   );
   const similar =
     form.failure?.code === 'similar_owner' ? z.array(SimilarOwner).safeParse(form.failure.current) : null;

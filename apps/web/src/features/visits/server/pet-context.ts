@@ -1,6 +1,7 @@
 import type { OwnerOutput, PetOutput } from '@lubyvet/contracts';
 import { getTranslations } from 'next-intl/server';
 import { load } from '@/lib/api';
+import { ownerRecordUrl } from '@/lib/url-state';
 
 /** Dono e animal da URL, lidos pelo caminho do dono (P1), com o Breadcrumb de nomes reais. */
 export async function petContext(ownerId: string, petId: string) {
@@ -12,7 +13,7 @@ export async function petContext(ownerId: string, petId: string) {
   const crumbs = [
     { href: '/owners', label: t('nav.owners') },
     { href: `/owners/${owner.id}`, label: `${owner.firstName} ${owner.lastName}` },
-    { href: `/owners/${owner.id}?pet=${pet.id}`, label: pet.name },
+    { href: ownerRecordUrl(`/owners/${owner.id}`, { pet: pet.id }), label: pet.name },
   ];
   return { owner, pet, crumbs, crumbsLabel: t('common.breadcrumb') };
 }

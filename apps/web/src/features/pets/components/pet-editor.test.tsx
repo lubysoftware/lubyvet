@@ -8,7 +8,7 @@ import { PetEditor, petInput } from './pet-editor';
 const assign = vi.fn();
 beforeEach(() => {
   assign.mockReset();
-  Object.defineProperty(window, 'location', { value: { assign }, writable: true });
+  Object.defineProperty(window, 'location', { value: { href: 'http://localhost/', assign }, writable: true });
 });
 afterEach(() => vi.unstubAllGlobals());
 

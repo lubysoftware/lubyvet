@@ -14,10 +14,11 @@ import { optional, optionalNumber } from '@/features/forms/form-values';
 import { useApiForm } from '@/features/forms/use-api-form';
 import { apiSend } from '@/lib/api-client';
 import { fromLocalInput, toLocalInput } from '@/lib/format';
+import { ownerRecordUrl } from '@/lib/url-state';
 
 type Raw = Record<string, string>;
-const back = (ownerId: number, petId: number, saved: string) =>
-  window.location.assign(`/owners/${ownerId}?pet=${petId}&saved=${saved}`);
+const back = (ownerId: number, petId: number, saved: 'appointmentSaved' | 'encounterSaved') =>
+  window.location.assign(ownerRecordUrl(`/owners/${ownerId}`, { pet: petId, saved }));
 
 /** O campo datetime-local dá a hora do balcão; o contrato pede o instante com fuso. */
 export const appointmentInput = (raw: Raw, version?: number) => ({

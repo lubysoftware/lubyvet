@@ -13,8 +13,7 @@ import { AnonymizeOwner } from '@/features/owners/components/anonymization';
 import { OwnerContact, PetList } from '@/features/owners/components/owner-record-view';
 import { VisitHistory } from '@/features/visits/components/visit-history';
 import { currentSession, load } from '@/lib/api';
-
-const RESULTS: readonly ResultCode[] = ['ownerSaved', 'petSaved', 'appointmentSaved', 'encounterSaved'];
+import { loadOwnerRecord, vetCatalogApiUrl } from '@/lib/url-state';
 
 /** 001/US-6: a ficha do dono. P1: animal e visita só se alcançam por aqui. */
 export default async function OwnerRecordPage({
@@ -25,7 +24,7 @@ export default async function OwnerRecordPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const { ownerId } = await params;
-  const sp = await searchParams;
+  const sp = await loadOwnerRecord(searchParams);
   const t = await getTranslations();
   const [session, owner, record, authorship] = await Promise.all([
     currentSession(),
@@ -34,18 +33,18 @@ export default async function OwnerRecordPage({
     load<AuthorshipOutput>(`/api/owners/${ownerId}/authorship`),
   ]);
   const canWrite = session.role !== 'reader';
-  const pet = record.pets.find((p) => String(p.id) === sp.pet) ?? record.pets[0] ?? null;
+  const pet = record.pets.find((p) => p.id === sp.pet) ?? record.pets[0] ?? null;
   const [visits, vets] = pet
     ? await Promise.all([
         load<PetVisitsOutput>(`/api/owners/${owner.id}/pets/${pet.id}/visits`),
-        load<VetCatalogOutput>('/api/vets?page=1&pageSize=50'),
+        load<VetCatalogOutput>(vetCatalogApiUrl('/api/vets', { page: 1, pageSize: 50 })),
       ])
     : [null, null];
   const vetNames = Object.fromEntries((vets?.items ?? []).map((v) => [v.id, `${v.firstName} ${v.lastName}`]));
   const basePath = pet ? `/owners/${owner.id}/pets/${pet.id}` : '';
   // D09: animal Falecido ou Transferido não aceita agendamento novo; o botão some, a API recusa.
   const canSchedule = canWrite && pet?.status === 'active';
-  const saved = RESULTS.find((r) => r === sp.saved) ?? null;
+  const saved: ResultCode | null = sp.saved;
   return (
     <>
       <PageHeader

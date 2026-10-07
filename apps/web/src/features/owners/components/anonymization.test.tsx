@@ -9,7 +9,10 @@ const assign = vi.fn();
 beforeEach(() => {
   reload.mockReset();
   assign.mockReset();
-  Object.defineProperty(window, 'location', { value: { reload, assign }, writable: true });
+  Object.defineProperty(window, 'location', {
+    value: { href: 'http://localhost/', reload, assign },
+    writable: true,
+  });
 });
 afterEach(() => vi.unstubAllGlobals());
 

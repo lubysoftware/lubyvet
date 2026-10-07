@@ -6,7 +6,10 @@ import { Preferences } from './preferences';
 
 describe('troca de idioma e de tema (006/T010, 010/T011)', () => {
   beforeEach(() => {
-    Object.defineProperty(window, 'location', { value: { reload: vi.fn() }, writable: true });
+    Object.defineProperty(window, 'location', {
+      value: { href: 'http://localhost/', reload: vi.fn() },
+      writable: true,
+    });
   });
 
   it('a troca de idioma grava o mesmo cookie que a resolução lê, e recarrega', async () => {

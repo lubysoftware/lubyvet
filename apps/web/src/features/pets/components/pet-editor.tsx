@@ -14,6 +14,7 @@ import { apiSend } from '@/lib/api-client';
 import { optionalNumber } from '@/features/forms/form-values';
 import { PetForm } from '@/features/forms/components/forms';
 import { useApiForm } from '@/features/forms/use-api-form';
+import { ownerRecordUrl } from '@/lib/url-state';
 
 /** P-10: a espécie vai pelo identificador; o select entrega texto e o contrato pede número. */
 export function petInput(raw: Record<string, string>, version?: number) {
@@ -41,7 +42,8 @@ export function PetEditor({
       pet
         ? apiSend<PetOutput>('PATCH', `/api/owners/${ownerId}/pets/${pet.id}`, input, key)
         : apiSend<PetOutput>('POST', `/api/owners/${ownerId}/pets`, input, key),
-    (saved) => window.location.assign(`/owners/${ownerId}?pet=${saved.id}&saved=petSaved`),
+    (saved) =>
+      window.location.assign(ownerRecordUrl(`/owners/${ownerId}`, { pet: saved.id, saved: 'petSaved' })),
   );
   const options = [...species];
   if (pet && !options.some((s) => s.id === pet.species.id)) options.push(pet.species);

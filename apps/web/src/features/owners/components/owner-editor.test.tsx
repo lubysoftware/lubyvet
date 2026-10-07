@@ -8,7 +8,10 @@ import { OwnerEditor, ownerInput } from './owner-editor';
 const assign = vi.fn();
 beforeEach(() => {
   assign.mockReset();
-  Object.defineProperty(window, 'location', { value: { assign, reload: vi.fn() }, writable: true });
+  Object.defineProperty(window, 'location', {
+    value: { href: 'http://localhost/', assign, reload: vi.fn() },
+    writable: true,
+  });
 });
 afterEach(() => vi.unstubAllGlobals());
 

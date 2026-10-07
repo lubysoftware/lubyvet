@@ -4,6 +4,7 @@ import { LinkButton } from '@/components/ui/button';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { dateOnly } from '@/lib/format';
 import { AppointmentActions } from './appointment-actions';
+import { fromAppointmentUrl } from '@/lib/url-state';
 
 const th = 'px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground';
 
@@ -58,7 +59,10 @@ export function VisitHistory({
                   <div className="flex flex-wrap gap-2">
                     <LinkButton
                       variant="secondary"
-                      href={`${basePath}/encounters/new?appointment=${a.id}&version=${a.version}`}
+                      href={fromAppointmentUrl(`${basePath}/encounters/new`, {
+                        appointment: a.id,
+                        version: a.version,
+                      })}
                     >
                       {t('record')}
                     </LinkButton>

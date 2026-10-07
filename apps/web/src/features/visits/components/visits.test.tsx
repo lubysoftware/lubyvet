@@ -12,7 +12,10 @@ const assign = vi.fn();
 beforeEach(() => {
   reload.mockReset();
   assign.mockReset();
-  Object.defineProperty(window, 'location', { value: { reload, assign }, writable: true });
+  Object.defineProperty(window, 'location', {
+    value: { href: 'http://localhost/', reload, assign },
+    writable: true,
+  });
 });
 afterEach(() => vi.unstubAllGlobals());
 
@@ -114,7 +117,7 @@ describe('cancelar e não comparecimento (004/US-5, D10)', () => {
     const fetch = mockFetch();
     renderWithIntl(<AppointmentActions path="/api/x" version={0} />);
     await userEvent.click(screen.getByRole('button', { name: 'Cancelar visita' }));
-    await userEvent.click(screen.getAllByRole('button', { name: 'Voltar' })[1]!);
+    await userEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Voltar' }));
     expect(fetch).not.toHaveBeenCalled();
   });
 });

@@ -1,5 +1,6 @@
 import type { VetCatalogOutput, VetPatientsOutput } from '@lubyvet/contracts';
 import { useTranslations } from 'next-intl';
+import { catalogUrl, ownerRecordUrl } from '@/lib/url-state';
 
 const th = 'px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground';
 
@@ -40,8 +41,8 @@ export function VetCatalog({ data }: { data: VetCatalogOutput }) {
       >
         <span>{t('page', { page: data.page, pages })}</span>
         <span className="flex gap-2">
-          {data.page > 1 && <a href={`/vets?page=${data.page - 1}`}>{t('previous')}</a>}
-          {data.page < pages && <a href={`/vets?page=${data.page + 1}`}>{t('next')}</a>}
+          {data.page > 1 && <a href={catalogUrl('/vets', { page: data.page - 1 })}>{t('previous')}</a>}
+          {data.page < pages && <a href={catalogUrl('/vets', { page: data.page + 1 })}>{t('next')}</a>}
         </span>
       </nav>
     </div>
@@ -59,7 +60,10 @@ export function VetPatients({ patients }: { patients: VetPatientsOutput }) {
           key={p.petId}
           className="flex min-h-11 flex-wrap items-center gap-2 rounded-md border border-border bg-surface-raised px-3"
         >
-          <a href={`/owners/${p.ownerId}?pet=${p.petId}`} className="font-semibold text-primary underline">
+          <a
+            href={ownerRecordUrl(`/owners/${p.ownerId}`, { pet: p.petId })}
+            className="font-semibold text-primary underline"
+          >
             {p.petName}
           </a>
           <span className="text-sm text-muted-foreground">{t('encounters', { count: p.encounters })}</span>

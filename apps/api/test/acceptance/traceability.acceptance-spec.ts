@@ -38,7 +38,7 @@ const testFiles = [
 const cited = new Set(testFiles.flatMap((f) => [...citedIn(readRepo(f))]));
 
 describe('rastreabilidade dos critérios de aceite', () => {
-  it('as dez features da primeira entrega estão entregues (todas as tarefas marcadas)', () => {
+  it('as features entregues são as dez da primeira entrega e a dívida técnica (todas as tarefas marcadas)', () => {
     expect(done.map((f) => f.slice(0, 3))).toEqual([
       '001',
       '002',
@@ -50,6 +50,7 @@ describe('rastreabilidade dos critérios de aceite', () => {
       '008',
       '009',
       '010',
+      '011',
     ]);
   });
 

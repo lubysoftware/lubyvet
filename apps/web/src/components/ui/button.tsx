@@ -1,25 +1,32 @@
-import type { ButtonHTMLAttributes, AnchorHTMLAttributes } from 'react';
+import type { AnchorHTMLAttributes, ButtonHTMLAttributes } from 'react';
+import { cn } from '@/lib/utils';
+import { Button as BaseButton, buttonVariants } from './base/button';
 
-/** Botão do design system: primário marca a ação principal da tela; secundário e perigo nas demais. */
+/**
+ * Botão do design system sobre o shadcn/ui (D35): primário marca a ação principal da tela;
+ * secundário e perigo nas demais. Os nomes de variante são os do design system.
+ */
 export type Variant = 'primary' | 'secondary' | 'danger';
-const VARIANTS: Record<Variant, string> = {
-  primary: 'bg-primary text-primary-foreground',
-  secondary: 'border border-input bg-surface-raised text-foreground hover:bg-primary-soft',
-  danger: 'border border-destructive bg-surface-raised text-destructive',
+const BASE: Record<Variant, 'default' | 'outline' | 'destructive'> = {
+  primary: 'default',
+  secondary: 'outline',
+  danger: 'destructive',
 };
 export const buttonClass = (variant: Variant = 'primary'): string =>
-  `inline-flex h-11 items-center justify-center gap-2 rounded-md px-4 font-semibold disabled:opacity-60 ${VARIANTS[variant]}`;
+  buttonVariants({ variant: BASE[variant] });
 
 export function Button({
-  variant,
+  variant = 'primary',
+  className,
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant }) {
-  return <button type="button" {...props} className={`${buttonClass(variant)} ${props.className ?? ''}`} />;
+  return <BaseButton type="button" variant={BASE[variant]} className={className} {...props} />;
 }
 
 export function LinkButton({
   variant,
+  className,
   ...props
 }: AnchorHTMLAttributes<HTMLAnchorElement> & { variant?: Variant }) {
-  return <a {...props} className={`${buttonClass(variant)} ${props.className ?? ''}`} />;
+  return <a {...props} className={cn(buttonClass(variant), className)} />;
 }

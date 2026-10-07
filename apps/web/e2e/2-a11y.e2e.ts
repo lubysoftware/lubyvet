@@ -15,7 +15,7 @@ for (const theme of ['light', 'dark'] as const) {
       await expectAccessible(page);
     });
 
-    test('010/CA-2.1 telas da equipe passam no WCAG 2.2 AA', async ({ page }) => {
+    test('010/CA-2.1 011/CA-5.4 telas da equipe passam no WCAG 2.2 AA', async ({ page }) => {
       await login(page, 'admin');
       await page.goto('/owners?lastName=');
       const record = await page.getByRole('link', { name: /Mariana/ }).getAttribute('href');

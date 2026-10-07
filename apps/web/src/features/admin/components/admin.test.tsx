@@ -8,7 +8,7 @@ import { SpeciesAdmin, VetsAdmin } from './vocabulary-admin';
 const reload = vi.fn();
 beforeEach(() => {
   reload.mockReset();
-  Object.defineProperty(window, 'location', { value: { reload }, writable: true });
+  Object.defineProperty(window, 'location', { value: { href: 'http://localhost/', reload }, writable: true });
 });
 afterEach(() => vi.unstubAllGlobals());
 

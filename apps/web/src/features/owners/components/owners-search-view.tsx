@@ -2,14 +2,17 @@ import type { OwnerSearchOutput } from '@lubyvet/contracts';
 import { useTranslations } from 'next-intl';
 import { LinkButton } from '@/components/ui/button';
 import { PageHeader } from '@/components/ui/page-header';
+import { ownerRecordUrl, ownersSearchUrl } from '@/lib/url-state';
 
 /** 002/T006: todo link de página carrega o termo buscado. */
 export const pageHref = (lastName: string, page: number, pageSize: number): string =>
-  `/owners?${new URLSearchParams({ lastName, page: String(page), pageSize: String(pageSize) }).toString()}`;
+  ownersSearchUrl('/owners', { lastName, page, pageSize });
 
 /** 002/T009: um resultado só, de uma busca com termo, leva direto à ficha. */
 export const singleResultTarget = (data: OwnerSearchOutput): string | null =>
-  data.lastName !== '' && data.total === 1 && data.items[0] ? `/owners/${data.items[0].id}` : null;
+  data.lastName !== '' && data.total === 1 && data.items[0]
+    ? ownerRecordUrl(`/owners/${data.items[0].id}`, {})
+    : null;
 
 /** Lista de donos (design system: DataTable) com busca por sobrenome e paginação. */
 export function OwnersSearchView({
