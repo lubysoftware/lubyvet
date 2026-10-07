@@ -3,6 +3,7 @@ import type { PetStatus } from '@lubyvet/contracts';
 import type { Pet as PetRow } from '../../../generated/prisma/client';
 import { StaleVersion } from '../../../shared/domain/errors';
 import { PrismaService } from '../../../shared/infra/prisma.service';
+import { requestContext } from '../../../shared/context/request-context';
 import { isUniqueViolation, violatedUniqueConstraint } from '../../../shared/infra/unique-violation';
 import type { PetRepository, SpeciesCatalog, SpeciesRef } from '../application/ports/pet-repository.port';
 import { Pet } from '../domain/pet';
@@ -42,6 +43,8 @@ export class PrismaPetRepository implements PetRepository {
     const row = await this.db.pet
       .create({
         data: {
+          createdBy: requestContext.actorId(),
+          updatedBy: requestContext.actorId(),
           ownerId: s.ownerId,
           name: s.name,
           birthDate: new Date(`${s.birthDate}T00:00:00Z`),
@@ -64,6 +67,7 @@ export class PrismaPetRepository implements PetRepository {
       .updateMany({
         where: { id, ownerId: s.ownerId, version: expectedVersion },
         data: {
+          updatedBy: requestContext.actorId(),
           name: s.name,
           birthDate: new Date(`${s.birthDate}T00:00:00Z`),
           speciesId: s.speciesId,

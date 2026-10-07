@@ -1,4 +1,10 @@
-import { Body, Controller, Get, HttpCode, Param, Patch, Post, Query, Req } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Inject, Param, Patch, Post, Query, Req } from '@nestjs/common';
+import {
+  type Authorship,
+  OWNER_AUTHORSHIP,
+  type OwnerAuthorshipReader,
+} from '../../application/ports/owner-repository.port';
+import { OwnerNotFound } from '../../domain/owner.errors';
 import { z } from 'zod';
 import type { Actor } from '../../../../shared/interface/http/roles';
 import { AnonymizeOwner, type FreeTextItem } from '../../application/anonymize-owner.use-case';
@@ -39,7 +45,18 @@ export class OwnersController {
     private readonly changeOwnerContact: ChangeOwnerContact,
     private readonly searchOwners: SearchOwners,
     private readonly anonymizeOwner: AnonymizeOwner,
+    @Inject(OWNER_AUTHORSHIP) private readonly authorshipReader: OwnerAuthorshipReader,
   ) {}
+
+  /** 007/T018: autoria consultável por cadastro, para todos os papéis. */
+  @Get(':ownerId/authorship')
+  async authorship(
+    @Param('ownerId', new IdParamPipe('owner_not_found')) ownerId: number,
+  ): Promise<Authorship> {
+    const a = await this.authorshipReader.authorship(ownerId);
+    if (!a) throw new OwnerNotFound();
+    return a;
+  }
 
   /** 007/US-3, D24: anonimiza o dono (Administrador); o histórico clínico fica. */
   @Post(':ownerId/anonymize')

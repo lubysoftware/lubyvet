@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import type { Owner as OwnerRow } from '../../../generated/prisma/client';
 import { FieldRuleViolation, StaleVersion } from '../../../shared/domain/errors';
 import { PrismaService } from '../../../shared/infra/prisma.service';
+import { requestContext } from '../../../shared/context/request-context';
 import { violatedUniqueConstraint } from '../../../shared/infra/unique-violation';
 import type { OwnerRepository, SimilarCandidate } from '../application/ports/owner-repository.port';
 import { Owner } from '../domain/owner';
@@ -48,6 +49,8 @@ export class PrismaOwnerRepository implements OwnerRepository {
           email: s.email,
           messagingConsentAt: s.messagingConsentAt,
           similarityDismissedAt: s.similarityDismissedAt,
+          createdBy: requestContext.actorId(),
+          updatedBy: requestContext.actorId(),
         },
       })
       .catch(translate);
@@ -74,6 +77,7 @@ export class PrismaOwnerRepository implements OwnerRepository {
           email: s.email,
           messagingConsentAt: s.messagingConsentAt,
           similarityDismissedAt: s.similarityDismissedAt,
+          updatedBy: requestContext.actorId(),
           version: { increment: 1 },
         },
       })

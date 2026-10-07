@@ -31,6 +31,9 @@ model Owner {
 
   pets Pet[]
 
+  /// D02: autoria por pessoa, preenchida pela identidade da requisição
+  createdBy Int? @map("created_by")
+  updatedBy Int? @map("updated_by")
   @@map("owners")
 }
 
@@ -77,6 +80,9 @@ model Pet {
   appointments Appointment[]
   encounters   Encounter[]
 
+  /// D02: autoria por pessoa, preenchida pela identidade da requisição
+  createdBy Int? @map("created_by")
+  updatedBy Int? @map("updated_by")
   @@index([ownerId], map: "pets_owner_id_idx")
   @@map("pets")
 }
@@ -96,6 +102,9 @@ model Appointment {
   changes     AppointmentStatusChange[]
   encounter   Encounter?
 
+  /// D02: autoria por pessoa, preenchida pela identidade da requisição
+  createdBy Int? @map("created_by")
+  updatedBy Int? @map("updated_by")
   @@index([petId, scheduledAt], map: "appointments_pet_id_scheduled_at_idx")
   @@map("appointments")
 }
@@ -133,6 +142,9 @@ model Encounter {
   vet            Vet?         @relation(fields: [vetId], references: [id], onDelete: Restrict, map: "encounters_vet_id_fkey")
   appointment    Appointment? @relation(fields: [appointmentId], references: [id], onDelete: Restrict, map: "encounters_appointment_id_fkey")
 
+  /// D02: autoria por pessoa, preenchida pela identidade da requisição
+  createdBy Int? @map("created_by")
+  updatedBy Int? @map("updated_by")
   @@index([petId, date], map: "encounters_pet_id_date_idx")
   @@index([vetId], map: "encounters_vet_id_idx")
   @@map("encounters")

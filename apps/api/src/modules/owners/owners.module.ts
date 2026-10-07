@@ -13,6 +13,8 @@ import {
   type AnonymizationPort,
 } from './application/anonymize-owner.use-case';
 import { PrismaAnonymization } from './infra/prisma-anonymization';
+import { PrismaOwnerAuthorship } from './infra/prisma-owner-authorship';
+import { OWNER_AUTHORSHIP } from './application/ports/owner-repository.port';
 import { PrismaOwnerRepository } from './infra/prisma-owner.repository';
 import { OwnersController } from './interface/http/owners.controller';
 
@@ -22,6 +24,7 @@ import { OwnersController } from './interface/http/owners.controller';
     { provide: OWNER_REPOSITORY, useClass: PrismaOwnerRepository },
     { provide: OWNER_SEARCH, useClass: PrismaOwnerSearch },
     { provide: ANONYMIZATION, useClass: PrismaAnonymization },
+    { provide: OWNER_AUTHORSHIP, useClass: PrismaOwnerAuthorship },
     {
       provide: AnonymizeOwner,
       useFactory: (a: AnonymizationPort, c: Clock) => new AnonymizeOwner(a, c),

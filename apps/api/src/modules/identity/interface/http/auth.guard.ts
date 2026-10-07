@@ -1,6 +1,7 @@
 import { type CanActivate, type ExecutionContext, Inject, Injectable } from '@nestjs/common';
 import type { Request } from 'express';
 import { Forbidden, Unauthenticated } from '../../../../shared/domain/errors';
+import { requestContext } from '../../../../shared/context/request-context';
 import { type Actor, ROUTE_ROLES } from '../../../../shared/interface/http/roles';
 import {
   SESSION_STORE,
@@ -33,6 +34,8 @@ export class AuthGuard implements CanActivate {
     if (!user || user.status !== 'active') throw new Unauthenticated('unauthenticated');
     if (!allowed || !allowed.includes(user.role)) throw new Forbidden('forbidden');
     req.actor = { userId: user.id, role: user.role };
+    // A partir daqui, o resto da requisição enxerga a identidade (D02).
+    requestContext.set(user.id);
     return true;
   }
 }

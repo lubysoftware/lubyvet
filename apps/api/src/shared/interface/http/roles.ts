@@ -19,6 +19,7 @@ export const ROUTE_ROLES: Readonly<Record<string, readonly Role[] | 'public'>> =
   'GET /api/owners/:ownerId': ALL,
   'PATCH /api/owners/:ownerId': WRITE,
   'GET /api/owners/:ownerId/record': ALL,
+  'GET /api/owners/:ownerId/authorship': ALL,
   'POST /api/owners/:ownerId/anonymize': ADMIN,
   'GET /api/owners/:ownerId/free-text': ADMIN,
   'POST /api/owners/:ownerId/free-text/redact': ADMIN,

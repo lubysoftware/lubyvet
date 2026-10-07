@@ -125,7 +125,7 @@
       *satisfaz:* CA-1.1, CA-1.2, CA-1.3
       *depende de:* T007, T008, T013
 
-- [ ] **T016** Teste da inexistência de caminho de escrita anônimo e da imutabilidade dos
+- [x] **T016** Teste da inexistência de caminho de escrita anônimo e da imutabilidade dos
       campos de auditoria
       *entrega:* `UT-036-3` passando, com a gravação sem identidade recusada e nada gravado,
       mais o teste de que autoria e momento enviados de fora são ignorados. Os outros quatro
@@ -133,14 +133,14 @@
       *satisfaz:* CA-4.3
       *depende de:* T013
 
-- [ ] **T017** Colunas de autoria em dono, animal, agendamento e atendimento
+- [x] **T017** Colunas de autoria em dono, animal, agendamento e atendimento
       *entrega:* `created_by` e `updated_by` (referência ao usuário, D02) preenchidos pelo
       caso de uso a partir da identidade da requisição, nunca a partir do corpo; o valor
       vindo de fora é ignorado (o mesmo mecanismo de T013)
       *satisfaz:* CA-4.1
       *depende de:* T013
 
-- [ ] **T018** Consulta de autoria por cadastro e testes
+- [x] **T018** Consulta de autoria por cadastro e testes
       *entrega:* quem criou, quem alterou por último e quando, visíveis na ficha para todos os
       papéis; nenhum caminho normal altera a autoria. `UT-036-1`, `UT-036-2`, `UT-036-4` e
       `UT-036-5` passando

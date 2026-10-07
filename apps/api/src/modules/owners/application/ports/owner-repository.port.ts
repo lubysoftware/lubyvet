@@ -17,4 +17,16 @@ export interface OwnerRepository {
   /** D14: donos com o mesmo celular, exceto o informado. */
   findByTelephone(telephone: string, exceptId?: number): Promise<SimilarCandidate[]>;
 }
+/** 007/T018, D02: quem criou e quem alterou por último, e quando. */
+export interface Authorship {
+  createdBy: { id: number; name: string } | null;
+  createdAt: string;
+  updatedBy: { id: number; name: string } | null;
+  updatedAt: string;
+}
+export interface OwnerAuthorshipReader {
+  authorship(ownerId: number): Promise<Authorship | null>;
+}
+export const OWNER_AUTHORSHIP = Symbol('OwnerAuthorship');
+
 export const OWNER_REPOSITORY = Symbol('OwnerRepository');

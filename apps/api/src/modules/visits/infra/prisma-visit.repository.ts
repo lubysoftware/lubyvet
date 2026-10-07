@@ -3,6 +3,7 @@ import type { AppointmentStatus } from '@lubyvet/contracts';
 import type { Prisma } from '../../../generated/prisma/client';
 import { StaleVersion } from '../../../shared/domain/errors';
 import { PrismaService } from '../../../shared/infra/prisma.service';
+import { requestContext } from '../../../shared/context/request-context';
 import type { VisitRepository } from '../application/ports/visit-repository.port';
 import { Appointment } from '../domain/appointment';
 import { Encounter } from '../domain/encounter';
@@ -53,6 +54,8 @@ export class PrismaVisitRepository implements VisitRepository {
     const s = a.snapshot();
     const row = await this.db.appointment.create({
       data: {
+        createdBy: requestContext.actorId(),
+        updatedBy: requestContext.actorId(),
         petId: s.petId,
         scheduledAt: s.scheduledAt,
         description: s.description,
@@ -88,6 +91,7 @@ export class PrismaVisitRepository implements VisitRepository {
     const { count } = await tx.appointment.updateMany({
       where: { id, version: expectedVersion },
       data: {
+        updatedBy: requestContext.actorId(),
         scheduledAt: s.scheduledAt,
         description: s.description,
         status: s.status,
@@ -119,6 +123,8 @@ export class PrismaVisitRepository implements VisitRepository {
       if (realized) await this.update(tx, realized.appointment, realized.version);
       const row = await tx.encounter.create({
         data: {
+          createdBy: requestContext.actorId(),
+          updatedBy: requestContext.actorId(),
           petId: s.petId,
           appointmentId: s.appointmentId,
           date: toDate(s.date),
