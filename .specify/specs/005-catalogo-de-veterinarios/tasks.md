@@ -57,7 +57,7 @@
       *satisfaz:* CA-2.1, CA-2.2, CA-2.3
       *depende de:* T005
 
-- [ ] **T007** Testes do catálogo de tela
+- [x] **T007** Testes do catálogo de tela
       *entrega:* `UT-023-1` a `UT-023-7` passando, cobrindo as três linhas com nome, sobrenome
       e especialidades, as especialidades fora de ordem saindo alfabéticas, a marca de ausência
       em vez de coluna em branco, nenhuma gravação nas duas páginas pedidas, nome e sobrenome
@@ -66,7 +66,7 @@
       *satisfaz:* CA-1.1, CA-1.2, CA-1.3, CA-1.4
       *depende de:* T005
 
-- [ ] **T008** [P] Testes da paginação do catálogo
+- [x] **T008** [P] Testes da paginação do catálogo
       *entrega:* `UT-024-1` a `UT-024-4` passando, incluindo os onze veterinários distribuídos
       em três páginas sem repetição nem omissão, a mesma página pedida duas vezes devolvendo
       respostas idênticas, a página zero e a página sete levando à página um, o catálogo vazio
@@ -81,7 +81,7 @@
       *satisfaz:* CA-3.1
       *depende de:* T005
 
-- [ ] **T010** Testes da atualidade do catálogo
+- [x] **T010** Testes da atualidade do catálogo
       *entrega:* `UT-025-1`, `UT-025-2` e `UT-025-3` passando, incluindo o veterinário
       recém-incluído aparecendo na leitura seguinte sem reinício, cada escrita provocando um
       descarte, e a enumeração das operações da superfície de leitura sem nenhuma que grave.
@@ -102,7 +102,7 @@
       *satisfaz:* CA-5.1, CA-5.2, CA-6.1, CA-6.2
       *depende de:* T005
 
-- [ ] **T013** Testes da proibição
+- [x] **T013** Testes da proibição
       *entrega:* o pedido de outro formato recusado com 406, e um teste que percorre todos os
       schemas de saída de `packages/contracts` e falha se algum tiver campo de persistência
       (P9)
