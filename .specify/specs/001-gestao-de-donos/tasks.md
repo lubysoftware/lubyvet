@@ -152,7 +152,7 @@
       *satisfaz:* CA-1.5, CA-1.6, CA-1.7, CA-1.8
       *depende de:* T019
 
-- [ ] **T021** Testes da regra de celular com os valores de D05
+- [x] **T021** Testes da regra de celular com os valores de D05
       *entrega:* o válido `(11) 98765-4321` gravado como `+5511987654321`, e os inválidos
       `1234567890` e `(11) 3456-7890` recusados no campo
       *satisfaz:* CA-2.1, CA-2.3
