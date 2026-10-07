@@ -172,5 +172,18 @@
     "active": "Active",
     "deceased": "Deceased",
     "transferred": "Transferred"
+  },
+  "vets": {
+    "name": "Veterinarian",
+    "specialties": "Specialties",
+    "noSpecialty": "No specialty",
+    "pagination": "Catalog pages",
+    "page": "Page {page} of {pages}",
+    "previous": "Previous",
+    "next": "Next",
+    "patients": "Pets seen",
+    "patientsOf": "Pets seen by {name}",
+    "noPatients": "No visits recorded by this veterinarian.",
+    "encounters": "{count, plural, one {# visit} other {# visits}}"
   }
 }

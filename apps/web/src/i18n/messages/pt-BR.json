@@ -172,5 +172,18 @@
     "active": "Ativo",
     "deceased": "Falecido",
     "transferred": "Transferido"
+  },
+  "vets": {
+    "name": "Veterinário",
+    "specialties": "Especialidades",
+    "noSpecialty": "Sem especialidade",
+    "pagination": "Páginas do quadro",
+    "page": "Página {page} de {pages}",
+    "previous": "Anterior",
+    "next": "Próxima",
+    "patients": "Animais atendidos",
+    "patientsOf": "Animais atendidos por {name}",
+    "noPatients": "Nenhum atendimento registrado por este veterinário.",
+    "encounters": "{count, plural, one {# atendimento} other {# atendimentos}}"
   }
 }
