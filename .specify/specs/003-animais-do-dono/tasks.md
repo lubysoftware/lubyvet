@@ -141,7 +141,7 @@
       *satisfaz:* CA-4.1, CA-4.2, CA-4.3
       *depende de:* T015
 
-- [ ] **T018** Testes de unicidade de nome de animal por dono
+- [x] **T018** Testes de unicidade de nome de animal por dono
       *entrega:* `UT-014-1`, `UT-014-2`, `UT-014-3`, `UT-014-4`, `UT-014-5`, `UT-014-6` e
       `UT-014-7` passando, incluindo o segundo Rex do mesmo dono recusado, os Rex de donos
       diferentes aceitos, as duas formas de violação produzindo o mesmo erro, a edição que
