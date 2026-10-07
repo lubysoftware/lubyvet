@@ -56,7 +56,7 @@
       *satisfaz:* CA-1.3
       *depende de:* T003
 
-- [ ] **T007** Testes da manutenção do vocabulário de espécies
+- [x] **T007** Testes da manutenção do vocabulário de espécies
       *entrega:* `UT-045-1` a `UT-045-7` passando, cobrindo a sétima espécie disponível na
       montagem seguinte, os três animais ainda vinculados depois da renomeação, a remoção da
       espécie em uso recusada com explicação, as três grafias resolvendo para a mesma espécie,
@@ -80,7 +80,7 @@
       *satisfaz:* CA-2.1, CA-2.2, CA-2.4, CA-2.5
       *depende de:* T001, e a identidade que a feature 007 entrega em T003
 
-- [ ] **T009** Exercitar a restrição de unicidade do par veterinário e especialidade
+- [x] **T009** Exercitar a restrição de unicidade do par veterinário e especialidade
       *entrega:* a atribuição da mesma especialidade duas vezes ao mesmo veterinário recusada,
       com o conjunto dele continuando com uma única ocorrência. A restrição **nomeada** já nasce
       em T003 da feature 005, pela decisão da Pergunta 6; esta tarefa é a primeira do sistema a
@@ -93,7 +93,7 @@
       *satisfaz:* CA-2.3
       *depende de:* T008
 
-- [ ] **T010** Testes da manutenção do quadro de veterinários
+- [x] **T010** Testes da manutenção do quadro de veterinários
       *entrega:* `UT-046-1`, `UT-046-2`, `UT-046-3`, `UT-046-5`, `UT-046-6`, `UT-046-7` e
       `UT-046-8` passando, cobrindo os três veterinários com zero, uma e três especialidades, o
       conjunto novo exato depois da alteração, o par repetido recusado, um descarte de memória
