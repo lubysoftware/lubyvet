@@ -54,7 +54,7 @@
       *satisfaz:* CA-1.1, CA-1.4
       *depende de:* T005, T006
 
-- [ ] **T008** Testes de criação de dono
+- [x] **T008** Testes de criação de dono
       *entrega:* `UT-001-1` a `UT-001-7` e `UT-002-1` a `UT-002-3` passando, cobrindo caminho
       feliz, os cinco obrigatórios isolados, o valor no limite, o primeiro acima do limite, a
       base intacta após recusa, o destino após a escrita e o telefone válido e inválido
