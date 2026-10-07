@@ -25,7 +25,7 @@
       *satisfaz:* CA-1.1
       *depende de:* T001
 
-- [ ] **T003** Implementar a verificação que compara o **pedido** no fonte com o **entregue**
+- [x] **T003** Implementar a verificação que compara o **pedido** no fonte com o **entregue**
       pelo build
       *entrega:* uma verificação que falha, apontando a variável, quando um valor de estilo
       declarado não tem efeito sobre o que é servido. **Esta verificação executa o build para
@@ -35,7 +35,7 @@
       *satisfaz:* CA-1.2
       *depende de:* T001
 
-- [ ] **T004** [P] Implementar a verificação de seletor sem elemento correspondente
+- [x] **T004** [P] Implementar a verificação de seletor sem elemento correspondente
       *entrega:* uma verificação que falha, apontando o seletor, quando ele não tem elemento
       correspondente na interface. No legado eram vinte e dois seletores mortos, de procedência
       de outro produto, correspondendo a cerca de cento e quarenta das duzentas e cinquenta e
@@ -43,7 +43,7 @@
       *satisfaz:* CA-1.3
       *depende de:* T001
 
-- [ ] **T005** Declarar a paleta de pares de cor nomeados e implementar a verificação de
+- [x] **T005** Declarar a paleta de pares de cor nomeados e implementar a verificação de
       contraste
       *entrega:* a paleta como conjunto nomeado, com os pares de repouso, foco e passagem do
       ponteiro, e a verificação que calcula a razão de cada par, **aponta o par reprovado pelo
@@ -56,7 +56,7 @@
       *satisfaz:* CA-2.3
       *depende de:* T001
 
-- [ ] **T006** [P] Implementar a verificação de peso de fonte presente em arquivo
+- [x] **T006** [P] Implementar a verificação de peso de fonte presente em arquivo
       *entrega:* o confronto entre os pesos pedidos pelos estilos e os pesos presentes nos
       arquivos de fonte, falhando por peso pedido sem arquivo. É o critério mais concreto desta
       feature: o legado pedia negrito em três lugares e **nenhum dos oito arquivos de fonte
@@ -81,7 +81,7 @@
       *satisfaz:* CA-3.3
       *depende de:* T005, T007
 
-- [ ] **T009** Testes das verificações de estilo e de acessibilidade
+- [x] **T009** Testes das verificações de estilo e de acessibilidade
       *entrega:* `UT-048-1`, `UT-048-2`, `UT-048-3`, `UT-049-1` e `UT-049-2` passando, cobrindo
       todos os pares da paleta com repouso, foco e passagem do ponteiro, todo peso pedido
       existindo em arquivo, o par novo abaixo do mínimo reprovado pelo nome, os três campos
@@ -90,7 +90,7 @@
       *satisfaz:* CA-2.2, CA-2.3, CA-3.1, CA-3.2
       *depende de:* T006, T007
 
-- [ ] **T010** Paleta LubyVet aprovada em WCAG 2.2 AA e verificação no build
+- [x] **T010** Paleta LubyVet aprovada em WCAG 2.2 AA e verificação no build
       *entrega:* a paleta de D37 nos dois modos, em tokens do Tailwind e do tema shadcn/ui; a verificação de T005 com os
       limiares de D07 (4,5:1 e 3:1) para repouso, foco e passagem do ponteiro; e axe nos
       testes de interface dos formulários, dentro de `npm run verify`
