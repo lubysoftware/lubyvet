@@ -219,3 +219,21 @@ model OwnerAnonymization {
 
   @@map("owner_anonymizations")
 }
+
+/// 004/T023, D12: caixa de saída das mensagens ao dono, gravada na mesma transação do agendamento.
+model NotificationOutbox {
+  id            Int       @id @default(autoincrement()) @map("id")
+  /// confirmation | reminder
+  kind          String    @map("kind") @db.VarChar(20)
+  appointmentId Int       @map("appointment_id")
+  /// pending | published | sent | skipped | failed
+  status        String    @default("pending") @map("status") @db.VarChar(12)
+  attempts      Int       @default(0) @map("attempts")
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  publishedAt   DateTime? @map("published_at") @db.Timestamptz(3)
+  sentAt        DateTime? @map("sent_at") @db.Timestamptz(3)
+
+  @@unique([appointmentId, kind], map: "notification_outbox_appointment_kind_key")
+  @@index([status], map: "notification_outbox_status_idx")
+  @@map("notification_outbox")
+}

@@ -210,7 +210,7 @@
       *satisfaz:* CA-4.7
       *depende de:* T012
 
-- [ ] **T027** Templates e horário do WhatsApp
+- [x] **T027** Templates e horário do WhatsApp
       *entrega:* os dois templates de D28 com o mapeamento de variáveis testado (a ordem é
       diferente entre os dois), o nome e o telefone da clínica vindos de configuração, e o
       `CronJob` às 10:00 de `America/Sao_Paulo` (D29). Teste: o agendamento criado às 11h
