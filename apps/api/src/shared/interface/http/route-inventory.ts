@@ -10,4 +10,10 @@ export interface InventoryRoute {
 export const OWNER_PET_ROUTES: readonly InventoryRoute[] = [
   { method: 'get', path: '/api/owners/:ownerId/pets/:petId' },
   { method: 'patch', path: '/api/owners/:ownerId/pets/:petId' },
+  { method: 'get', path: '/api/owners/:ownerId/pets/:petId/visits' },
+  { method: 'post', path: '/api/owners/:ownerId/pets/:petId/appointments' },
+  { method: 'patch', path: '/api/owners/:ownerId/pets/:petId/appointments/:appointmentId' },
+  { method: 'post', path: '/api/owners/:ownerId/pets/:petId/appointments/:appointmentId/cancel' },
+  { method: 'post', path: '/api/owners/:ownerId/pets/:petId/appointments/:appointmentId/no-show' },
+  { method: 'post', path: '/api/owners/:ownerId/pets/:petId/encounters' },
 ];

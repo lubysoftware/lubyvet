@@ -24,7 +24,7 @@
       pedem relógio controlado no `given`
       *satisfaz:* — (infraestrutura, pré-requisito de CA-1.3, CA-1.4, CA-3.1 e CA-3.3)
 
-- [ ] **T003** Modelar o Agendamento com animal, data, descrição, situação, versão e datas de
+- [x] **T003** Modelar o Agendamento com animal, data, descrição, situação, versão e datas de
       criação e de alteração
       *entrega:* a entidade com a data e o animal **obrigatórios nos dois lados**, fechando o
       caminho do legado em que data vazia escapava da regra de faixa e era gravada nula, e com
@@ -41,14 +41,14 @@
       *satisfaz:* — (infraestrutura exigida pelo princípio P5)
       *depende de:* T003
 
-- [ ] **T005** [P] Implementar a validação de descrição e de presença da data
+- [x] **T005** [P] Implementar a validação de descrição e de presença da data
       *entrega:* a validação que recusa descrição em branco, descrição acima de 255 caracteres
       e data ausente, apontando o campo, com mensagem vinda do catálogo de traduções, e sem
       gravar nada
       *satisfaz:* CA-1.2
       *depende de:* T003
 
-- [ ] **T006** Declarar a faixa de data aceitável **num único lugar** e usá-la tanto na
+- [x] **T006** Declarar a faixa de data aceitável **num único lugar** e usá-la tanto na
       validação quanto na preparação do formulário
       *entrega:* uma só declaração da faixa, de onde saem a data sugerida no formulário, o
       limite declarado no campo e o limite que a validação recusa, de modo que os três sejam o
@@ -58,7 +58,7 @@
       *satisfaz:* CA-1.3, CA-1.4, CA-3.3
       *depende de:* T002, T005
 
-- [ ] **T007** Implementar a operação de agendar visita, terminando na ficha do dono
+- [x] **T007** Implementar a operação de agendar visita, terminando na ficha do dono
       *entrega:* o agendamento gravado vinculado ao animal, com o destino na ficha do dono, e
       nada gravado quando a validação recusa
       *satisfaz:* CA-1.1
@@ -73,7 +73,7 @@
       *satisfaz:* CA-1.1, CA-1.2, CA-1.3, CA-1.4
       *depende de:* T007
 
-- [ ] **T009** Implementar a listagem do histórico de visitas do animal no formulário de
+- [x] **T009** Implementar a listagem do histórico de visitas do animal no formulário de
       agendamento
       *entrega:* a lista em ordem crescente de data, estável para datas iguais, com data e
       descrição, **sem** a visita em preparação, e com a seção vazia acompanhada da mensagem
@@ -97,7 +97,7 @@
       *satisfaz:* CA-2.1, CA-2.2, CA-2.3, CA-2.4
       *depende de:* T010
 
-- [ ] **T012** Modelar o Atendimento como entidade própria, aceitando a data de hoje
+- [x] **T012** Modelar o Atendimento como entidade própria, aceitando a data de hoje
       *entrega:* a entidade de atendimento separada do agendamento, conforme a decisão da
       Pergunta 1, com animal e data obrigatórios, aceitando a data de hoje, e com a migração
       versionada correspondente. A coluna de veterinário responsável é criada **anulável**
@@ -112,14 +112,14 @@
       *satisfaz:* CA-3.1, CA-3.3
       *depende de:* T012
 
-- [ ] **T014** Implementar a situação do agendamento e o registro datado de cada mudança
+- [x] **T014** Implementar a situação do agendamento e o registro datado de cada mudança
       *entrega:* a mudança de situação que grava a situação nova e a data em que ocorreu
       **sem perder a anterior**, e a recusa de alterar um agendamento cuja situação já é
       atendida
       *satisfaz:* CA-4.1
       *depende de:* T012
 
-- [ ] **T015** Distinguir na ficha do animal o que está agendado do que já foi atendido
+- [x] **T015** Distinguir na ficha do animal o que está agendado do que já foi atendido
       *entrega:* a ficha mostrando as duas coisas com distinção visível, com os rótulos vindos
       do catálogo de traduções
       *satisfaz:* CA-4.3
@@ -133,14 +133,14 @@
       *satisfaz:* CA-4.1
       *depende de:* T014
 
-- [ ] **T017** Implementar a remarcação de um agendamento futuro
+- [x] **T017** Implementar a remarcação de um agendamento futuro
       *entrega:* data e descrição novas gravadas sobre um agendamento futuro, aparecendo por
       elas na ficha do dono, com as mesmas validações do agendamento e com a recusa quando a
       situação já é atendida
       *satisfaz:* CA-5.1
       *depende de:* T014
 
-- [ ] **T018** Implementar o cancelamento de um agendamento futuro, **sem apagar nada**
+- [x] **T018** Implementar o cancelamento de um agendamento futuro, **sem apagar nada**
       *entrega:* o agendamento passando à situação de cancelado com a data do cancelamento,
       saindo da contagem de compromissos, continuando consultável no histórico, e **nenhuma
       exclusão solicitada ao repositório**, como `UT-022-5` exige e o princípio P2 da
@@ -156,7 +156,7 @@
       *satisfaz:* CA-5.1, CA-5.2, CA-5.3
       *depende de:* T017, T018
 
-- [ ] **T020** Aceitar atendimento com data passada sem limite e recusar data futura
+- [x] **T020** Aceitar atendimento com data passada sem limite e recusar data futura
       *entrega:* a regra de data do atendimento num só lugar, com o relógio injetado: hoje e
       qualquer data passada aceitos, amanhã recusado com mensagem do catálogo (D06)
       *satisfaz:* CA-3.2
@@ -170,7 +170,7 @@
       *satisfaz:* CA-4.2, CA-4.4
       *depende de:* T012
 
-- [ ] **T022** Implementar as situações do agendamento e o pendente de registro
+- [x] **T022** Implementar as situações do agendamento e o pendente de registro
       *entrega:* as transições de D10 com recusa das inválidas (inclusive cancelar depois da
       data), a data de cada mudança registrada, o estado derivado "pendente de registro"
       calculado na leitura e destacado na ficha (D11), e a recusa de agendamento para animal
@@ -203,7 +203,7 @@
       *satisfaz:* — (D12)
       *depende de:* T023
 
-- [ ] **T026** Campos clínicos do atendimento
+- [x] **T026** Campos clínicos do atendimento
       *entrega:* queixa principal, peso, diagnóstico, conduta e data de retorno, com os
       limites de D26 nos dois lados (P3) e o teste de máximo e máximo mais um de cada campo;
       a data de retorno aparece na ficha como sugestão de agendamento, sem criar agendamento

@@ -30,9 +30,21 @@ describe('isolamento entre donos (P1)', () => {
   };
   const call = (r: (typeof OWNER_PET_ROUTES)[number], ownerId: number, petId: number) =>
     request(t.http)
-      [r.method](r.path.replace(':ownerId', String(ownerId)).replace(':petId', String(petId)))
+      [r.method](
+        r.path
+          .replace(':ownerId', String(ownerId))
+          .replace(':petId', String(petId))
+          .replace(':appointmentId', '1'),
+      )
       .set(idem())
-      .send({ version: 0, name: 'Invasor' });
+      .send({
+        version: 0,
+        name: 'Invasor',
+        scheduledAt: '2026-12-01T10:00:00-03:00',
+        description: 'Retorno',
+        date: '2026-10-07',
+        chiefComplaint: 'Tosse',
+      });
 
   it.each(OWNER_PET_ROUTES.map((r) => [`${r.method.toUpperCase()} ${r.path}`, r] as const))(
     'UT-017-1/2: %s com o animal de outro dono responde 404 sem expor nenhum campo do animal',
