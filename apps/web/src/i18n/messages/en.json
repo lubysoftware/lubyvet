@@ -37,7 +37,19 @@
     "cpf": "CPF",
     "email": "E-mail",
     "save": "Save owner",
-    "messagingConsent": "Agrees to receive visit reminders on WhatsApp"
+    "messagingConsent": "Agrees to receive visit reminders on WhatsApp",
+    "edit": "Edit owner",
+    "contact": "Contact",
+    "none": "Not provided",
+    "messaging": "WhatsApp reminders",
+    "consentGiven": "Accepted",
+    "consentMissing": "No consent",
+    "system": "System",
+    "createdBy": "Created by {name} on {when}",
+    "updatedBy": "updated by {name} on {when}",
+    "similarFound": "This mobile number already belongs to another owner. Check it is not the same person:",
+    "saveAnyway": "Save anyway",
+    "reloadCurrent": "See the current values"
   },
   "errors": {
     "unauthenticated": "Sign in to continue.",
@@ -98,7 +110,9 @@
     "species": "Species",
     "save": "Save pet",
     "chooseSpecies": "Choose the species",
-    "status": "Status"
+    "status": "Status",
+    "empty": "No pets registered.",
+    "register": "Register pet"
   },
   "visits": {
     "schedule": "Schedule visit",
@@ -132,7 +146,8 @@
     "admin": "Administrator"
   },
   "common": {
-    "back": "Back"
+    "back": "Back",
+    "breadcrumb": "Breadcrumb"
   },
   "appointmentStatus": {
     "scheduled": "Scheduled",
@@ -140,5 +155,10 @@
     "cancelled": "Cancelled",
     "no_show": "No-show",
     "pending": "Pending record"
+  },
+  "petStatus": {
+    "active": "Active",
+    "deceased": "Deceased",
+    "transferred": "Transferred"
   }
 }

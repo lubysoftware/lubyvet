@@ -37,7 +37,19 @@
     "cpf": "CPF",
     "email": "E-mail",
     "save": "Salvar dono",
-    "messagingConsent": "Aceita receber lembretes de visita por WhatsApp"
+    "messagingConsent": "Aceita receber lembretes de visita por WhatsApp",
+    "edit": "Alterar dono",
+    "contact": "Contato",
+    "none": "Não informado",
+    "messaging": "Lembretes por WhatsApp",
+    "consentGiven": "Aceitos",
+    "consentMissing": "Sem consentimento",
+    "system": "Sistema",
+    "createdBy": "Cadastrado por {name} em {when}",
+    "updatedBy": "alterado por {name} em {when}",
+    "similarFound": "Este celular já pertence a outro dono. Confira se não é a mesma pessoa:",
+    "saveAnyway": "Gravar mesmo assim",
+    "reloadCurrent": "Ver os valores atuais"
   },
   "errors": {
     "unauthenticated": "Entre para continuar.",
@@ -98,7 +110,9 @@
     "species": "Espécie",
     "save": "Salvar animal",
     "chooseSpecies": "Escolha a espécie",
-    "status": "Situação"
+    "status": "Situação",
+    "empty": "Nenhum animal cadastrado.",
+    "register": "Cadastrar animal"
   },
   "visits": {
     "schedule": "Agendar visita",
@@ -132,7 +146,8 @@
     "admin": "Administrador"
   },
   "common": {
-    "back": "Voltar"
+    "back": "Voltar",
+    "breadcrumb": "Caminho"
   },
   "appointmentStatus": {
     "scheduled": "Agendada",
@@ -140,5 +155,10 @@
     "cancelled": "Cancelada",
     "no_show": "Não compareceu",
     "pending": "Pendente de registro"
+  },
+  "petStatus": {
+    "active": "Ativo",
+    "deceased": "Falecido",
+    "transferred": "Transferido"
   }
 }

@@ -1,5 +1,7 @@
 import type { OwnerSearchOutput } from '@lubyvet/contracts';
 import { useTranslations } from 'next-intl';
+import { LinkButton } from '@/components/ui/button';
+import { PageHeader } from '@/components/ui/page-header';
 
 /** 002/T006: todo link de página carrega o termo buscado. */
 export const pageHref = (lastName: string, page: number, pageSize: number): string =>
@@ -10,13 +12,24 @@ export const singleResultTarget = (data: OwnerSearchOutput): string | null =>
   data.lastName !== '' && data.total === 1 && data.items[0] ? `/owners/${data.items[0].id}` : null;
 
 /** Lista de donos (design system: DataTable) com busca por sobrenome e paginação. */
-export function OwnersSearchView({ data }: { data: OwnerSearchOutput }) {
+export function OwnersSearchView({
+  data,
+  canWrite = false,
+}: {
+  data: OwnerSearchOutput;
+  canWrite?: boolean;
+}) {
   const t = useTranslations('owners');
+  const tn = useTranslations('nav');
   const pages = Math.max(1, Math.ceil(data.total / data.pageSize));
   // 002/T003: busca sem resultado volta ao formulário com erro no campo.
   const notFound = data.lastName !== '' && data.total === 0;
   return (
     <section className="grid gap-4">
+      <PageHeader
+        title={tn('owners')}
+        actions={canWrite && <LinkButton href="/owners/new">{t('register')}</LinkButton>}
+      />
       <form action="/owners" className="flex flex-wrap items-end gap-2">
         <div className="grid gap-2">
           <label htmlFor="lastName" className="text-sm font-semibold">

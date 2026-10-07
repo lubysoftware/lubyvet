@@ -15,7 +15,9 @@ const key = (name: string): string =>
     .replace(/\p{Diacritic}/gu, '')
     .toLowerCase();
 
-export function SpeciesIcon({ species }: { species: string }) {
+/** Ao lado do nome da espécie escrito, o ícone é decorativo e sai da leitura de tela. */
+export function SpeciesIcon({ species, decorative }: { species: string; decorative?: boolean }) {
   const Icon = BY_NAME[key(species)] ?? PawPrint;
+  if (decorative) return <Icon aria-hidden size={18} strokeWidth={2} />;
   return <Icon role="img" aria-label={species} size={18} strokeWidth={2} />;
 }

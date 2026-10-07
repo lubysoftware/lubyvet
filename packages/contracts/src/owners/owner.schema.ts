@@ -115,3 +115,13 @@ export const OwnerRecordQuery = z.object({
   visitsPageSize: z.coerce.number().int().min(5).max(50).default(10),
 });
 export type OwnerRecordQuery = z.infer<typeof OwnerRecordQuery>;
+
+/** 007/US-4: quem criou e quem alterou o cadastro por último, e quando. */
+const Author = z.object({ id: z.number().int(), name: z.string() }).nullable();
+export const AuthorshipOutput = z.object({
+  createdBy: Author,
+  createdAt: z.string(),
+  updatedBy: Author,
+  updatedAt: z.string(),
+});
+export type AuthorshipOutput = z.infer<typeof AuthorshipOutput>;
