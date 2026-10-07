@@ -10,6 +10,7 @@ const STATUS: Record<DomainError['kind'], number> = {
   conflict: 409,
   unauthenticated: 401,
   forbidden: 403,
+  unsupported: 406,
 };
 
 /** Único ponto que traduz erro em status HTTP (docs/padroes/arquitetura.md). */

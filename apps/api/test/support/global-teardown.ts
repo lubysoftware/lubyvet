@@ -1,3 +1,7 @@
 export default async function globalTeardown(): Promise<void> {
-  await (globalThis as { __pg?: { stop(): Promise<unknown> } }).__pg?.stop();
+  await Promise.all(
+    ((globalThis as { __containers?: { stop(): Promise<unknown> }[] }).__containers ?? []).map((c) =>
+      c.stop(),
+    ),
+  );
 }

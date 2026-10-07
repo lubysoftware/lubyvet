@@ -14,7 +14,7 @@
       *satisfaz:* — (infraestrutura exigida pelo princípio P3 da constituição e pela decisão
       da Pergunta 14)
 
-- [ ] **T002** Modelar o Veterinário e a Especialidade, com nome e sobrenome obrigatórios e o
+- [x] **T002** Modelar o Veterinário e a Especialidade, com nome e sobrenome obrigatórios e o
       nome da especialidade obrigatório e único
       *entrega:* as duas entidades com os limites de tamanho declarados nos dois lados, a
       coleção de especialidades podendo ser vazia, e as validações de nome e sobrenome do
@@ -40,7 +40,7 @@
       *satisfaz:* — (infraestrutura, arbitragem de C4)
       *depende de:* T003
 
-- [ ] **T005** Implementar a montagem do catálogo de tela
+- [x] **T005** Implementar a montagem do catálogo de tela
       *entrega:* cada linha com nome, sobrenome e as especialidades daquele veterinário em
       ordem alfabética, a marca de ausência vinda do catálogo de traduções quando não há
       nenhuma, a ordenação feita a cada leitura sem depender da ordem vinda do repositório, e
@@ -48,7 +48,7 @@
       *satisfaz:* CA-1.1, CA-1.2, CA-1.3, CA-1.4
       *depende de:* T003
 
-- [ ] **T006** Implementar a paginação com ordenação explícita no pedido e a guarda de faixa
+- [x] **T006** Implementar a paginação com ordenação explícita no pedido e a guarda de faixa
       *entrega:* o tamanho de página configurado, a ordenação explícita viajando no **pedido
       ao repositório** e não aplicada depois em memória, a página fora da faixa levando à
       primeira, e o piso de uma página preservado com comentário de decisão. Remover esse piso
@@ -74,7 +74,7 @@
       *satisfaz:* CA-2.1, CA-2.2, CA-2.3
       *depende de:* T006
 
-- [ ] **T009** Implementar a memória do catálogo com descarte a cada escrita no quadro
+- [x] **T009** Implementar a memória do catálogo com descarte a cada escrita no quadro
       *entrega:* a leitura servida de memória, e o descarte provocado por **cada** escrita no
       quadro de veterinários, de modo que a leitura seguinte vá à fonte. É a correção de
       REG-39, que registra memória sem prazo e sem invalidação
@@ -94,7 +94,7 @@
 - [ ] **T011** ~~Resposta de dados do catálogo~~ **removida por D22**: não existe rota de
       dados para sistema externo; o front é servido por T012
 
-- [ ] **T012** Servir o catálogo ao front num formato só, sem estado de persistência
+- [x] **T012** Servir o catálogo ao front num formato só, sem estado de persistência
       *entrega:* `GET /api/vets` com o schema de saída declarado em `packages/contracts`
       (D32), paginado por P-06, e o pedido de outro formato (`Accept` diferente de JSON)
       recusado com 406 em vez de resposta malformada; nenhuma resposta serializa estado de
@@ -109,7 +109,7 @@
       *satisfaz:* CA-5.1, CA-5.2, CA-6.1, CA-6.2
       *depende de:* T012
 
-- [ ] **T014** Prazo de validade de segurança da memória do catálogo
+- [x] **T014** Prazo de validade de segurança da memória do catálogo
       *entrega:* TTL de 10 minutos no Redis além da invalidação por escrita (P-08);
       `UT-025-4` passando com relógio controlado
       *satisfaz:* CA-3.1

@@ -1,4 +1,5 @@
 import { PrismaPg } from '@prisma/adapter-pg';
+import Redis from 'ioredis';
 import { Pool } from 'pg';
 import { PrismaClient } from '../../src/generated/prisma/client';
 
@@ -25,6 +26,12 @@ export const testDb = {
     return c;
   },
   async truncate(): Promise<void> {
+    // A memória do catálogo (005) não pode atravessar testes.
+    if (process.env.REDIS_URL) {
+      const r = new Redis(process.env.REDIS_URL);
+      await r.flushdb();
+      r.disconnect();
+    }
     const { rows } = await testDb.sql.query<{ tablename: string }>(
       "select tablename from pg_tables where schemaname = 'public' and tablename <> '_prisma_migrations'",
     );

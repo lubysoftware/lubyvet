@@ -3,7 +3,7 @@ import type { ErrorCode, FieldErrorCode } from '@lubyvet/contracts';
 /** Erro de domínio tipado; o status HTTP sai do filtro único (docs/padroes/arquitetura.md). */
 export abstract class DomainError extends Error {
   abstract readonly code: ErrorCode;
-  abstract readonly kind: 'not_found' | 'rule' | 'conflict' | 'unauthenticated' | 'forbidden';
+  abstract readonly kind: 'not_found' | 'rule' | 'conflict' | 'unauthenticated' | 'forbidden' | 'unsupported';
 }
 
 export class NotFound extends DomainError {

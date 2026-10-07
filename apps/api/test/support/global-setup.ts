@@ -1,15 +1,20 @@
 import { execSync } from 'node:child_process';
 import { PostgreSqlContainer } from '@testcontainers/postgresql';
+import { RedisContainer } from '@testcontainers/redis';
 
-// Um Postgres real por execução, com as migrações aplicadas uma vez (docs/padroes/testes.md).
+// Postgres e Redis reais por execução, com as migrações aplicadas uma vez (docs/padroes/testes.md).
 export default async function globalSetup(): Promise<void> {
-  const container = await new PostgreSqlContainer('postgres:17-alpine').start();
-  const url = container.getConnectionUri();
+  const [pg, redis] = await Promise.all([
+    new PostgreSqlContainer('postgres:17-alpine').start(),
+    new RedisContainer('redis:8-alpine').start(),
+  ]);
+  const url = pg.getConnectionUri();
   process.env.DATABASE_URL = url;
+  process.env.REDIS_URL = redis.getConnectionUrl();
   execSync('npx prisma migrate deploy', {
     cwd: `${__dirname}/../..`,
     env: { ...process.env, DATABASE_URL: url },
     stdio: 'pipe',
   });
-  (globalThis as { __pg?: { stop(): Promise<unknown> } }).__pg = container;
+  (globalThis as { __containers?: { stop(): Promise<unknown> }[] }).__containers = [pg, redis];
 }
