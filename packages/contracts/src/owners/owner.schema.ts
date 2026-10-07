@@ -48,6 +48,8 @@ export type RegisterOwnerInput = z.infer<typeof RegisterOwnerInput>;
  * e aí a obrigatoriedade reprova. `version` é obrigatória (US-5).
  */
 export const ChangeOwnerContactInput = z.object({
+  /** REG-05: quando presente, tem de ser o dono do endereço pedido. */
+  id: z.number().int().optional(),
   version: z.number({ error: 'required' }).int().min(0),
   firstName: text(OWNER_LIMITS.firstName).optional(),
   lastName: text(OWNER_LIMITS.lastName).optional(),

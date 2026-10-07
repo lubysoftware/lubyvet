@@ -47,6 +47,7 @@ export const FIELD_ERROR_CODES = [
   'vet_inactive',
   'specialty_already_linked',
   'out_of_range',
+  'id_mismatch',
 ] as const;
 export type FieldErrorCode = (typeof FIELD_ERROR_CODES)[number];
 

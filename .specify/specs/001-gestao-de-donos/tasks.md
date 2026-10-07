@@ -61,7 +61,7 @@
       *satisfaz:* CA-1.1, CA-1.2, CA-1.3, CA-1.4, CA-2.1, CA-2.2
       *depende de:* T007
 
-- [ ] **T009** Definir o objeto de entrada de alteração com semântica declarada de alteração
+- [x] **T009** Definir o objeto de entrada de alteração com semântica declarada de alteração
       parcial
       *entrega:* o contrato de entrada em que campo ausente significa não alterar, campo
       presente e vazio significa limpar e nesse caso a obrigatoriedade reprova, mais o teste
