@@ -11,6 +11,11 @@
   value: {{ .Values.clinic.phone | quote }}
 - name: NODE_ENV
   value: production
+{{- if .Values.observability.otlpEndpoint }}
+# P-16, D27: métricas por OTLP para o Collector do cluster.
+- name: OTEL_EXPORTER_OTLP_ENDPOINT
+  value: {{ .Values.observability.otlpEndpoint | quote }}
+{{- end }}
 {{- end -}}
 
 {{- define "lubyvet.probe" -}}

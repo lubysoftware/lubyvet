@@ -2,6 +2,9 @@
 clinic:
   name: ''
   phone: ''
+observability:
+  # P-16: endereço OTLP/HTTP do OpenTelemetry Collector (ex.: http://otel-collector:4318). Vazio, nada é exportado.
+  otlpEndpoint: ''
 images:
   # Fixe por digest na instalação: repo@sha256:...
   api: ''

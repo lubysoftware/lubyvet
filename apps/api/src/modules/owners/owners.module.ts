@@ -1,3 +1,4 @@
+import { METRICS, type Metrics } from '../../shared/domain/metrics';
 import { Module } from '@nestjs/common';
 import { CLOCK, type Clock } from '../../shared/domain/clock';
 import { ChangeOwnerContact } from './application/change-owner-contact.use-case';
@@ -27,8 +28,8 @@ import { OwnersController } from './interface/http/owners.controller';
     { provide: OWNER_AUTHORSHIP, useClass: PrismaOwnerAuthorship },
     {
       provide: AnonymizeOwner,
-      useFactory: (a: AnonymizationPort, c: Clock) => new AnonymizeOwner(a, c),
-      inject: [ANONYMIZATION, CLOCK],
+      useFactory: (a: AnonymizationPort, c: Clock, m: Metrics) => new AnonymizeOwner(a, c, m),
+      inject: [ANONYMIZATION, CLOCK, METRICS],
     },
     {
       provide: SearchOwners,
@@ -37,13 +38,13 @@ import { OwnersController } from './interface/http/owners.controller';
     },
     {
       provide: RegisterOwner,
-      useFactory: (r: OwnerRepository, c: Clock) => new RegisterOwner(r, c),
-      inject: [OWNER_REPOSITORY, CLOCK],
+      useFactory: (r: OwnerRepository, c: Clock, m: Metrics) => new RegisterOwner(r, c, m),
+      inject: [OWNER_REPOSITORY, CLOCK, METRICS],
     },
     {
       provide: ChangeOwnerContact,
-      useFactory: (r: OwnerRepository, c: Clock) => new ChangeOwnerContact(r, c),
-      inject: [OWNER_REPOSITORY, CLOCK],
+      useFactory: (r: OwnerRepository, c: Clock, m: Metrics) => new ChangeOwnerContact(r, c, m),
+      inject: [OWNER_REPOSITORY, CLOCK, METRICS],
     },
     { provide: GetOwner, useFactory: (r: OwnerRepository) => new GetOwner(r), inject: [OWNER_REPOSITORY] },
   ],

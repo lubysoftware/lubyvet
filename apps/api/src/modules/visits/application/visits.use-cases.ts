@@ -1,3 +1,4 @@
+import { type Metrics, NO_METRICS } from '../../../shared/domain/metrics';
 import type { Clock } from '../../../shared/domain/clock';
 import { FieldRuleViolation } from '../../../shared/domain/errors';
 import type { PetRepository } from '../../pets/application/ports/pet-repository.port';
@@ -25,6 +26,7 @@ export class Visits {
     private readonly pets: PetRepository,
     private readonly clock: Clock,
     private readonly vets: VetDirectory = { exists: async () => true },
+    private readonly metrics: Metrics = NO_METRICS,
   ) {}
 
   private async pet(ref: PetRef) {
@@ -44,7 +46,11 @@ export class Visits {
   async schedule(ref: PetRef, input: { scheduledAt: Date; description: string }): Promise<Appointment> {
     const pet = await this.pet(ref);
     if (!pet.canBeScheduled()) throw new PetNotSchedulable();
-    return this.visits.insertAppointment(Appointment.schedule(ref.petId, input, this.clock.now()));
+    const saved = await this.visits.insertAppointment(
+      Appointment.schedule(ref.petId, input, this.clock.now()),
+    );
+    this.metrics.increment('appointments_created');
+    return saved;
   }
 
   async reschedule(
@@ -61,13 +67,17 @@ export class Visits {
   async cancel(ref: PetRef, id: number, version: number): Promise<Appointment> {
     const a = await this.appointment(ref, id);
     a.cancel(version, this.clock.now());
-    return this.visits.updateAppointment(a, version);
+    const saved = await this.visits.updateAppointment(a, version);
+    this.metrics.increment('appointments_cancelled');
+    return saved;
   }
 
   async markNoShow(ref: PetRef, id: number, version: number): Promise<Appointment> {
     const a = await this.appointment(ref, id);
     a.markNoShow(version, this.clock.now());
-    return this.visits.updateAppointment(a, version);
+    const saved = await this.visits.updateAppointment(a, version);
+    this.metrics.increment('appointments_no_show');
+    return saved;
   }
 
   /** US-3/US-4: registrar atendimento, ligado ao agendamento quando houver, que vira Realizada. */
@@ -79,14 +89,27 @@ export class Visits {
     if (input.vetId !== undefined && !(await this.vets.exists(input.vetId)))
       throw new FieldRuleViolation([{ path: 'vetId', code: 'vet_inactive' }]);
     const now = this.clock.now();
-    if (input.appointmentId === undefined)
-      return this.visits.recordEncounter(Encounter.record(ref.petId, null, input, now));
-    if (input.appointmentVersion === undefined)
-      throw new FieldRuleViolation([{ path: 'appointmentVersion', code: 'required' }]);
-    const a = await this.appointment(ref, input.appointmentId);
-    const encounter = Encounter.record(ref.petId, input.appointmentId, input, now);
-    a.markDone(input.appointmentVersion, now);
-    return this.visits.recordEncounter(encounter, { appointment: a, version: input.appointmentVersion });
+    let saved: Encounter;
+    if (input.appointmentId === undefined) {
+      saved = await this.visits.recordEncounter(Encounter.record(ref.petId, null, input, now));
+    } else {
+      if (input.appointmentVersion === undefined)
+        throw new FieldRuleViolation([{ path: 'appointmentVersion', code: 'required' }]);
+      const a = await this.appointment(ref, input.appointmentId);
+      const encounter = Encounter.record(ref.petId, input.appointmentId, input, now);
+      a.markDone(input.appointmentVersion, now);
+      saved = await this.visits.recordEncounter(encounter, {
+        appointment: a,
+        version: input.appointmentVersion,
+      });
+    }
+    // D27: por veterinário, o rótulo é o id, nunca o nome.
+    this.metrics.increment(
+      'encounters_recorded',
+      input.vetId === undefined ? {} : { vet_id: String(input.vetId) },
+    );
+    if (input.returnDate) this.metrics.increment('returns_suggested');
+    return saved;
   }
 
   /** T015: a ficha do animal distingue o agendado do atendido. */

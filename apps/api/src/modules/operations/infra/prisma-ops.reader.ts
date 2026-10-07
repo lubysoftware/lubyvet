@@ -19,13 +19,15 @@ export class PrismaOpsReader implements OpsReader {
   async metrics(): Promise<Record<string, number | Record<string, number>>> {
     const byStatus = await this.db.appointment.groupBy({ by: ['status'], _count: true });
     const statuses = Object.fromEntries(byStatus.map((r) => [r.status, r._count]));
-    const [pending, encounters, encountersByVet, owners, pets, anonymizations] = await Promise.all([
+    const [pending, encounters, encountersByVet, owners, pets, anonymizations, queued] = await Promise.all([
       this.db.appointment.count({ where: { status: 'scheduled', scheduledAt: { lte: new Date() } } }),
       this.db.encounter.count(),
       this.db.encounter.groupBy({ by: ['vetId'], _count: true, where: { vetId: { not: null } } }),
       this.db.owner.count(),
       this.db.pet.count(),
       this.db.ownerAnonymization.count(),
+      // D27: tamanho da fila, o que ainda não saiu para a Meta.
+      this.db.notificationOutbox.count({ where: { status: { in: ['pending', 'published'] } } }),
     ]);
     const closed = (statuses.done ?? 0) + (statuses.no_show ?? 0);
     return {
@@ -37,6 +39,7 @@ export class PrismaOpsReader implements OpsReader {
       owners,
       pets,
       anonymizations,
+      whatsappQueue: queued,
     };
   }
 }

@@ -22,9 +22,10 @@
     "test:int": "bun run --cwd apps/api test:int",
     "test:e2e": "bun run --cwd apps/api test:e2e && bun run --cwd apps/web test:e2e",
     "test:cov": "bun run --cwd packages/contracts test:cov && bun run --cwd apps/api test:cov && bun run --cwd apps/web test:unit",
-    "verify": "bun run --cwd packages/contracts build && bun run secrets && bun run lint && bun run format:check && bun run typecheck && bun run boundaries && bun run test:cov && bun run test:int && bun run test:e2e",
+    "verify": "bun run --cwd packages/contracts build && bun run secrets && bun run lint && bun run format:check && bun run typecheck && bun run boundaries && bun run test:cov && bun run test:int && bun run test:e2e && bun run test:acceptance",
     "verify:perf": "bun run --cwd apps/api test:perf",
-    "secrets": "node scripts/check-secrets.mjs"
+    "secrets": "node scripts/check-secrets.mjs",
+    "test:acceptance": "bun run --cwd apps/api test:acceptance"
   },
   "devDependencies": {
     "eslint": "10.12.0",

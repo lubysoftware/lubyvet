@@ -1,0 +1,229 @@
+{
+  "title": "LubyVet: uso do balcão (D27)",
+  "uid": "lubyvet-d27",
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": true,
+  "time": {
+    "from": "now-30d",
+    "to": "now"
+  },
+  "description": "Indicadores agregados de D27, sem dado pessoal (P-16). Fonte: métricas OpenTelemetry da API e do worker.",
+  "templating": {
+    "list": [
+      {
+        "name": "datasource",
+        "type": "datasource",
+        "query": "prometheus",
+        "label": "Fonte"
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Agenda por dia",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(increase(lubyvet_appointments_created_total[1d]))",
+          "legendFormat": "criados"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(increase(lubyvet_appointments_cancelled_total[1d]))",
+          "legendFormat": "cancelados"
+        },
+        {
+          "refId": "C",
+          "expr": "sum(increase(lubyvet_appointments_no_show_total[1d]))",
+          "legendFormat": "não compareceu"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Pendentes de registro e não comparecimento",
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "max(lubyvet_appointments_pending_record)",
+          "legendFormat": "pendentes"
+        },
+        {
+          "refId": "B",
+          "expr": "max(lubyvet_no_show_rate_percent)",
+          "legendFormat": "taxa de não comparecimento (%)"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Atendimentos por dia e por veterinário (id)",
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(increase(lubyvet_encounters_recorded_total[1d]))",
+          "legendFormat": "atendimentos"
+        },
+        {
+          "refId": "B",
+          "expr": "sum by (vet_id) (increase(lubyvet_encounters_recorded_total[1d]))",
+          "legendFormat": "vet {{vet_id}}"
+        },
+        {
+          "refId": "C",
+          "expr": "sum(increase(lubyvet_returns_suggested_total[1d]))",
+          "legendFormat": "retornos sugeridos"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Base de clientes por mês",
+      "gridPos": {
+        "x": 12,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(increase(lubyvet_owners_created_total[30d]))",
+          "legendFormat": "novos donos"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(increase(lubyvet_pets_created_total[30d]))",
+          "legendFormat": "novos animais"
+        },
+        {
+          "refId": "C",
+          "expr": "sum(increase(lubyvet_similar_owner_shown_total[30d]))",
+          "legendFormat": "aviso de parecido exibido"
+        },
+        {
+          "refId": "D",
+          "expr": "sum(increase(lubyvet_similar_owner_dismissed_total[30d]))",
+          "legendFormat": "aviso dispensado"
+        },
+        {
+          "refId": "E",
+          "expr": "sum(increase(lubyvet_owners_anonymized_total[30d]))",
+          "legendFormat": "anonimizações"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "WhatsApp",
+      "gridPos": {
+        "x": 0,
+        "y": 16,
+        "w": 24,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(increase(lubyvet_whatsapp_enqueued_total[1d]))",
+          "legendFormat": "enfileiradas"
+        },
+        {
+          "refId": "B",
+          "expr": "sum by (type) (increase(lubyvet_whatsapp_sent_total[1d]))",
+          "legendFormat": "enviadas {{type}}"
+        },
+        {
+          "refId": "C",
+          "expr": "sum(increase(lubyvet_whatsapp_failed_total[1d]))",
+          "legendFormat": "falhas"
+        },
+        {
+          "refId": "D",
+          "expr": "sum(increase(lubyvet_whatsapp_skipped_no_consent_total[1d]))",
+          "legendFormat": "sem consentimento"
+        },
+        {
+          "refId": "E",
+          "expr": "max(lubyvet_whatsapp_queue_size)",
+          "legendFormat": "fila"
+        }
+      ]
+    }
+  ]
+}

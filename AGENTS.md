@@ -58,6 +58,7 @@ existem só os `AGENTS.md` de cada pasta.
 | `bun run test:unit` | unidade da API e componentes do web; roda em segundos e sem Docker |
 | `bun run test:int` | integração com Postgres, Redis e RabbitMQ reais (Testcontainers); precisa de Docker |
 | `bun run test:e2e` | API inteira via HTTP e Playwright no web (fluxos e axe nos dois temas, pilha em Testcontainers) |
+| `bun run test:acceptance` | um teste por critério de aceite das specs (`NNN/CA-x.y`), contra a pilha real, mais a rastreabilidade que exige teste para cada critério |
 | `bun run verify:perf` | desempenho da busca de donos (D08); fora do veredito rápido |
 
 Node 24 LTS (`.nvmrc`) e workspaces. **Use o bun para instalar e rodar** (`bun install`, `bun run <script>`): nesta máquina o npm encerra sem erro tanto na instalação quanto em scripts longos ou em vários workspaces. O lockfile versionado é o `bun.lock`.

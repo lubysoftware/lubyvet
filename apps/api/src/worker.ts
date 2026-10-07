@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { startTelemetry } from './shared/infra/telemetry';
 import { NestFactory } from '@nestjs/core';
 import { Module } from '@nestjs/common';
 import { Notifications } from './modules/notifications/application/notifications.use-cases';
@@ -12,6 +13,7 @@ class WorkerModule {}
 
 /** D12: publica a caixa de saída e consome a fila de envio (P-18). */
 async function main(): Promise<void> {
+  startTelemetry('lubyvet-worker');
   const app = await NestFactory.createApplicationContext(WorkerModule, { logger: false });
   const notifications = app.get(Notifications);
   await app.get(RabbitQueue).consume(

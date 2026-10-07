@@ -1,3 +1,4 @@
+import { type Metrics, NO_METRICS } from '../../../shared/domain/metrics';
 import type { Clock } from '../../../shared/domain/clock';
 import { FieldRuleViolation } from '../../../shared/domain/errors';
 import type { ContactPatch, Owner } from '../domain/owner';
@@ -19,6 +20,7 @@ export class ChangeOwnerContact {
   constructor(
     private readonly owners: OwnerRepository,
     private readonly clock: Clock,
+    private readonly metrics: Metrics = NO_METRICS,
   ) {}
 
   async execute(cmd: ChangeOwnerContactCommand): Promise<Owner> {
@@ -33,8 +35,12 @@ export class ChangeOwnerContact {
     if (owner.telephone !== before) {
       const similar = await this.owners.findByTelephone(owner.telephone, cmd.ownerId);
       if (similar.length > 0) {
-        if (!cmd.confirmSimilar) throw new SimilarOwnerFound(similar);
+        if (!cmd.confirmSimilar) {
+          this.metrics.increment('similar_owner_shown');
+          throw new SimilarOwnerFound(similar);
+        }
         owner.dismissSimilarity(now);
+        this.metrics.increment('similar_owner_dismissed');
       }
     }
     return this.owners.update(owner, cmd.version);

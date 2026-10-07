@@ -1,3 +1,4 @@
+import { METRICS, type Metrics } from '../../shared/domain/metrics';
 import { Module } from '@nestjs/common';
 import { CLOCK, type Clock } from '../../shared/domain/clock';
 import {
@@ -26,9 +27,9 @@ import { FakeOwnerNotifier, MetaWhatsAppNotifier } from './infra/senders';
     },
     {
       provide: Notifications,
-      useFactory: (o: OutboxRepository, q: MessageQueue, n: OwnerNotifier, c: Clock) =>
-        new Notifications(o, q, n, c),
-      inject: [OUTBOX, MESSAGE_QUEUE, OWNER_NOTIFIER, CLOCK],
+      useFactory: (o: OutboxRepository, q: MessageQueue, n: OwnerNotifier, c: Clock, m: Metrics) =>
+        new Notifications(o, q, n, c, m),
+      inject: [OUTBOX, MESSAGE_QUEUE, OWNER_NOTIFIER, CLOCK, METRICS],
     },
   ],
   exports: [Notifications, RabbitQueue, OWNER_NOTIFIER],

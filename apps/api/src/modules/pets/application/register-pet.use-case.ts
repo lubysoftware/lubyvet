@@ -1,3 +1,4 @@
+import { type Metrics, NO_METRICS } from '../../../shared/domain/metrics';
 import type { Clock } from '../../../shared/domain/clock';
 import type { OwnerRepository } from '../../owners/application/ports/owner-repository.port';
 import { Pet, type PetFields } from '../domain/pet';
@@ -12,6 +13,7 @@ export class RegisterPet {
     private readonly pets: PetRepository,
     private readonly species: SpeciesCatalog,
     private readonly clock: Clock,
+    private readonly metrics: Metrics = NO_METRICS,
   ) {}
 
   async execute(ownerId: number, fields: PetFields): Promise<Pet> {
@@ -22,6 +24,8 @@ export class RegisterPet {
     if (species.status !== undefined && species.status !== 'active')
       throw new FieldRuleViolation([{ path: 'speciesId', code: 'species_inactive' }]);
     if (await this.pets.nameTaken(ownerId, pet.name)) throw new PetNameTaken();
-    return this.pets.insert(pet);
+    const saved = await this.pets.insert(pet);
+    this.metrics.increment('pets_created');
+    return saved;
   }
 }

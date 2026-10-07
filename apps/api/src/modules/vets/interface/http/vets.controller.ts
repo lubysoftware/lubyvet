@@ -2,7 +2,7 @@ import { Controller, Get, Headers, Inject, Param, Query } from '@nestjs/common';
 import { PageQuery, type VetCatalogOutput, type VetPatientsOutput } from '@lubyvet/contracts';
 import { IdParamPipe } from '../../../../shared/interface/http/id-param.pipe';
 import { VET_PATIENTS_READER, type VetPatientsReader } from '../../application/ports/vet-catalog.port';
-import { DomainError } from '../../../../shared/domain/errors';
+import { DomainError, NotFound } from '../../../../shared/domain/errors';
 import { ZodValidationPipe } from '../../../../shared/interface/http/zod-validation.pipe';
 import { GetVetCatalog } from '../../application/vet-catalog.use-case';
 
@@ -20,8 +20,12 @@ export class VetsController {
   ) {}
 
   @Get(':vetId/patients')
-  listPatients(@Param('vetId', new IdParamPipe('vet_not_found')) vetId: number): Promise<VetPatientsOutput> {
-    return this.patients.list(vetId);
+  async listPatients(
+    @Param('vetId', new IdParamPipe('vet_not_found')) vetId: number,
+  ): Promise<VetPatientsOutput> {
+    const patients = await this.patients.list(vetId);
+    if (!patients) throw new NotFound('vet_not_found');
+    return patients;
   }
 
   @Get()

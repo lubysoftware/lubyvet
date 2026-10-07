@@ -28,7 +28,10 @@ export const VET_CATALOG_CACHE = Symbol('VetCatalogCache');
 
 /** 004/CA-4.4: animais atendidos por um veterinário. */
 export interface VetPatientsReader {
-  list(vetId: number): Promise<{ petId: number; petName: string; ownerId: number; encounters: number }[]>;
+  /** null quando o veterinário não existe (008/CA-1.1: não encontrado, nunca lista vazia). */
+  list(
+    vetId: number,
+  ): Promise<{ petId: number; petName: string; ownerId: number; encounters: number }[] | null>;
 }
 export const VET_PATIENTS_READER = Symbol('VetPatientsReader');
 

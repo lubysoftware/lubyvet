@@ -7,7 +7,8 @@ import type { VetPatientsReader } from '../application/ports/vet-catalog.port';
 @Injectable()
 export class PrismaVetPatients implements VetPatientsReader {
   constructor(private readonly db: PrismaService) {}
-  list(vetId: number): Promise<VetPatientsOutput> {
+  async list(vetId: number): Promise<VetPatientsOutput | null> {
+    if (!(await this.db.vet.findUnique({ where: { id: vetId }, select: { id: true } }))) return null;
     return this.db.$queryRaw<VetPatientsOutput>`
       select p.id as "petId", p.name as "petName", p.owner_id as "ownerId", count(*)::int as encounters
       from encounters e join pets p on p.id = e.pet_id

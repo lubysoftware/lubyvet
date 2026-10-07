@@ -1,3 +1,4 @@
+import { METRICS, type Metrics } from '../../shared/domain/metrics';
 import { Module } from '@nestjs/common';
 import { CLOCK, type Clock } from '../../shared/domain/clock';
 import { OWNER_REPOSITORY, type OwnerRepository } from '../owners/application/ports/owner-repository.port';
@@ -23,9 +24,9 @@ import { PetsController } from './interface/http/pets.controller';
     { provide: SPECIES_CATALOG, useClass: PrismaSpeciesCatalog },
     {
       provide: RegisterPet,
-      useFactory: (o: OwnerRepository, p: PetRepository, s: SpeciesCatalog, c: Clock) =>
-        new RegisterPet(o, p, s, c),
-      inject: [OWNER_REPOSITORY, PET_REPOSITORY, SPECIES_CATALOG, CLOCK],
+      useFactory: (o: OwnerRepository, p: PetRepository, s: SpeciesCatalog, c: Clock, m: Metrics) =>
+        new RegisterPet(o, p, s, c, m),
+      inject: [OWNER_REPOSITORY, PET_REPOSITORY, SPECIES_CATALOG, CLOCK, METRICS],
     },
     { provide: GetPet, useFactory: (p: PetRepository) => new GetPet(p), inject: [PET_REPOSITORY] },
     {

@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { type ArgumentsHost, Catch, type ExceptionFilter, HttpException } from '@nestjs/common';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 import type { ErrorEnvelope } from '@lubyvet/contracts';
 import { logger } from '../../infra/logger';
 import { DomainError, FieldRuleViolation, StaleVersion } from '../../domain/errors';
@@ -43,8 +43,11 @@ export class DomainErrorFilter implements ExceptionFilter {
     }
     // Falha inesperada: um identificador de ocorrência, gerado uma vez, no log e na resposta (008/US-1).
     const occurrenceId = randomUUID();
+    // 008/CA-5.1: momento (time do pino), caminho pedido sem a query e o identificador da ocorrência.
+    const http = host.switchToHttp() as { getRequest?: () => Request | undefined };
+    const path = http.getRequest?.()?.originalUrl?.split('?')[0];
     logger.error(
-      { occurrenceId, err: exception instanceof Error ? exception.name : 'unknown' },
+      { occurrenceId, path, err: exception instanceof Error ? exception.name : 'unknown' },
       'falha inesperada',
     );
     res.status(500).json({ error: { code: 'internal_error', occurrenceId } });
