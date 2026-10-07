@@ -1,5 +1,4 @@
-import { readFileSync, readdirSync } from 'node:fs';
-import { join } from 'node:path';
+import { STRUCTURAL, allowed, listRepo, readRepo } from '../support/structural';
 
 /**
  * Rastreabilidade: todo critério de aceite das specs (linha "- [ ] CA-x.y" ou "- [x] CA-x.y")
@@ -7,15 +6,9 @@ import { join } from 'node:path';
  * API, nos componentes do web (Vitest) e no E2E do web (Playwright). A exigência vale para a
  * feature entregue, a que tem todas as tarefas marcadas no tasks.md; a planejada fica listada.
  */
-const repo = join(__dirname, '../../../..');
-const specsDir = join(repo, '.specify/specs');
-
-const walk = (dir: string, match: RegExp): string[] =>
-  readdirSync(dir, { withFileTypes: true }).flatMap((d) => {
-    if (d.name === 'node_modules' || d.name.startsWith('.')) return [];
-    const p = join(dir, d.name);
-    return d.isDirectory() ? walk(p, match) : match.test(d.name) ? [p] : [];
-  });
+const SPECS = '.specify/specs';
+const walk = (dir: string, match: RegExp): string[] => listRepo(dir, true).filter((f) => match.test(f));
+const spec = (feature: string, file: 'spec.md' | 'tasks.md') => readRepo(`${SPECS}/${feature}/${file}`);
 
 export function criteriaOf(spec: string): string[] {
   return [...spec.matchAll(/^\s*- \[[ x]\] (?:~~)?(CA-\d+\.\d+)/gm)].map((m) => m[1] ?? '');
@@ -29,19 +22,20 @@ export function citedIn(source: string): Set<string> {
   return new Set(titles.flatMap((t) => [...t.matchAll(/(\d{3}\/CA-\d+\.\d+)/g)].map((m) => m[1] ?? '')));
 }
 
-const features = readdirSync(specsDir)
+const features = listRepo(SPECS)
+  .map((d) => d.slice(SPECS.length + 1))
   .filter((d) => /^\d{3}-/.test(d))
   .sort();
 /** Entregue: tem tarefas e nenhuma ainda em aberto ("- [ ] **T"). */
 export const delivered = (tasks: string): boolean =>
   /- \[x\] \*\*T/.test(tasks) && !/- \[ \] \*\*T/.test(tasks);
-const done = features.filter((f) => delivered(readFileSync(join(specsDir, f, 'tasks.md'), 'utf8')));
+const done = features.filter((f) => delivered(spec(f, 'tasks.md')));
 const testFiles = [
-  ...walk(join(repo, 'apps/api/test'), /\.(acceptance-spec|e2e-spec|int-spec|perf-spec)\.ts$/),
-  ...walk(join(repo, 'apps/web/src'), /\.test\.tsx?$/),
-  ...walk(join(repo, 'apps/web/e2e'), /\.e2e\.ts$/),
+  ...walk('apps/api/test', /\.(acceptance-spec|e2e-spec|int-spec|perf-spec)\.ts$/),
+  ...walk('apps/web/src', /\.test\.tsx?$/),
+  ...walk('apps/web/e2e', /\.e2e\.ts$/),
 ];
-const cited = new Set(testFiles.flatMap((f) => [...citedIn(readFileSync(f, 'utf8'))]));
+const cited = new Set(testFiles.flatMap((f) => [...citedIn(readRepo(f))]));
 
 describe('rastreabilidade dos critérios de aceite', () => {
   it('as dez features da primeira entrega estão entregues (todas as tarefas marcadas)', () => {
@@ -77,18 +71,50 @@ describe('rastreabilidade dos critérios de aceite', () => {
   });
 
   it.each(done)('%s: todo critério de aceite tem teste', (feature) => {
-    const spec = readFileSync(join(specsDir, feature, 'spec.md'), 'utf8');
-    const ids = criteriaOf(spec).map((ca) => `${feature.slice(0, 3)}/${ca}`);
+    const ids = criteriaOf(spec(feature, 'spec.md')).map((ca) => `${feature.slice(0, 3)}/${ca}`);
     expect(ids.length).toBeGreaterThan(0);
     expect(ids.filter((id) => !cited.has(id))).toEqual([]);
   });
 
   it('nenhum teste cita critério que não existe', () => {
     const real = new Set(
-      features.flatMap((f) =>
-        criteriaOf(readFileSync(join(specsDir, f, 'spec.md'), 'utf8')).map((ca) => `${f.slice(0, 3)}/${ca}`),
-      ),
+      features.flatMap((f) => criteriaOf(spec(f, 'spec.md')).map((ca) => `${f.slice(0, 3)}/${ca}`)),
     );
     expect([...cited].filter((id) => !real.has(id))).toEqual([]);
+  });
+
+  it('011/CA-4.2 a lista do que um teste pode ler fica num lugar só, cada entrada com o motivo', () => {
+    expect(STRUCTURAL.every((e) => e.why.length > 10)).toBe(true);
+    for (const ok of [
+      'deploy/helm/lubyvet/values.yaml',
+      'apps/web/src/i18n/messages/en.json',
+      'apps/api/prisma/schema.prisma',
+    ])
+      expect([ok, allowed(ok)]).toEqual([ok, true]);
+    for (const no of [
+      'apps/web/src/features/owners/components/owners-search-view.tsx',
+      'apps/api/src/modules/owners/infra/prisma-owner.repository.ts',
+      'packages/contracts/src/owners/owner.schema.ts',
+    ]) {
+      expect([no, allowed(no)]).toEqual([no, false]);
+      expect(() => readRepo(no)).toThrow(/não é leitura estrutural permitida/);
+    }
+  });
+
+  it('011/CA-4.1 nenhum teste de aceitação lê arquivo por fora da lista estrutural', () => {
+    // Este arquivo fica de fora só porque a expressão abaixo contém o próprio texto que procura.
+    const suites = walk('apps/api/test/acceptance', /\.acceptance-spec\.ts$/).filter(
+      (f) => !f.endsWith('traceability.acceptance-spec.ts'),
+    );
+    expect(suites.length).toBeGreaterThanOrEqual(8);
+    const direct = suites.filter((f) =>
+      /from 'node:fs'|require\('(node:)?fs'\)|child_process/.test(readRepo(f)),
+    );
+    expect(direct).toEqual([]);
+  });
+
+  it('011/CA-4.3 a rastreabilidade continua exigindo teste para cada critério das features entregues', () => {
+    expect(done.length).toBeGreaterThanOrEqual(10);
+    for (const f of done) expect(criteriaOf(spec(f, 'spec.md')).length).toBeGreaterThan(0);
   });
 });

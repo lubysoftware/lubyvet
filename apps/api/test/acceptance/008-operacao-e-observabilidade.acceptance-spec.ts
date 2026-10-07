@@ -1,7 +1,5 @@
 import { metrics } from '@opentelemetry/api';
 import { MeterProvider, MetricReader, type ResourceMetrics } from '@opentelemetry/sdk-metrics';
-import { readFileSync, readdirSync } from 'node:fs';
-import { join } from 'node:path';
 import request from 'supertest';
 import { anOwnerInput } from '../builders/owner.builder';
 import {
@@ -13,6 +11,7 @@ import { logger, maskSecrets } from '../../src/shared/infra/logger';
 import { ROUTE_ROLES } from '../../src/shared/interface/http/roles';
 import { bootApp, idem, loginAs, type TestApp } from '../support/app';
 import { aPetInput, postPet } from '../support/pets';
+import { listRepo, readRepo } from '../support/structural';
 import { testDb } from '../support/test-db';
 
 /** Leitor de métricas em memória: o mesmo OpenTelemetry da produção, sem exportador. */
@@ -27,8 +26,6 @@ class TestReader extends MetricReader {
 const reader = new TestReader();
 metrics.setGlobalMeterProvider(new MeterProvider({ readers: [reader] }));
 
-const repo = join(__dirname, '../../../..');
-const api = join(__dirname, '../..');
 const PERSONAL = /Mariana|Teixeira|52998224725|98765|@clinica|Rua Secreta/;
 const withId = Object.keys(ROUTE_ROLES).filter((k) => k.includes('/:'));
 const body = {
@@ -115,7 +112,7 @@ describe('008 Operação, erros e observabilidade: critérios de aceite', () => 
     expect(res.status).toBe(500);
     expect(res.body.error.code).toBe('internal_error');
     expect(res.body.error.occurrenceId).toMatch(/^[0-9a-f-]{36}$/);
-    const web = JSON.parse(readFileSync(join(repo, 'apps/web/src/i18n/messages/pt-BR.json'), 'utf8'));
+    const web = JSON.parse(readRepo('apps/web/src/i18n/messages/pt-BR.json'));
     expect(web.errors.internal_error).toContain('{occurrenceId}');
   });
 
@@ -172,10 +169,10 @@ describe('008 Operação, erros e observabilidade: critérios de aceite', () => 
   });
 
   it('008/CA-3.4 as duas sondas estão no manifesto com os tempos de P-16', () => {
-    const tpl = readFileSync(join(repo, 'deploy/helm/lubyvet/templates/api.yaml'), 'utf8');
+    const tpl = readRepo('deploy/helm/lubyvet/templates/api.yaml');
     expect(tpl).toMatch(/livenessProbe: \{ httpGet: \{ path: \/api\/health\/live/);
     expect(tpl).toMatch(/readinessProbe: \{ httpGet: \{ path: \/api\/health\/ready/);
-    const values = readFileSync(join(repo, 'deploy/helm/lubyvet/values.yaml'), 'utf8');
+    const values = readRepo('deploy/helm/lubyvet/values.yaml');
     expect(values).toMatch(
       /liveness:\s*\{?\s*timeoutSeconds: 1,?\s*periodSeconds: 10,?\s*failureThreshold: 3/,
     );
@@ -321,30 +318,13 @@ describe('008 Operação, erros e observabilidade: critérios de aceite', () => 
       expect(m.has(g)).toBe(true);
     const everything = JSON.stringify([...m.entries()]);
     expect(everything).not.toMatch(/Mariana|Teixeira|Helena|Costa|\+55|@/);
-    expect(readFileSync(join(repo, 'deploy/grafana/lubyvet-d27.json'), 'utf8')).toContain(
-      'lubyvet_encounters_recorded_total',
-    );
+    expect(readRepo('deploy/grafana/lubyvet-d27.json')).toContain('lubyvet_encounters_recorded_total');
   });
 
   it('008/CA-6.1 nenhum caminho provoca falha deliberada', async () => {
     for (const path of ['/oups', '/api/oups', '/api/crash', '/api/error', '/api/fail'])
       expect((await t.api.get(path)).status).toBe(404);
     expect(Object.keys(ROUTE_ROLES).filter((k) => /oups|crash|fail|error/i.test(k))).toEqual([]);
-  });
-
-  it('008/CA-6.2 o menu principal não oferece item que leve a erro', () => {
-    const shell = readFileSync(join(repo, 'apps/web/src/features/shell/components/app-shell.tsx'), 'utf8');
-    const hrefs = [...shell.matchAll(/href: '([^']+)'/g)].map((x) => x[1]);
-    expect(hrefs).toEqual(['/owners', '/vets', '/admin']);
-    for (const h of hrefs) expect(readdirSync(join(repo, 'apps/web/src/app/(app)'))).toContain(h?.slice(1));
-  });
-
-  it('008/CA-6.3 a página de erro é verificada por teste, não por rota exposta', () => {
-    expect(readdirSync(join(repo, 'apps/web/src/app'))).toEqual(
-      expect.arrayContaining(['error.tsx', 'not-found.tsx']),
-    );
-    const e2e = readFileSync(join(repo, 'apps/web/e2e/3-acceptance.e2e.ts'), 'utf8');
-    expect(e2e).toContain('008/CA-1.1');
   });
 
   it('008/CA-7.1 nenhum console de banco é servido, em perfil algum', async () => {
@@ -354,7 +334,7 @@ describe('008 Operação, erros e observabilidade: critérios de aceite', () => 
 
   it('008/CA-7.2 nenhuma dependência de console de banco no que se publica', () => {
     const deps = (p: string) => {
-      const pkg = JSON.parse(readFileSync(join(repo, p), 'utf8'));
+      const pkg = JSON.parse(readRepo(p));
       return Object.keys({ ...pkg.dependencies });
     };
     const all = [...deps('apps/api/package.json'), ...deps('apps/web/package.json')];
@@ -364,29 +344,42 @@ describe('008 Operação, erros e observabilidade: critérios de aceite', () => 
   });
 
   it('008/CA-8.1 um banco homologado e um conjunto só de definição de esquema', () => {
-    expect(readFileSync(join(api, 'prisma/schema.prisma'), 'utf8')).toMatch(/provider = "postgresql"/);
-    expect(readdirSync(join(api, 'prisma')).filter((f) => f.endsWith('.prisma'))).toEqual(['schema.prisma']);
-    expect(readdirSync(join(api, 'prisma')).filter((f) => f.endsWith('.sql'))).toEqual([]);
+    expect(readRepo('apps/api/prisma/schema.prisma')).toMatch(/provider = "postgresql"/);
+    const prisma = listRepo('apps/api/prisma');
+    expect(prisma.filter((f) => f.endsWith('.prisma'))).toEqual(['apps/api/prisma/schema.prisma']);
+    expect(prisma.filter((f) => f.endsWith('.sql'))).toEqual([]);
   });
 
   it('008/CA-8.2 o esquema evolui por migração versionada, aplicada no teste', async () => {
-    const migrations = readdirSync(join(api, 'prisma/migrations')).filter((f) => /^\d{14}_/.test(f));
+    const migrations = listRepo('apps/api/prisma/migrations')
+      .map((f) => f.split('/').pop() ?? '')
+      .filter((f) => /^\d{14}_/.test(f));
     const { rows } = await testDb.sql.query<{ migration_name: string }>(
       'select migration_name from _prisma_migrations where finished_at is not null order by migration_name',
     );
     expect(rows.map((r) => r.migration_name)).toEqual(migrations.sort());
-    expect(readdirSync(join(api, 'test/integration'))).toContain('schema-drift.int-spec.ts');
+    expect(listRepo('apps/api/test/integration')).toContain(
+      'apps/api/test/integration/schema-drift.int-spec.ts',
+    );
   });
 
-  it('008/CA-8.3 nenhuma regra muda conforme o banco: o código não consulta o dialeto', () => {
-    const src = (dir: string): string[] =>
-      readdirSync(dir, { withFileTypes: true }).flatMap((d) =>
-        d.isDirectory() ? src(join(dir, d.name)) : d.name.endsWith('.ts') ? [join(dir, d.name)] : [],
-      );
-    const files = src(join(api, 'src')).filter((f) => !f.includes('/generated/'));
-    const offenders = files.filter((f) =>
-      /provider\s*===|dialect|mysql|sqlite|hsqldb/i.test(readFileSync(f, 'utf8')),
-    );
-    expect(offenders).toEqual([]);
+  it('008/CA-8.3 nenhuma regra muda conforme o banco: as regras sensíveis a dialeto valem no banco homologado', async () => {
+    // P-05: um banco só. As regras que no legado mudavam de dialeto para dialeto (caixa, acento,
+    // unicidade com LOWER) são provadas aqui, no PostgreSQL em que a aplicação roda.
+    const { rows } = await testDb.sql.query<{ v: string }>('select version() as v');
+    expect(rows[0]?.v).toMatch(/^PostgreSQL 17/);
+    const a = (
+      await t.api
+        .post('/api/owners')
+        .set(idem())
+        .send(anOwnerInput({ lastName: 'Évora' }))
+        .expect(201)
+    ).body;
+    for (const q of ['évo', 'ÉVO', 'Évo'])
+      expect((await t.api.get(`/api/owners?lastName=${encodeURIComponent(q)}`)).body.total).toBe(1);
+    await postPet(t, a.id, aPetInput({ name: 'Ágata' })).expect(201);
+    expect((await postPet(t, a.id, aPetInput({ name: 'ÁGATA' })).expect(422)).body.error.fields).toEqual([
+      { path: 'name', code: 'pet_name_taken' },
+    ]);
   });
 });

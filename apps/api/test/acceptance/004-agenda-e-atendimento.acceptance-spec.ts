@@ -8,18 +8,16 @@ import {
   firstReturnDate,
   suggestedAppointment,
 } from '@lubyvet/contracts';
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { appointmentAccepts, encounterAccepts, todayIn } from '../../src/modules/visits/domain/date-policy';
 import { bootApp, idem, type TestApp } from '../support/app';
 import { aPetInput, anOwner, patchPet, postPet } from '../support/pets';
+import { readRepo } from '../support/structural';
 import { testDb } from '../support/test-db';
 
 const NOW = '2026-10-07T12:00:00-03:00';
-const repo = join(__dirname, '../../../..');
 const fieldOf = (body: { error?: { fields?: { path: string; code: string }[] } }) =>
   Object.fromEntries((body.error?.fields ?? []).map((f) => [f.path, f.code]));
-const pt = JSON.parse(readFileSync(join(repo, 'apps/web/src/i18n/messages/pt-BR.json'), 'utf8')) as {
+const pt = JSON.parse(readRepo('apps/web/src/i18n/messages/pt-BR.json')) as {
   visits: Record<string, string>;
 };
 
@@ -87,7 +85,7 @@ describe('004 Agenda e atendimento de visitas: critérios de aceite', () => {
     expect(fieldOf((await schedule('amanhã').expect(422)).body).scheduledAt).toBe('invalid_format');
   });
 
-  it('004/CA-1.4 a data sugerida e o limite do formulário saem da mesma regra que a API aplica', async () => {
+  it('004/CA-1.4 a data sugerida e o limite do formulário saem da regra que a API aplica (a tela é provada no E2E)', async () => {
     const now = new Date(NOW);
     expect(suggestedAppointment(now).toISOString()).toBe('2026-10-08T15:00:00.000Z');
     await schedule(suggestedAppointment(now).toISOString()).expect(201);
@@ -95,11 +93,6 @@ describe('004 Agenda e atendimento de visitas: critérios de aceite', () => {
       const at = new Date(now.getTime() + delta);
       expect(appointmentAllowed(at, now)).toBe(appointmentAccepts(at, now));
     }
-    const page = readFileSync(
-      join(repo, 'apps/web/src/app/(app)/owners/[ownerId]/pets/[petId]/appointments/new/page.tsx'),
-      'utf8',
-    );
-    expect(page).toContain('suggestedAppointment(now)');
   });
 
   it('004/CA-2.1 o histórico do animal vem em ordem crescente de data, com data e descrição', async () => {

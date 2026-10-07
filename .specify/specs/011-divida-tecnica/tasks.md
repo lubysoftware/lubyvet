@@ -7,7 +7,7 @@
 
 ## US-4 Testar comportamento, não texto de código
 
-- [ ] **T001** Listar as verificações estruturais permitidas num só lugar
+- [x] **T001** Listar as verificações estruturais permitidas num só lugar
       *entrega:* uma lista em `traceability.acceptance-spec.ts` dos arquivos que um teste de
       aceitação pode ler (git ls-files, manifesto do Helm, `package.json`, inventário de rotas,
       catálogos de tradução, migrações) e um teste que falha quando um teste de aceitação lê
@@ -15,14 +15,14 @@
       *satisfaz:* CA-4.2
       *depende de:* —
 
-- [ ] **T002** Trocar por testes de tela os critérios provados lendo o código do web
+- [x] **T002** Trocar por testes de tela os critérios provados lendo o código do web
       *entrega:* 001/CA-7.3, 002/CA-1.4, 002/CA-3.1, 002/CA-3.3, 004/CA-1.4, 008/CA-6.2 e 008/CA-6.3
       provados no Playwright (`3-acceptance.e2e.ts`), e as leituras de `apps/web/src` (fora dos
       catálogos de tradução) removidas da suíte da API
       *satisfaz:* CA-4.1, CA-4.3
       *depende de:* T001
 
-- [ ] **T003** [P] Trocar por teste de comportamento os critérios provados lendo o código da API
+- [x] **T003** [P] Trocar por teste de comportamento os critérios provados lendo o código da API
       *entrega:* 001/CA-1.6 (o tradutor de unicidade não lê mensagem), 001/CA-2.3, 002/CA-5.2,
       003/CA-2.4, 005/CA-5.2 e 008/CA-8.3 provados por comportamento ou movidos para a lista
       estrutural com o motivo escrito. 007/CA-2.1 (rotas dos controllers contra a matriz de

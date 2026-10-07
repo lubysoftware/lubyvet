@@ -1,3 +1,4 @@
+import { businessToday } from '@lubyvet/contracts';
 import { type Page, expect, test } from '@playwright/test';
 import en from '../src/i18n/messages/en.json';
 import { login, validCpf, validMobile } from './support';
@@ -8,10 +9,10 @@ import { login, validCpf, validMobile } from './support';
  */
 const languageControl = (page: Page) => page.getByRole('combobox', { name: /Idioma|Language/ });
 
-async function ownerWithPet(page: Page): Promise<string> {
+async function ownerWithPet(page: Page, lastName = `Aceite${Date.now() % 100000}`): Promise<string> {
   await page.goto('/owners/new');
   await page.getByLabel('Nome', { exact: true }).fill('Helena');
-  await page.getByLabel('Sobrenome').fill(`Aceite${Date.now() % 100000}`);
+  await page.getByLabel('Sobrenome').fill(lastName);
   await page.getByLabel('Endereço').fill('Rua C, 3');
   await page.getByLabel('Cidade').fill('Santos');
   await page.getByLabel('Celular').fill(validMobile());
@@ -172,5 +173,49 @@ test.describe('001, 008 e 010 na tela', () => {
     await expect(city).toHaveAccessibleDescription('Preencha este campo.');
     expect(before).toBe('1px');
     expect(await city.evaluate((e) => getComputedStyle(e).borderTopWidth)).toBe('2px');
+  });
+});
+
+test.describe('002 e 004 na tela', () => {
+  test('002/CA-1.4 busca sem resultado volta ao formulário com erro no campo, sem lista vazia', async ({
+    page,
+  }) => {
+    await login(page, 'reader');
+    await page.getByLabel('Buscar por sobrenome').fill('Zzqxw');
+    await page.getByRole('button', { name: 'Buscar' }).click();
+    const field = page.getByLabel('Buscar por sobrenome');
+    await expect(field).toHaveAttribute('aria-invalid', 'true');
+    await expect(field).toHaveAccessibleDescription('Nenhum dono com esse sobrenome.');
+    await expect(field).toHaveValue('Zzqxw');
+    await expect(page.getByRole('row')).toHaveCount(1);
+  });
+
+  test('002/CA-3.1 002/CA-3.3 um resultado só abre a ficha direto, sem mensagem de gravação', async ({
+    page,
+  }) => {
+    await login(page, 'writer');
+    const lastName = `Unico${Date.now() % 100000}`;
+    const record = await ownerWithPet(page, lastName);
+    await page.goto(`/owners?lastName=${lastName}`);
+    await expect(page).toHaveURL(new RegExp(`${record}$`));
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(`Helena ${lastName}`);
+    await expect(page.getByRole('status')).toHaveCount(0);
+  });
+
+  test('004/CA-1.4 o agendamento abre com a data de amanhã sugerida e o campo limitado a partir de agora', async ({
+    page,
+  }) => {
+    await login(page, 'writer');
+    await ownerWithPet(page);
+    await page.getByRole('link', { name: 'Agendar visita' }).click();
+    const when = page.getByLabel('Data e hora');
+    const today = businessToday(new Date());
+    const tomorrow = businessToday(new Date(Date.now() + 86_400_000));
+    expect((await when.inputValue()).slice(0, 10)).toBe(tomorrow);
+    expect(((await when.getAttribute('min')) ?? '').slice(0, 10)).toBe(today);
+    await when.fill('2020-01-01T10:00');
+    await page.getByLabel('Descrição').fill('Vacina');
+    await page.getByRole('button', { name: 'Agendar visita' }).click();
+    await expect(when).toHaveAccessibleDescription('A data precisa ser futura.');
   });
 });

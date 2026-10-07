@@ -1,6 +1,4 @@
 import { PetOutput, RegisterPetInput, ChangePetInput } from '@lubyvet/contracts';
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import request from 'supertest';
 import { OWNER_PET_ROUTES } from '../../src/shared/interface/http/route-inventory';
 import { bootApp, idem, loginAs, type TestApp } from '../support/app';
@@ -101,9 +99,14 @@ describe('003 Animais do dono: critérios de aceite', () => {
       "select indexname from pg_indexes where tablename = 'pets' and indexname = 'pets_owner_id_lower_name_key'",
     );
     expect(rows).toHaveLength(1);
-    expect(readFileSync(join(__dirname, '../integration/pet-concurrency.int-spec.ts'), 'utf8')).toMatch(
-      /Promise\.all/,
-    );
+    // A corrida se repete com caixas diferentes: a restrição do banco decide, sempre do mesmo jeito.
+    const o = await anOwner(t);
+    for (const name of ['Mel', 'Lua']) {
+      const tries = await Promise.all(
+        [name, name.toUpperCase(), name.toLowerCase()].map((n) => postPet(t, o.id, aPetInput({ name: n }))),
+      );
+      expect(tries.map((r) => r.status).sort()).toEqual([201, 422, 422]);
+    }
   });
 
   it('003/CA-2.5 editar mantendo o próprio nome é aceito', async () => {

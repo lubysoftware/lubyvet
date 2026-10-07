@@ -1,11 +1,9 @@
-import { VetCatalogOutput } from '@lubyvet/contracts';
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { AppointmentOutput, OwnerOutput, PetOutput, VetCatalogOutput } from '@lubyvet/contracts';
 import { bootApp, idem, type TestApp } from '../support/app';
 import { aPetInput, anOwner, postPet } from '../support/pets';
+import { readRepo } from '../support/structural';
 import { testDb } from '../support/test-db';
 
-const repo = join(__dirname, '../../../..');
 /** Campos que descrevem estado de persistência e não podem sair em resposta nenhuma (005/US-5). */
 const PERSISTENCE = /"(isNew|new|persisted|dirty|_?version_?state|entityState)"/;
 type Vet = { id: number; firstName: string; lastName: string; specialties: { id: number; name: string }[] };
@@ -52,7 +50,7 @@ describe('005 Catálogo de veterinários: critérios de aceite', () => {
   it('005/CA-1.3 sem especialidade, a lista indica explicitamente (lista vazia e texto no front)', async () => {
     await vet('Rui', 'Lima');
     expect((await catalog()).items[0]?.specialties).toEqual([]);
-    const pt = JSON.parse(readFileSync(join(repo, 'apps/web/src/i18n/messages/pt-BR.json'), 'utf8'));
+    const pt = JSON.parse(readRepo('apps/web/src/i18n/messages/pt-BR.json'));
     expect(pt.vets.noSpecialty).toBe('Sem especialidade');
   });
 
@@ -147,14 +145,21 @@ describe('005 Catálogo de veterinários: critérios de aceite', () => {
     for (const b of bodies) expect(b).not.toMatch(PERSISTENCE);
   });
 
-  it('005/CA-5.2 o "é novo" é a ausência de id e não chega à serialização (P4)', () => {
-    const presenters = [
-      'owners/interface/http/owner.presenter.ts',
-      'pets/interface/http/pet.presenter.ts',
-      'visits/interface/http/visit.presenter.ts',
-    ];
-    for (const f of presenters)
-      expect(readFileSync(join(__dirname, '../../src/modules', f), 'utf8')).not.toMatch(/isNew|\bnew:/);
+  it('005/CA-5.2 o "é novo" é a ausência de id e não chega à serialização (P4)', async () => {
+    // O schema estrito do contrato recusa qualquer campo a mais: nenhum predicado de persistência
+    // sai na resposta, nem no cadastro (sem id antes) nem na leitura (com id depois).
+    const o = await anOwner(t);
+    expect(OwnerOutput.strict().safeParse((await t.api.get(`/api/owners/${o.id}`)).body).success).toBe(true);
+    const p = (await postPet(t, o.id, aPetInput()).expect(201)).body;
+    expect(PetOutput.strict().safeParse(p).success).toBe(true);
+    const a = (
+      await t.api
+        .post(`/api/owners/${o.id}/pets/${p.id}/appointments`)
+        .set(idem())
+        .send({ scheduledAt: '2026-11-01T10:00:00-03:00', description: 'x' })
+        .expect(201)
+    ).body;
+    expect(AppointmentOutput.strict().safeParse(a).success).toBe(true);
   });
 
   it('005/CA-6.1 o catálogo tem um formato só, JSON (D22, D31)', async () => {

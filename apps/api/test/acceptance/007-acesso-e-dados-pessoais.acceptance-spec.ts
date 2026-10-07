@@ -1,6 +1,4 @@
 import Redis from 'ioredis';
-import { readFileSync, readdirSync } from 'node:fs';
-import { join } from 'node:path';
 import request from 'supertest';
 import { anOwnerInput } from '../builders/owner.builder';
 import { ROUTE_ROLES } from '../../src/shared/interface/http/roles';
@@ -9,6 +7,10 @@ import { bootApp, idem, loginAs, type TestApp } from '../support/app';
 import { aPetInput, postPet } from '../support/pets';
 import { testDb } from '../support/test-db';
 
+interface Route {
+  path: string;
+  methods: Record<string, boolean>;
+}
 const url = (path: string) => path.replace(/:\w+/g, '1');
 const writes = Object.entries(ROUTE_ROLES)
   .filter(([k, v]) => v !== 'public' && !k.startsWith('GET') && !k.includes('/session'))
@@ -95,31 +97,21 @@ describe('007 Acesso, identidade e dados pessoais: critérios de aceite', () => 
     expect(personal.filter((k) => !inventoried.has(k))).toEqual([]);
   });
 
-  it('007/CA-2.1 as ações de cada papel estão declaradas num lugar só: toda rota dos controllers está na matriz', () => {
-    const src = join(__dirname, '../../src/modules');
-    const controllers = readdirSync(src, { recursive: true, encoding: 'utf8' }).filter((f) =>
-      f.endsWith('.controller.ts'),
-    );
-    const declared: string[] = [];
-    for (const f of controllers) {
-      const code = readFileSync(join(src, f), 'utf8');
-      const prefix = /@Controller\((?:'([^']*)')?\)/.exec(code)?.[1] ?? '';
-      for (const m of code.matchAll(/@(Get|Post|Patch|Put|Delete)\((?:'([^']*)')?\)/g)) {
-        const path = ['/api', prefix, m[2] ?? ''].filter(Boolean).join('/').replace(/\/+/g, '/');
-        declared.push(`${(m[1] ?? '').toUpperCase()} ${path}`);
-      }
-    }
-    expect(declared.length).toBeGreaterThan(30);
-    expect(declared.filter((k) => !(k in ROUTE_ROLES)).sort()).toEqual([]);
+  it('007/CA-2.1 as ações de cada papel estão declaradas num lugar só: toda rota servida está na matriz', () => {
+    // As rotas vêm do roteador em execução, não do texto dos controllers.
+    const http = t.app.getHttpAdapter().getInstance() as { router: { stack: { route?: Route }[] } };
+    const served = http.router.stack
+      .filter((l) => l.route)
+      .flatMap((l) =>
+        Object.keys(l.route?.methods ?? {}).map((m) => `${m.toUpperCase()} ${l.route?.path ?? ''}`),
+      );
+    expect(served.length).toBeGreaterThan(30);
+    expect(served.filter((k) => !(k in ROUTE_ROLES)).sort()).toEqual([]);
     expect(
       Object.keys(ROUTE_ROLES)
-        .filter((k) => !declared.includes(k))
+        .filter((k) => !served.includes(k))
         .sort(),
     ).toEqual([]);
-    // Nenhum controller decide papel por conta própria; a única leitura do papel fora da matriz é a
-    // do D09 (quem volta um animal para Ativo), entregue ao domínio como dado.
-    const roleChecks = controllers.filter((f) => /role\s*===/.test(readFileSync(join(src, f), 'utf8')));
-    expect(roleChecks).toEqual([join('pets', 'interface', 'http', 'pets.controller.ts')]);
   });
 
   it('007/CA-2.2 ação fora do papel é recusada sem revelar se o dado existe', async () => {

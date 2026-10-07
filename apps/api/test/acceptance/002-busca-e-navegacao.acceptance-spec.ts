@@ -1,12 +1,9 @@
 import { PAGE_SIZE } from '@lubyvet/contracts';
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { anOwnerInput } from '../builders/owner.builder';
 import { bootApp, idem, type TestApp } from '../support/app';
 import { aPetInput, postPet } from '../support/pets';
 import { testDb } from '../support/test-db';
 
-const repo = join(__dirname, '../../../..');
 type Item = { id: number; lastName: string; petNames: string[] };
 
 describe('002 Busca e navegação de donos: critérios de aceite', () => {
@@ -53,15 +50,10 @@ describe('002 Busca e navegação de donos: critérios de aceite', () => {
     );
   });
 
-  it('002/CA-1.4 sem resultado, a resposta marca o termo como não encontrado (o web mostra erro no campo)', async () => {
+  it('002/CA-1.4 sem resultado, a resposta traz zero com o termo, para o web marcar o campo', async () => {
     await owner('Lima');
     const res = (await search({ lastName: 'Zz' })).body;
     expect(res).toMatchObject({ total: 0, items: [], lastName: 'Zz' });
-    const view = readFileSync(
-      join(repo, 'apps/web/src/features/owners/components/owners-search-view.tsx'),
-      'utf8',
-    );
-    expect(view).toContain("data.lastName !== '' && data.total === 0");
   });
 
   it('002/CA-1.5 a busca não altera nada', async () => {
@@ -98,16 +90,11 @@ describe('002 Busca e navegação de donos: critérios de aceite', () => {
     expect((await search({ pageSize: '5' })).body.items).toHaveLength(5);
   });
 
-  it('002/CA-3.1 um resultado só leva à ficha (o web redireciona pelo resultado único)', async () => {
+  it('002/CA-3.1 a busca de resultado único devolve exatamente o dono da ficha', async () => {
     const a = await owner('Albuquerque');
     await owner('Lima');
     const res = (await search({ lastName: 'Albu' })).body;
     expect(res.total).toBe(1);
-    const view = readFileSync(
-      join(repo, 'apps/web/src/features/owners/components/owners-search-view.tsx'),
-      'utf8',
-    );
-    expect(view).toContain('`/owners/${data.items[0].id}`');
     expect(res.items[0].id).toBe(a.id);
   });
 
@@ -115,15 +102,6 @@ describe('002 Busca e navegação de donos: critérios de aceite', () => {
     await owner('Lima');
     await owner('Limeira');
     expect((await search({ lastName: 'Lim' })).body.total).toBe(2);
-  });
-
-  it('002/CA-3.3 a ficha alcançada pelo atalho não leva mensagem de gravação', () => {
-    const view = readFileSync(
-      join(repo, 'apps/web/src/features/owners/components/owners-search-view.tsx'),
-      'utf8',
-    );
-    const target = /singleResultTarget[\s\S]*?\n};?\n/.exec(view)?.[0] ?? '';
-    expect(target).not.toContain('saved=');
   });
 
   it('002/CA-4.1 minúsculas, capitalizado e maiúsculas devolvem o mesmo conjunto', async () => {
@@ -142,12 +120,14 @@ describe('002 Busca e navegação de donos: critérios de aceite', () => {
     expect((await search({ lastName: 'ÉVO' })).body.total).toBe(1);
   });
 
-  it('002/CA-5.1 a listagem paginada responde em menos de 500 ms no p95 com 50 mil donos (D08)', async () => {
+  it('002/CA-5.1 002/CA-5.2 a listagem paginada responde em menos de 500 ms no p95, medida com 50 mil donos (D08)', async () => {
     await testDb.sql.query(`
       insert into owners (first_name, last_name, address, city, telephone, cpf, updated_at)
       select 'Nome', 'Sobrenome' || g, 'Rua ' || g, 'Cidade', '+55119' || lpad(g::text, 8, '0'),
              lpad(g::text, 11, '0'), now()
       from generate_series(1, 50000) g`);
+    // CA-5.2: a medição roda com volume representativo, não com a carga de exemplo.
+    expect(await testDb.count('owners')).toBe(50_000);
     const times: number[] = [];
     for (let i = 0; i < 40; i++) {
       const start = performance.now();
@@ -157,9 +137,4 @@ describe('002 Busca e navegação de donos: critérios de aceite', () => {
     times.sort((a, b) => a - b);
     expect(times[Math.ceil(times.length * 0.95) - 1]).toBeLessThan(500);
   }, 120_000);
-
-  it('002/CA-5.2 a medição automatizada roda com volume representativo, não com a carga de exemplo', () => {
-    const perf = readFileSync(join(__dirname, '../perf/owners-search.perf-spec.ts'), 'utf8');
-    expect(perf).toMatch(/50[_.]?000/);
-  });
 });

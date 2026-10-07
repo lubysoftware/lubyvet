@@ -1,13 +1,11 @@
 import { OwnerOutput, isBrazilianMobile, normalizeBrazilianMobile } from '@lubyvet/contracts';
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import request from 'supertest';
 import { anOwnerInput, validCpf, validMobile } from '../builders/owner.builder';
 import { bootApp, idem, loginAs, type TestApp } from '../support/app';
 import { aPetInput, postPet } from '../support/pets';
 import { testDb } from '../support/test-db';
+import { isUniqueViolation, violatedUniqueConstraint } from '../../src/shared/infra/unique-violation';
 
-const repo = join(__dirname, '../../../..');
 const fieldOf = (body: { error?: { fields?: { path: string; code: string }[] } }) =>
   Object.fromEntries((body.error?.fields ?? []).map((f) => [f.path, f.code]));
 
@@ -76,11 +74,15 @@ describe('001 Gestão de donos: critérios de aceite', () => {
     const res = await register({ cpf: cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4') });
     expect(res.status).toBe(422);
     expect(fieldOf(res.body).cpf).toBe('cpf_taken');
-    const repo = readFileSync(
-      join(__dirname, '../../src/modules/owners/infra/prisma-owner.repository.ts'),
-      'utf8',
-    );
-    expect(repo).not.toMatch(/\.message\b/);
+    // Reconhecida pelo tipo e pelo nome da restrição: a mensagem em outro idioma não muda nada,
+    // e uma mensagem que "parece" unicidade sem o tipo não é unicidade.
+    const foreign = { code: 'P2002', message: 'doppelter Schlüsselwert', meta: { target: 'owners_cpf_key' } };
+    expect([isUniqueViolation(foreign), violatedUniqueConstraint(foreign)]).toEqual([true, 'owners_cpf_key']);
+    const lookalike = {
+      code: 'P2000',
+      message: 'duplicate key value violates unique constraint "owners_cpf_key"',
+    };
+    expect([isUniqueViolation(lookalike), violatedUniqueConstraint(lookalike)]).toEqual([false, null]);
   });
 
   it('001/CA-1.7 e-mail é opcional; formato inválido ou acima de 254 caracteres é recusado (D13)', async () => {
@@ -120,15 +122,23 @@ describe('001 Gestão de donos: critérios de aceite', () => {
     expect(await testDb.count('owners')).toBe(0);
   });
 
-  it('001/CA-2.3 a regra do telefone está num lugar só e cobre um válido e um inválido', () => {
-    expect(isBrazilianMobile('(11) 98765-4321')).toBe(true);
-    expect(isBrazilianMobile('(11) 3333-4444')).toBe(false);
-    expect(normalizeBrazilianMobile('11987654321')).toBe('+5511987654321');
-    const src = readFileSync(join(repo, 'packages/contracts/src/owners/owner.schema.ts'), 'utf8');
-    expect(src).toContain('isBrazilianMobile');
-    expect(readFileSync(join(__dirname, '../../src/modules/owners/domain/owner.ts'), 'utf8')).not.toMatch(
-      /\/\^\\\(\?\\d/,
-    );
+  it('001/CA-2.3 a regra do telefone é uma só: a API aceita exatamente o que a regra do contrato aceita', async () => {
+    const samples = [
+      '(11) 98765-4321',
+      '+55 21 99876-5432',
+      '31987654321',
+      '(11) 3333-4444',
+      '(00) 98765-4321',
+      '(11) 88765-4321',
+      '1198765432',
+      '+1 415 555 0100',
+    ];
+    expect(samples.filter(isBrazilianMobile)).toHaveLength(3);
+    for (const telephone of samples) {
+      const res = await register({ telephone });
+      expect([telephone, res.status]).toEqual([telephone, isBrazilianMobile(telephone) ? 201 : 422]);
+      if (res.status === 201) expect(res.body.telephone).toBe(normalizeBrazilianMobile(telephone));
+    }
   });
 
   it('001/CA-3.1 celular de um dono existente apresenta o candidato antes de gravar (D14)', async () => {
@@ -288,12 +298,6 @@ describe('001 Gestão de donos: critérios de aceite', () => {
     const res = await register({ cpf: '1' });
     expect(res.status).toBe(422);
     expect(res.body.error.fields).toEqual([{ path: 'cpf', code: 'invalid_cpf' }]);
-  });
-
-  it('001/CA-7.3 a mensagem tem tempo de vida definido e nenhuma espera sem mensagem', () => {
-    const src = readFileSync(join(repo, 'apps/web/src/features/forms/components/result-message.tsx'), 'utf8');
-    expect(src).toMatch(/RESULT_TTL_MS = \d+/);
-    expect(src).toMatch(/if \(code === null\) return;/);
   });
 
   it('001 a leitura exige sessão e a gravação o papel de escrita', async () => {
