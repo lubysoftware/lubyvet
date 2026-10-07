@@ -7,7 +7,7 @@
 > infraestrutura, e está dito nela. Os identificadores `UT-nnn-n` são os testes que os
 > cards do backlog já traziam, preservados como tarefa de teste própria.
 
-- [ ] **T001** Acrescentar situação à Espécie e ao Veterinário, por migração versionada
+- [x] **T001** Acrescentar situação à Espécie e ao Veterinário, por migração versionada
       *entrega:* a coluna de situação nas duas entidades, com todo registro existente nascendo
       ativo, e a migração numerada correspondente. É o campo que `UT-045-7` e `UT-046-8` exigem
       para que retirar do uso e desligar não sejam exclusão
