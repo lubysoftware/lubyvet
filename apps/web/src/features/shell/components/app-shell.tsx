@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { getTranslations } from 'next-intl/server';
+import { Brand } from './brand';
 import { Preferences } from './preferences';
 
 /** Casca do app (design system: Sidebar). Menu lateral com os itens de D18. */
@@ -17,9 +18,10 @@ export async function AppShell({ children }: { children: ReactNode }) {
         {t('app.skipToContent')}
       </a>
       <aside className="border-r border-border bg-surface p-3 max-md:hidden">
-        <p className="mb-4 px-2 text-base font-bold">
-          Luby<span className="text-primary">Vet</span>
-        </p>
+        <Brand
+          clinicName={process.env.CLINIC_NAME ?? ''}
+          logoUrl={process.env.CLINIC_LOGO_URL || undefined}
+        />
         <nav className="grid gap-1">
           {items.map(([href, label]) => (
             <a

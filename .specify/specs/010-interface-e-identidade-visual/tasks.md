@@ -104,7 +104,7 @@
       *satisfaz:* CA-2.1
       *depende de:* T010
 
-- [ ] **T012** Fundação visual: tipografia, densidade, ícones e marca da instalação
+- [x] **T012** Fundação visual: tipografia, densidade, ícones e marca da instalação
       *entrega:* Figtree 400–700 servida do projeto, com números tabulares em data, hora,
       peso e CPF (D37); controles e linhas de 44px (D39); Lucide com o mapa de ícones de
       espécie e o ícone genérico de pata (D41); o nome e o logo claro e escuro da clínica
