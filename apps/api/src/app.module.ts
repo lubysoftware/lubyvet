@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { IdentityModule } from './modules/identity/identity.module';
+import { OperationsModule } from './modules/operations/operations.module';
 import { OwnersModule } from './modules/owners/owners.module';
 import { PetsModule } from './modules/pets/pets.module';
 import { VetsModule } from './modules/vets/vets.module';
@@ -11,6 +12,7 @@ import { SharedModule } from './shared/infra/shared.module';
   imports: [
     SharedModule,
     IdentityModule,
+    OperationsModule,
     OwnersModule,
     PetsModule,
     VisitsModule,

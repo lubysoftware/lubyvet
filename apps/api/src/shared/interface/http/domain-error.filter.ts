@@ -1,7 +1,8 @@
 import { randomUUID } from 'node:crypto';
-import { type ArgumentsHost, Catch, type ExceptionFilter, HttpException, Logger } from '@nestjs/common';
+import { type ArgumentsHost, Catch, type ExceptionFilter, HttpException } from '@nestjs/common';
 import type { Response } from 'express';
 import type { ErrorEnvelope } from '@lubyvet/contracts';
+import { logger } from '../../infra/logger';
 import { DomainError, FieldRuleViolation, StaleVersion } from '../../domain/errors';
 
 const STATUS: Record<DomainError['kind'], number> = {
@@ -16,8 +17,6 @@ const STATUS: Record<DomainError['kind'], number> = {
 /** Único ponto que traduz erro em status HTTP (docs/padroes/arquitetura.md). */
 @Catch()
 export class DomainErrorFilter implements ExceptionFilter {
-  private readonly logger = new Logger('http');
-
   catch(exception: unknown, host: ArgumentsHost): void {
     const res = host.switchToHttp().getResponse<Response>();
     if (exception instanceof DomainError) {
@@ -44,7 +43,10 @@ export class DomainErrorFilter implements ExceptionFilter {
     }
     // Falha inesperada: um identificador de ocorrência, gerado uma vez, no log e na resposta (008/US-1).
     const occurrenceId = randomUUID();
-    this.logger.error({ occurrenceId, err: exception instanceof Error ? exception.name : 'unknown' });
+    logger.error(
+      { occurrenceId, err: exception instanceof Error ? exception.name : 'unknown' },
+      'falha inesperada',
+    );
     res.status(500).json({ error: { code: 'internal_error', occurrenceId } });
   }
 }
