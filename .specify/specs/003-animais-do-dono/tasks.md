@@ -91,7 +91,7 @@
       *satisfaz:* CA-1.4
       *depende de:* T003
 
-- [ ] **T012** Testes de cadastro de animal
+- [x] **T012** Testes de cadastro de animal
       *entrega:* `UT-013-1` a `UT-013-8` passando, cobrindo caminho feliz, as quatro faltas
       isoladas com mensagem traduzida, a data de amanhã recusada no campo de data, a sétima
       espécie recusada no campo de espécie, o animal com um dono e uma espécie, o nome de 30 e
