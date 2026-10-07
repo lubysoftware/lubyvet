@@ -51,7 +51,7 @@
       *satisfaz:* CA-2.1
       *depende de:* T005
 
-- [ ] **T007** Teste de navegação entre páginas de um resultado filtrado, percorrendo os links
+- [x] **T007** Teste de navegação entre páginas de um resultado filtrado, percorrendo os links
       da página
       *entrega:* um teste que busca um sobrenome com mais de uma página, **clica no link da
       página seguinte** e verifica que a listagem continua filtrada. O teste falha se a
@@ -79,7 +79,7 @@
       que não existem, ver `Sem tarefa`)
       *depende de:* T008
 
-- [ ] **T011** Testes da busca
+- [x] **T011** Testes da busca
       *entrega:* `UT-008-1` a `UT-008-8` passando, incluindo o dono que **não** é encontrado
       quando o termo casa com nome, cidade ou telefone, o termo vazio tratado como casamento
       com todo sobrenome, a volta ao formulário em vez de lista vazia e nenhuma gravação em
@@ -87,7 +87,7 @@
       *satisfaz:* CA-1.1, CA-1.2, CA-1.3, CA-1.4, CA-1.5
       *depende de:* T003, T004
 
-- [ ] **T012** Testes de paginação e de guarda de faixa
+- [x] **T012** Testes de paginação e de guarda de faixa
       *entrega:* `UT-009-1` a `UT-009-7` e `UT-012-1` passando, incluindo a página zero e a
       página acima do total, a página negativa e a não numérica, a base vazia sem laço de
       redirecionamento, o tamanho lido da configuração, o sexto dono na segunda página e o
@@ -101,14 +101,14 @@
       *satisfaz:* CA-3.1, CA-3.2, CA-3.3
       *depende de:* T009
 
-- [ ] **T014** [P] Testes de insensibilidade à caixa
+- [x] **T014** [P] Testes de insensibilidade à caixa
       *entrega:* `UT-011-1` e `UT-011-2` passando. `UT-011-2` verifica o **filtro entregue ao
       repositório**, não o resultado, para que o teste falhe mesmo rodando contra um banco que
       já ignoraria a caixa por conta própria
       *satisfaz:* CA-4.1
       *depende de:* T004
 
-- [ ] **T015** Teste de comportamento da busca contra o PostgreSQL real
+- [x] **T015** Teste de comportamento da busca contra o PostgreSQL real
       *entrega:* a busca por sobrenome ignorando caixa, verificada contra o banco em contêiner
       e não contra um banco em memória. P-05: o PostgreSQL é o único banco homologado
       *satisfaz:* CA-4.2
