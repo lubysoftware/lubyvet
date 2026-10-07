@@ -69,7 +69,7 @@
       *satisfaz:* CA-4.2, CA-4.3
       *depende de:* T005
 
-- [ ] **T010** Implementar a abertura e a gravação da alteração do dono
+- [x] **T010** Implementar a abertura e a gravação da alteração do dono
       *entrega:* o formulário de edição carregado com os valores atuais, a gravação que mantém
       o mesmo identificador e termina na ficha, e a recusa quando o dono do corpo não é o
       dono pedido

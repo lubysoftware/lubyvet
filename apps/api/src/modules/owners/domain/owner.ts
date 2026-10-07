@@ -39,12 +39,15 @@ export interface RegisterOwnerFields {
   messagingConsent: boolean;
 }
 
-export type ContactPatch = Partial<
-  Pick<RegisterOwnerFields, 'firstName' | 'lastName' | 'address' | 'city' | 'telephone'>
-> & {
+export interface ContactPatch {
+  firstName?: string | undefined;
+  lastName?: string | undefined;
+  address?: string | undefined;
+  city?: string | undefined;
+  telephone?: string | undefined;
   email?: string | undefined;
   messagingConsent?: boolean | undefined;
-};
+}
 
 type TextField = 'firstName' | 'lastName' | 'address' | 'city';
 const TEXT_FIELDS: readonly TextField[] = ['firstName', 'lastName', 'address', 'city'];
