@@ -3,6 +3,7 @@ import type { Pet } from '../../domain/pet';
 export interface SpeciesRef {
   id: number;
   name: string;
+  status?: string;
 }
 
 /**

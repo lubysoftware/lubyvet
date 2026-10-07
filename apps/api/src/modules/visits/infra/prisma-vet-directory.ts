@@ -6,6 +6,6 @@ import type { VetDirectory } from '../application/visits.use-cases';
 export class PrismaVetDirectory implements VetDirectory {
   constructor(private readonly db: PrismaService) {}
   async exists(vetId: number): Promise<boolean> {
-    return (await this.db.vet.count({ where: { id: vetId } })) > 0;
+    return (await this.db.vet.count({ where: { id: vetId, status: 'active' } })) > 0;
   }
 }

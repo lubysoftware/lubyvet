@@ -31,3 +31,6 @@ export interface VetPatientsReader {
   list(vetId: number): Promise<{ petId: number; petName: string; ownerId: number; encounters: number }[]>;
 }
 export const VET_PATIENTS_READER = Symbol('VetPatientsReader');
+
+/** Regra de nomes do veterinário, exposta aos outros módulos pela porta (005/T002). */
+export { checkVetNames } from '../../domain/vet';

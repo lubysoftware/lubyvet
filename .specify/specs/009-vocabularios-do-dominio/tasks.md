@@ -14,7 +14,7 @@
       *satisfaz:* — (infraestrutura, pré-requisito de CA-1.3 e CA-2.4)
       *depende de:* as features 003 e 005 terem a Espécie e o Veterinário modelados e migrados
 
-- [ ] **T002** Criar a superfície administrativa de manutenção do vocabulário de espécies,
+- [x] **T002** Criar a superfície administrativa de manutenção do vocabulário de espécies,
       **separada da superfície de leitura**
       *entrega:* uma superfície própria, com a permissão exigida declarada nela, de modo que a
       superfície de leitura continue sem operação de escrita alguma. Acrescentar escrita na
@@ -23,7 +23,7 @@
       *satisfaz:* — (infraestrutura, pré-requisito de CA-1.1, CA-1.2 e CA-1.3)
       *depende de:* T001, e a identidade que a feature 007 entrega em T003
 
-- [ ] **T003** Implementar a inclusão de espécie, recusando nome repetido inclusive com outra
+- [x] **T003** Implementar a inclusão de espécie, recusando nome repetido inclusive com outra
       caixa
       *entrega:* a espécie incluída e **imediatamente disponível** para escolha no cadastro de
       animal, sem reinício e sem comando no banco, e a inclusão de um nome que difere do
@@ -32,7 +32,7 @@
       *satisfaz:* CA-1.1
       *depende de:* T002
 
-- [ ] **T004** [P] Implementar a renomeação de espécie, mantendo os animais vinculados
+- [x] **T004** [P] Implementar a renomeação de espécie, mantendo os animais vinculados
       *entrega:* a espécie com o nome novo e os animais já cadastrados ainda vinculados a ela,
       porque o vínculo é por identificador e o nome é chave funcional apenas no formulário
       (ADR-0009). A consequência a conhecer, e não a evitar: renomear **muda o valor que o
@@ -40,14 +40,14 @@
       *satisfaz:* CA-1.2
       *depende de:* T002
 
-- [ ] **T005** [P] Implementar a resolução da espécie escolhida sem exigir grafia exata
+- [x] **T005** [P] Implementar a resolução da espécie escolhida sem exigir grafia exata
       *entrega:* a resolução que aceita o nome capitalizado, em maiúsculas e **com espaços nas
       pontas**, levando os três à mesma espécie do vocabulário. É a continuação de T011 da
       feature 003, que resolve pelo nome: aqui entra a tolerância de grafia que o card pede
       *satisfaz:* CA-1.4
       *depende de:* T002
 
-- [ ] **T006** Implementar a recusa de remoção de espécie em uso, e a retirada do uso sem
+- [x] **T006** Implementar a recusa de remoção de espécie em uso, e a retirada do uso sem
       exclusão
       *entrega:* a tentativa de remover uma espécie com animal vinculado **sempre recusada**,
       com explicação do motivo vinda do catálogo de traduções, e a espécie continuando no
@@ -65,7 +65,7 @@
       *satisfaz:* CA-1.1, CA-1.2, CA-1.3, CA-1.4
       *depende de:* T004, T005, T006
 
-- [ ] **T008** Criar a superfície administrativa de manutenção do quadro de veterinários,
+- [x] **T008** Criar a superfície administrativa de manutenção do quadro de veterinários,
       **separada da superfície de leitura**, com a invalidação da memória do catálogo
       *entrega:* a superfície própria, com a permissão exigida declarada nela; a inclusão de
       veterinário com nome e sobrenome e zero, uma ou várias especialidades; a alteração do

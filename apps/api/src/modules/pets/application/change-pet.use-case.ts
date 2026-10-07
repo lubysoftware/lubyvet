@@ -32,8 +32,14 @@ export class ChangePet {
       throw new FieldRuleViolation([{ path: 'id', code: 'id_mismatch' }]);
     pet.change(cmd.patch, cmd.version, this.clock.now());
     if (cmd.status) pet.changeStatus(cmd.status, cmd.actorIsAdmin ?? false);
-    if (cmd.patch.speciesId && !(await this.species.findById(cmd.patch.speciesId)))
-      throw new UnknownSpecies();
+    if (cmd.patch.speciesId) {
+      const species = await this.species.findById(cmd.patch.speciesId);
+      if (!species) throw new UnknownSpecies();
+      // P-10: espécie inativa não é aceita em animal novo nem em troca de espécie.
+      if (species.status !== undefined && species.status !== 'active') {
+        throw new FieldRuleViolation([{ path: 'speciesId', code: 'species_inactive' }]);
+      }
+    }
     if (cmd.patch.name !== undefined && (await this.pets.nameTaken(cmd.ownerId, pet.name, cmd.petId)))
       throw new PetNameTaken();
     return this.pets.update(pet, cmd.version);

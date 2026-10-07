@@ -90,11 +90,15 @@ export class PrismaSpeciesCatalog implements SpeciesCatalog {
   constructor(private readonly db: PrismaService) {}
 
   findById(id: number): Promise<SpeciesRef | null> {
-    return this.db.species.findUnique({ where: { id }, select: { id: true, name: true } });
+    return this.db.species.findUnique({ where: { id }, select: { id: true, name: true, status: true } });
   }
 
   list(): Promise<SpeciesRef[]> {
-    return this.db.species.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } });
+    return this.db.species.findMany({
+      where: { status: 'active' },
+      select: { id: true, name: true },
+      orderBy: { name: 'asc' },
+    });
   }
 
   async findByName(name: string): Promise<SpeciesRef | null> {

@@ -13,12 +13,12 @@ export class PrismaVetCatalogReader implements VetCatalogReader {
   constructor(private readonly db: PrismaService) {}
 
   count(): Promise<number> {
-    return this.db.vet.count();
+    return this.db.vet.count({ where: { status: 'active' } });
   }
 
   async page(offset: number, limit: number): Promise<CatalogVet[]> {
     const ids = await this.db.$queryRaw<{ id: number }[]>`
-      select id from vets
+      select id from vets where status = 'active'
       order by lower(translate(last_name, 'ÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÛÜÇáàâãäéèêëíìîïóòôõöúùûüç', 'AAAAAEEEEIIIIOOOOOUUUUCaaaaaeeeeiiiiooooouuuuc')),
                lower(translate(first_name, 'ÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÛÜÇáàâãäéèêëíìîïóòôõöúùûüç', 'AAAAAEEEEIIIIOOOOOUUUUCaaaaaeeeeiiiiooooouuuuc')), id
       limit ${limit} offset ${offset}`;

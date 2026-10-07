@@ -51,6 +51,7 @@ export const FIELD_ERROR_CODES = [
   'id_mismatch',
   'unknown_species',
   'appointment_not_schedulable',
+  'species_in_use',
 ] as const;
 export type FieldErrorCode = (typeof FIELD_ERROR_CODES)[number];
 
