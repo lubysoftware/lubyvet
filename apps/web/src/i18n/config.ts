@@ -10,3 +10,17 @@ export function resolveLocale(cookieValue: string | undefined): Locale {
     ? (cookieValue as Locale)
     : DEFAULT_LOCALE;
 }
+
+export const LOCALE_PARAM = 'lang';
+
+/**
+ * 006/CA-3.2: o idioma pelo parâmetro de endereço passa pelo mesmo ponto que o seletor de tela, o
+ * cookie. Devolve o cookie a gravar e o endereço sem o parâmetro, ou null quando não há parâmetro.
+ */
+export function localeFromUrl(url: URL): { locale: Locale; cleanUrl: URL } | null {
+  const value = url.searchParams.get(LOCALE_PARAM);
+  if (value === null) return null;
+  const cleanUrl = new URL(url);
+  cleanUrl.searchParams.delete(LOCALE_PARAM);
+  return { locale: resolveLocale(value), cleanUrl };
+}

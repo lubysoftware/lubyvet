@@ -227,12 +227,20 @@
     "title": "Anonymize this owner?",
     "warning": "Name, contact and ID are replaced for good. Pets and clinical history stay.",
     "reviewTitle": "Review free text",
-    "reviewHelp": "These parts of visits and records still mention the owner. Remove the ones that identify the person.",
+    "reviewHelp": "These parts of visits and records mention the owner. Untick what does not identify the person and finish: the ticked ones become [removido].",
     "nothingLeft": "Nothing left to review.",
-    "redact": "Remove excerpt"
+    "removeExcerpt": "Remove “{excerpt}”",
+    "conclude": "Finish review"
   },
   "freeTextEntity": {
     "appointment": "Scheduled visit",
     "encounter": "Visit record"
+  },
+  "errorPage": {
+    "notFoundTitle": "Page not found",
+    "notFoundBody": "The record or page you asked for does not exist.",
+    "failureTitle": "Something failed on our side",
+    "failureBody": "Try again. If it keeps happening, report the code {occurrenceId}.",
+    "home": "Back to owners"
   }
 }

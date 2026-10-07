@@ -30,3 +30,18 @@ export async function expectAccessible(page: Page): Promise<void> {
     .analyze();
   expect(violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(' | ')}`)).toEqual([]);
 }
+
+let seq = Date.now() % 1_000_000;
+/** CPF sintético com dígitos verificadores válidos (nunca dado real), um por chamada. */
+export function validCpf(): string {
+  const base = String(100_000_000 + ((++seq * 7919) % 899_999_999)).slice(0, 9);
+  const dv = (digits: string, start: number) => {
+    const rest = ([...digits].reduce((acc, d, i) => acc + Number(d) * (start - i), 0) * 10) % 11;
+    return rest === 10 ? 0 : rest;
+  };
+  const d1 = dv(base, 10);
+  return `${base}${d1}${dv(base + d1, 11)}`;
+}
+/** Celular sintético válido (D05), um por chamada. */
+export const validMobile = (): string =>
+  `(13) 9${String(10_000_000 + ((++seq * 104_729) % 89_999_999)).slice(0, 8)}`;

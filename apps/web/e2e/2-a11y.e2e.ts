@@ -15,7 +15,7 @@ for (const theme of ['light', 'dark'] as const) {
       await expectAccessible(page);
     });
 
-    test('telas da equipe', async ({ page }) => {
+    test('010/CA-2.1 telas da equipe passam no WCAG 2.2 AA', async ({ page }) => {
       await login(page, 'admin');
       await page.goto('/owners?lastName=');
       const record = await page.getByRole('link', { name: /Mariana/ }).getAttribute('href');
@@ -43,7 +43,7 @@ for (const theme of ['light', 'dark'] as const) {
       await expectAccessible(page);
     });
 
-    test('formulário com erro marcado', async ({ page }) => {
+    test('010/CA-3.2 formulário com erro marcado continua acessível', async ({ page }) => {
       await login(page, 'writer');
       await page.goto('/owners/new');
       await page.getByRole('button', { name: 'Cadastrar dono' }).click();

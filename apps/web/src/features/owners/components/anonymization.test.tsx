@@ -39,25 +39,48 @@ describe('anonimização do dono (007/US-3, D24, D25)', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Seu papel não permite esta ação.');
   });
 
-  it('a revisão destaca o trecho e remove só ele', async () => {
+  it('007/CA-3.5 a revisão destaca cada trecho, todos marcados, e conclui num envio só com os confirmados', async () => {
     const fetch = mockFetch({ status: 204 });
-    const item = {
+    const name = {
       entity: 'encounter' as const,
       id: 4,
       field: 'conduct',
-      start: 7,
-      end: 14,
+      start: 9,
+      end: 16,
       text: 'Ligar p/ Mariana amanhã',
     };
-    renderWithIntl(<FreeTextReview ownerId={7} items={[{ ...item, start: 9, end: 16 }]} />);
+    const phone = {
+      entity: 'appointment' as const,
+      id: 2,
+      field: 'description',
+      start: 0,
+      end: 4,
+      text: 'Rex no banho',
+    };
+    renderWithIntl(<FreeTextReview ownerId={7} items={[name, phone]} />);
     expect(screen.getByText('Mariana').tagName).toBe('MARK');
     expect(screen.getByText('Atendimento')).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: 'Remover trecho' }));
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Remover “Rex ”' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Concluir revisão' }));
     expect(fetch.mock.calls[0]?.[0]).toBe('/api/owners/7/free-text/redact');
     expect(sentBody(fetch)).toEqual({
       spans: [{ entity: 'encounter', id: 4, field: 'conduct', start: 9, end: 16 }],
     });
-    expect(reload).toHaveBeenCalled();
+    expect(assign).toHaveBeenCalledWith('/owners/7');
+  });
+
+  it('a recusa da revisão aparece', async () => {
+    mockFetch({ status: 403, body: { error: { code: 'forbidden' } } });
+    renderWithIntl(
+      <FreeTextReview
+        ownerId={7}
+        items={[{ entity: 'encounter', id: 1, field: 'conduct', start: 0, end: 3, text: 'Ana' }]}
+      />,
+    );
+    await userEvent.click(screen.getByRole('checkbox'));
+    await userEvent.click(screen.getByRole('checkbox'));
+    await userEvent.click(screen.getByRole('button', { name: 'Concluir revisão' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Seu papel não permite esta ação.');
   });
 
   it('sem trecho, diz que não há nada a revisar', () => {

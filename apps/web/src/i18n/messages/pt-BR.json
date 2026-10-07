@@ -227,12 +227,20 @@
     "title": "Anonimizar este dono?",
     "warning": "Nome, contato e documento são trocados e não voltam. Animais e histórico clínico ficam.",
     "reviewTitle": "Revisar textos livres",
-    "reviewHelp": "Estes trechos de visitas e atendimentos ainda citam o dono. Remova os que identificam a pessoa.",
+    "reviewHelp": "Estes trechos de visitas e atendimentos citam o dono. Desmarque o que não identifica a pessoa e conclua: os marcados viram [removido].",
     "nothingLeft": "Nenhum trecho a revisar.",
-    "redact": "Remover trecho"
+    "removeExcerpt": "Remover “{excerpt}”",
+    "conclude": "Concluir revisão"
   },
   "freeTextEntity": {
     "appointment": "Visita agendada",
     "encounter": "Atendimento"
+  },
+  "errorPage": {
+    "notFoundTitle": "Página não encontrada",
+    "notFoundBody": "O cadastro ou a página pedida não existe.",
+    "failureTitle": "Algo falhou do nosso lado",
+    "failureBody": "Tente de novo. Se continuar, informe o código {occurrenceId}.",
+    "home": "Voltar aos donos"
   }
 }

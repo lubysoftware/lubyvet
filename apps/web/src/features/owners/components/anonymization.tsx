@@ -43,31 +43,43 @@ export function AnonymizeOwner({ ownerId }: { ownerId: number }) {
   );
 }
 
-/** D25: cada trecho com dado do dono aparece destacado; remover troca só aquele trecho. */
+/**
+ * D25: cada trecho com dado do dono aparece destacado e marcado para remoção. O Administrador
+ * desmarca o que não identifica a pessoa e conclui: a revisão é um envio só, que troca os trechos
+ * confirmados por [removido] e encerra a pendência do dono.
+ */
 export function FreeTextReview({ ownerId, items }: { ownerId: number; items: FreeTextItemOutput[] }) {
   const t = useTranslations('anonymize');
   const tr = useTranslations();
   const [failure, setFailure] = useState<ApiError | null>(null);
   const [pending, setPending] = useState(false);
+  const [keep, setKeep] = useState<Set<number>>(new Set());
   if (items.length === 0) return <p className="text-muted-foreground">{t('nothingLeft')}</p>;
-  const redact = async (item: FreeTextItemOutput) => {
-    const { text: _text, ...span } = item;
+  const conclude = async () => {
+    const spans = items.filter((_, n) => !keep.has(n)).map(({ text: _text, ...span }) => span);
     setPending(true);
     const r = await apiSend(
       'POST',
       `/api/owners/${ownerId}/free-text/redact`,
-      { spans: [span] },
+      { spans },
       newIdempotencyKey(),
     );
     setPending(false);
-    if (r.ok) window.location.reload();
+    if (r.ok) window.location.assign(`/owners/${ownerId}`);
     else setFailure(r.error);
   };
+  const toggle = (n: number) =>
+    setKeep((k) => {
+      const next = new Set(k);
+      if (next.has(n)) next.delete(n);
+      else next.add(n);
+      return next;
+    });
   return (
     <div className="grid gap-4">
       <FailureMessage failure={failure} />
       <ul className="grid gap-2">
-        {items.map((i) => (
+        {items.map((i, n) => (
           <li
             key={`${i.entity}-${i.id}-${i.field}-${i.start}`}
             className="grid gap-2 rounded-md border border-border bg-surface-raised p-3"
@@ -82,14 +94,23 @@ export function FreeTextReview({ ownerId, items }: { ownerId: number; items: Fre
               </mark>
               {i.text.slice(i.end)}
             </p>
-            <div>
-              <Button variant="danger" disabled={pending} onClick={() => void redact(i)}>
-                {t('redact')}
-              </Button>
-            </div>
+            <label className="flex min-h-11 items-center gap-2">
+              <input
+                type="checkbox"
+                checked={!keep.has(n)}
+                onChange={() => toggle(n)}
+                className="size-5 accent-primary"
+              />
+              {t('removeExcerpt', { excerpt: i.text.slice(i.start, i.end) })}
+            </label>
           </li>
         ))}
       </ul>
+      <div>
+        <Button variant="danger" disabled={pending} onClick={() => void conclude()}>
+          {t('conclude')}
+        </Button>
+      </div>
     </div>
   );
 }

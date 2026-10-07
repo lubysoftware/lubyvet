@@ -40,7 +40,7 @@ describe('modelo de erro e destaque nos quatro formulários (010/T007, T008)', (
       'A data não pode ser futura.',
     ],
   ])(
-    'formulário de %s marca o campo com erro e mostra a mensagem do catálogo',
+    '010/CA-3.1 010/CA-3.3 formulário de %s marca o campo com erro e mostra a mensagem do catálogo',
     (_n, form, label, message) => {
       renderWithIntl(form);
       const input = screen.getByLabelText(label);
