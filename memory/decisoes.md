@@ -492,3 +492,11 @@ têm meta numérica: são provados pelos testes de integração e de API.
 Os padrões completos estão em `AGENTS.md` e `docs/padroes/`.
 
 > **Nota de 2026-10-07 sobre P-17 e P-23:** o comando é `bun run verify`. O npm encerra sem erro nesta máquina (instalação, scripts com `--workspaces` e cadeias longas), então instalação e scripts usam o bun; os workspaces e o `package.json` continuam os mesmos.
+
+## 12. Dívida técnica da primeira entrega (2026-10-07, sexta sessão)
+
+**D45. Eventos de domínio em processo.** *(fecha a pergunta "Barramento de eventos" da 011)*
+Os casos de uso publicam eventos (só ids e tipos, P-16) num barramento em processo, entregue no
+mesmo request. O assinante de métricas (D27) é o primeiro consumidor. Evento que precise sair do
+processo usa a caixa de saída de D12. Tomada pela recomendação da spec da 011, com autorização
+para seguir sem nova consulta.

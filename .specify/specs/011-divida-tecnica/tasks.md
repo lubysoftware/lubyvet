@@ -76,7 +76,7 @@
 
 ## US-3 Métricas a partir de eventos de domínio
 
-- [ ] **T010** Porta de eventos de domínio e adaptador em processo
+- [x] **T010** Porta de eventos de domínio e adaptador em processo
       *entrega:* `shared/domain/events.ts` com os eventos de D27 tipados (sem dado pessoal no
       evento: só ids e o tipo) e o adaptador que entrega aos assinantes no mesmo processo
       *satisfaz:* — (infraestrutura, pré-requisito de CA-3.1 e CA-3.2)

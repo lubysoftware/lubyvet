@@ -88,7 +88,7 @@ seja ela a do padrão original ou a que a prática mostrou funcionar.
 
 - [ ] **Formulário: react-hook-form ou `useApiForm`?** O padrão original pede react-hook-form. O hook próprio nasceu porque o npm encerra sem erro nesta máquina, mas a instalação pelo bun funciona. Recomendação: adotar react-hook-form com `@hookform/resolvers/zod`, mantendo o `useApiForm` só como camada de envio (Idempotency-Key e 422 por campo).
 - [ ] **shadcn/ui pelo CLI.** O `npx shadcn add` não roda aqui; `bunx shadcn add` precisa ser tentado antes de decidir. Se também falhar, a troca vira decisão e as peças ficam como estão.
-- [ ] **Barramento de eventos.** Em processo (síncrono, no mesmo request) basta para métrica; se um dia um evento precisar sair do processo, a caixa de saída de D12 já é o caminho. Recomendação: em processo agora.
+- [x] **Barramento de eventos.** Em processo (síncrono, no mesmo request) basta para métrica; se um dia um evento precisar sair do processo, a caixa de saída de D12 já é o caminho. Recomendação: em processo agora. → ✅ **D45**: em processo
 
 ## Rastreabilidade
 
