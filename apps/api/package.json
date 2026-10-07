@@ -1,0 +1,51 @@
+{
+  "name": "@lubyvet/api",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "prisma generate && tsc -p tsconfig.build.json",
+    "start": "node dist/main.js",
+    "dev": "nest start --watch",
+    "typecheck": "prisma generate >/dev/null && tsc -p tsconfig.json --noEmit",
+    "boundaries": "depcruise src --config .dependency-cruiser.cjs",
+    "test:unit": "jest --selectProjects unit",
+    "test:cov": "jest --selectProjects unit --coverage",
+    "test:int": "jest --selectProjects integration --runInBand",
+    "test:e2e": "jest --selectProjects e2e --runInBand --passWithNoTests",
+    "test:perf": "jest --selectProjects perf --runInBand --passWithNoTests",
+    "prisma": "prisma"
+  },
+  "dependencies": {
+    "@lubyvet/contracts": "*",
+    "@nestjs/common": "11.2.7",
+    "@nestjs/core": "11.2.7",
+    "@nestjs/platform-express": "11.2.7",
+    "@prisma/adapter-pg": "7.10.0",
+    "@prisma/client": "7.10.0",
+    "cookie-parser": "1.4.7",
+    "pg": "8.23.1",
+    "pino": "10.4.0",
+    "pino-http": "11.0.0",
+    "reflect-metadata": "0.2.2",
+    "rxjs": "7.8.2",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "11.0.24",
+    "@nestjs/testing": "11.2.7",
+    "@swc/core": "1.16.13",
+    "@swc/jest": "0.2.39",
+    "@testcontainers/postgresql": "12.2.0",
+    "@types/cookie-parser": "1.4.10",
+    "@types/express": "5.0.6",
+    "@types/jest": "30.0.0",
+    "@types/node": "24.19.1",
+    "@types/pg": "8.23.1",
+    "@types/supertest": "7.2.1",
+    "dependency-cruiser": "18.5.0",
+    "jest": "30.5.2",
+    "prisma": "7.10.0",
+    "supertest": "7.3.1",
+    "typescript": "6.0.3"
+  }
+}

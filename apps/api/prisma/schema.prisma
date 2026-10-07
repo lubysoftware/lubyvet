@@ -1,0 +1,10 @@
+// docs/padroes/banco.md: @@map e @map em todo modelo e campo (P3); nada se apaga (P2).
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}

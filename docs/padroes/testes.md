@@ -68,14 +68,14 @@ mudança.
 | P5 | `prisma migrate diff` sem diferença entre schema e migrações | `verify` |
 | P6 | cada regra das specs tem um teste que entra pela rota e chega ao banco | API ponta a ponta |
 | P7 | completude dos catálogos (`pt-BR`, `en`) contra os códigos de `@lubyvet/contracts`: chave faltando ou chave sem uso reprova | unidade (web) |
-| P8 | o próprio `npm run verify` | CI |
+| P8 | o próprio `bun run verify` | CI |
 | P9 | por rota: os campos de entrada, a resposta validada contra o schema de saída do contrato, e os status declarados; nenhuma resposta tem campo de persistência | API ponta a ponta |
 | D07 | axe e contraste em todas as telas, nos dois temas | E2E do web |
 | P-16 | o log de uma gravação de dono não contém nome, CPF, celular nem e-mail | integração |
 
 ## Cobertura (D44)
 
-O `npm run verify` reprova abaixo destes números:
+O `bun run verify` reprova abaixo destes números:
 
 | camada | linhas | ramos |
 |---|---|---|

@@ -28,7 +28,7 @@ Next.js (App Router) com shadcn/ui e Tailwind 4. É só apresentação (D31). Va
 ## Comandos
 
 ```bash
-npm run dev       -w apps/web
-npm run test:unit -w apps/web   # Vitest
-npm run test:e2e  -w apps/web   # Playwright + axe
+bun run --cwd apps/web dev
+bun run --cwd apps/web test:unit   # Vitest
+bun run --cwd apps/web test:e2e   # Playwright + axe
 ```

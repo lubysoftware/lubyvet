@@ -491,3 +491,4 @@ têm meta numérica: são provados pelos testes de integração e de API.
 
 Os padrões completos estão em `AGENTS.md` e `docs/padroes/`.
 
+> **Nota de 2026-10-07 sobre P-17 e P-23:** o comando é `bun run verify`. O npm encerra sem erro nesta máquina (instalação, scripts com `--workspaces` e cadeias longas), então instalação e scripts usam o bun; os workspaces e o `package.json` continuam os mesmos.

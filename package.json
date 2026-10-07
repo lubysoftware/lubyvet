@@ -1,0 +1,37 @@
+{
+  "name": "lubyvet",
+  "private": true,
+  "version": "0.0.0",
+  "description": "LubyVet: sistema de balc\u00e3o de cl\u00ednica veterin\u00e1ria",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "workspaces": [
+    "packages/contracts",
+    "apps/api"
+  ],
+  "scripts": {
+    "build": "bun run --cwd packages/contracts build && bun run --cwd apps/api build",
+    "lint": "eslint . --max-warnings=0",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "bun run --cwd packages/contracts typecheck && bun run --cwd apps/api typecheck",
+    "boundaries": "bun run --cwd apps/api boundaries",
+    "test:unit": "bun run --cwd packages/contracts test:unit && bun run --cwd apps/api test:unit",
+    "test:int": "bun run --cwd apps/api test:int",
+    "test:e2e": "bun run --cwd apps/api test:e2e",
+    "test:cov": "bun run --cwd packages/contracts test:cov && bun run --cwd apps/api test:cov",
+    "verify": "bun run --cwd packages/contracts build && bun run lint && bun run format:check && bun run typecheck && bun run boundaries && bun run test:cov && bun run test:int && bun run test:e2e",
+    "verify:perf": "bun run --cwd apps/api test:perf"
+  },
+  "devDependencies": {
+    "eslint": "10.12.0",
+    "prettier": "3.9.9",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.71.1"
+  },
+  "trustedDependencies": [
+    "@swc/core",
+    "unrs-resolver"
+  ]
+}

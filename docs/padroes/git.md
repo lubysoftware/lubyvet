@@ -12,7 +12,7 @@ git rev-parse --show-toplevel   # precisa terminar em /lubyvet
 ## Uma tarefa, um commit
 
 - Cada tarefa de `tasks.md` vira um commit atômico, com o checkbox marcado no mesmo commit.
-- Só se commita verde: `npm run verify` passa antes (P8).
+- Só se commita verde: `bun run verify` passa antes (P8).
 - Branch por feature: `feat/001-gestao-de-donos`. Correção fora de feature: `fix/<assunto>`.
 
 ## Mensagem (D43: em inglês)

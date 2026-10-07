@@ -1,0 +1,23 @@
+{
+  "name": "@lubyvet/contracts",
+  "version": "0.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test:unit": "jest",
+    "test:cov": "jest --coverage"
+  },
+  "dependencies": {
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@swc/core": "1.16.13",
+    "@swc/jest": "0.2.39",
+    "@types/jest": "30.0.0",
+    "jest": "30.5.2",
+    "typescript": "6.0.3"
+  }
+}

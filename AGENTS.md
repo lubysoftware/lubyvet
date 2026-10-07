@@ -52,14 +52,14 @@ existem só os `AGENTS.md` de cada pasta.
 | comando | o que faz |
 |---|---|
 | `./run.sh` | sobe a infra em Docker e a API e o web no host |
-| `./run.sh verify` | o mesmo que `npm run verify` |
-| `npm run verify` | **o único veredito** (P8): lint, typecheck, unidade, integração, contrato, e2e da API, componentes do web, cobertura por camada, `prisma migrate diff`, regra de fronteira e conferência do OpenAPI |
-| `npm run test:unit` | unidade da API e componentes do web; roda em segundos e sem Docker |
-| `npm run test:int` | integração com Postgres, Redis e RabbitMQ reais (Testcontainers); precisa de Docker |
-| `npm run test:e2e` | API inteira via HTTP e Playwright no web |
-| `npm run verify:perf` | desempenho da busca de donos (D08); fora do veredito rápido |
+| `./run.sh verify` | o mesmo que `bun run verify` |
+| `bun run verify` | **o único veredito** (P8): lint, typecheck, unidade, integração, contrato, e2e da API, componentes do web, cobertura por camada, `prisma migrate diff`, regra de fronteira e conferência do OpenAPI |
+| `bun run test:unit` | unidade da API e componentes do web; roda em segundos e sem Docker |
+| `bun run test:int` | integração com Postgres, Redis e RabbitMQ reais (Testcontainers); precisa de Docker |
+| `bun run test:e2e` | API inteira via HTTP e Playwright no web |
+| `bun run verify:perf` | desempenho da busca de donos (D08); fora do veredito rápido |
 
-Node 24 LTS (`.nvmrc`), npm workspaces, lockfile versionado.
+Node 24 LTS (`.nvmrc`) e workspaces. **Use o bun para instalar e rodar** (`bun install`, `bun run <script>`): nesta máquina o npm encerra sem erro tanto na instalação quanto em scripts longos ou em vários workspaces. O lockfile versionado é o `bun.lock`.
 
 ## Como executar uma tarefa
 
@@ -69,7 +69,7 @@ Node 24 LTS (`.nvmrc`), npm workspaces, lockfile versionado.
 3. Escreva o teste antes quando a constituição pedir (P1: isolamento entre donos) e sempre
    que a tarefa citar um `UT-nnn-n`. Dê ao teste o nome do UT.
 4. Implemente o mínimo que deixa o teste verde, respeitando `docs/padroes/`.
-5. Rode `npm run verify`. **Só se entrega verde.**
+5. Rode `bun run verify`. **Só se entrega verde.**
 6. Marque o checkbox da tarefa em `tasks.md` no mesmo commit.
 7. Faça um commit por tarefa, seguindo `docs/padroes/git.md`.
 

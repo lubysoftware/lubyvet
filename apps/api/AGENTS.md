@@ -45,8 +45,8 @@ test/
 ## Comandos
 
 ```bash
-npm run test:unit -w apps/api   # *.spec.ts, sem Docker
-npm run test:int  -w apps/api   # *.int-spec.ts, Testcontainers
-npm run test:e2e  -w apps/api   # *.e2e-spec.ts, Testcontainers
+bun run --cwd apps/api test:unit   # *.spec.ts, sem Docker
+bun run --cwd apps/api test:int   # *.int-spec.ts, Testcontainers
+bun run --cwd apps/api test:e2e   # *.e2e-spec.ts, Testcontainers
 npx prisma migrate dev --name <nome_em_ingles>
 ```

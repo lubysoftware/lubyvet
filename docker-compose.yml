@@ -1,0 +1,22 @@
+# Infra de desenvolvimento local (D34). Nenhuma credencial real: os valores abaixo valem só aqui.
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: lubyvet
+      POSTGRES_USER: lubyvet
+      POSTGRES_PASSWORD: lubyvet_dev
+    ports: ['5433:5432']
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U lubyvet -d lubyvet']
+      interval: 2s
+      retries: 30
+  redis:
+    image: redis:8-alpine
+    ports: ['6380:6379']
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    ports: ['5673:5672', '15673:15672']
+volumes:
+  pgdata:

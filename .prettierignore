@@ -1,0 +1,12 @@
+node_modules
+dist
+coverage
+.next
+apps/api/src/generated
+packages/contracts/openapi.json
+.specify
+_discovery
+memory
+index.md
+*.md
+package-lock.json

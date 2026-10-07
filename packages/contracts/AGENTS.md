@@ -23,7 +23,7 @@ Os schemas zod de entrada, saída e erro de cada rota, e o OpenAPI gerado a part
 ## Comandos
 
 ```bash
-npm run build     -w packages/contracts
-npm run openapi   -w packages/contracts   # regenera openapi.json
-npm run test:unit -w packages/contracts
+bun run --cwd packages/contracts build
+bun run --cwd packages/contracts openapi   # regenera openapi.json
+bun run --cwd packages/contracts test:unit
 ```

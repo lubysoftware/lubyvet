@@ -39,7 +39,7 @@ modules/owners/
 
 Um módulo usa outro só pela porta pública do outro (`application/ports/`), nunca
 importando o `domain/` alheio. A regra é escrita no `.dependency-cruiser.cjs` e roda em
-`npm run verify`. Um import proibido reprova o build.
+`bun run verify`. Um import proibido reprova o build.
 
 ## Portas e casos de uso
 
