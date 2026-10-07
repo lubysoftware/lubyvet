@@ -58,9 +58,11 @@ export class PetsController {
     @Param('petId', new IdParamPipe('pet_not_found')) petId: number,
     @Body(new ZodValidationPipe(ChangePetInput)) body: ChangePetInput,
   ): Promise<PetOutput> {
-    const { id, version, ...patch } = body;
+    const { id, version, status, ...patch } = body;
     try {
-      return await this.present(await this.changePet.execute({ ownerId, petId, bodyId: id, version, patch }));
+      return await this.present(
+        await this.changePet.execute({ ownerId, petId, bodyId: id, version, patch, status }),
+      );
     } catch (e) {
       if (e instanceof StaleVersion)
         throw new StaleVersion(await this.present(Pet.restore(e.current as PetProps)));

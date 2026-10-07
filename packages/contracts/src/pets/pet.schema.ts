@@ -2,6 +2,10 @@ import { z } from 'zod';
 
 export const PET_LIMITS = { name: 30 } as const;
 
+/** D09: situações do animal. */
+export const PET_STATUS = ['active', 'deceased', 'transferred'] as const;
+export type PetStatus = (typeof PET_STATUS)[number];
+
 const name = z
   .string({ error: 'required' })
   .trim()
@@ -24,6 +28,7 @@ export const ChangePetInput = z.object({
   name: name.optional(),
   birthDate: birthDate.optional(),
   speciesId: speciesId.optional(),
+  status: z.enum(PET_STATUS, { error: 'invalid_format' }).optional(),
 });
 export type ChangePetInput = z.infer<typeof ChangePetInput>;
 
@@ -36,6 +41,7 @@ export const PetOutput = z.object({
   name: z.string(),
   birthDate: z.string(),
   species: SpeciesOutput,
+  status: z.enum(PET_STATUS),
   version: z.number().int(),
   createdAt: z.string(),
   updatedAt: z.string(),

@@ -1,4 +1,9 @@
-import { FieldRuleViolation, StaleVersion } from '../../../shared/domain/errors';
+import {
+  FieldRuleViolation,
+  Forbidden,
+  InvalidTransition,
+  StaleVersion,
+} from '../../../shared/domain/errors';
 import { Pet } from './pet';
 
 const NOW = new Date('2026-10-07T12:00:00-03:00');
@@ -49,5 +54,34 @@ describe('Pet', () => {
     expect(pet.snapshot()).toMatchObject({ name: 'Rex', birthDate: '2019-01-01', speciesId: 1, id: 3 });
     pet.change({}, 1, NOW);
     expect(pet.isNew()).toBe(false);
+  });
+
+  describe('situação (D09)', () => {
+    const fresh = () => Pet.register(7, ok, NOW);
+    it('nasce Ativo e pode ser agendado', () => {
+      expect([fresh().status, fresh().canBeScheduled()]).toEqual(['active', true]);
+    });
+    it('Ativo vai para Falecido ou Transferido, que não aceitam agendamento', () => {
+      const a = fresh();
+      a.changeStatus('deceased', false);
+      expect([a.status, a.canBeScheduled()]).toEqual(['deceased', false]);
+      const b = fresh();
+      b.changeStatus('transferred', false);
+      expect(b.status).toBe('transferred');
+    });
+    it('Falecido não vira Transferido; repetir a situação atual não muda nada', () => {
+      const a = fresh();
+      a.changeStatus('deceased', false);
+      expect(() => a.changeStatus('transferred', false)).toThrow(InvalidTransition);
+      a.changeStatus('deceased', false);
+      expect(a.status).toBe('deceased');
+    });
+    it('só o Administrador volta para Ativo', () => {
+      const a = fresh();
+      a.changeStatus('deceased', false);
+      expect(() => a.changeStatus('active', false)).toThrow(Forbidden);
+      a.changeStatus('active', true);
+      expect(a.status).toBe('active');
+    });
   });
 });

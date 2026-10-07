@@ -163,7 +163,7 @@
       *satisfaz:* CA-2.3, CA-2.4
       *depende de:* T009
 
-- [ ] **T020** Situação do animal
+- [x] **T020** Situação do animal
       *entrega:* a coluna de situação (Ativo, Falecido, Transferido) por migração, com o nome
       declarado (P3) e Ativo como padrão; as transições de D09 com recusa das inválidas; a
       volta para Ativo restrita ao Administrador (verificada quando a 007 existir); o animal

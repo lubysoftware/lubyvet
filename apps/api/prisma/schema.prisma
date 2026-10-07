@@ -66,6 +66,8 @@ model Pet {
   name      String   @map("name") @db.VarChar(30)
   birthDate DateTime @map("birth_date") @db.Date
   speciesId Int      @map("species_id")
+  /// D09: active | deceased | transferred
+  status    String   @default("active") @map("status") @db.VarChar(12)
   version   Int      @default(0) @map("version")
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)

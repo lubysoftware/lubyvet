@@ -1,5 +1,11 @@
-import { PET_LIMITS } from '@lubyvet/contracts';
-import { FieldRuleViolation, StaleVersion, type FieldViolation } from '../../../shared/domain/errors';
+import { PET_LIMITS, type PetStatus } from '@lubyvet/contracts';
+import {
+  FieldRuleViolation,
+  Forbidden,
+  InvalidTransition,
+  StaleVersion,
+  type FieldViolation,
+} from '../../../shared/domain/errors';
 
 export interface PetProps {
   id: number | undefined;
@@ -8,6 +14,7 @@ export interface PetProps {
   /** YYYY-MM-DD */
   birthDate: string;
   speciesId: number;
+  status: PetStatus;
   version: number;
   createdAt: Date | undefined;
   updatedAt: Date | undefined;
@@ -65,6 +72,7 @@ export class Pet {
       name: fields.name.trim(),
       birthDate: fields.birthDate,
       speciesId: fields.speciesId ?? 0,
+      status: 'active',
       version: 0,
       createdAt: undefined,
       updatedAt: undefined,
@@ -91,6 +99,29 @@ export class Pet {
   }
   get speciesId(): number {
     return this.props.speciesId;
+  }
+  get status(): PetStatus {
+    return this.props.status;
+  }
+
+  /** D09: Falecido e Transferido não aceitam agendamento novo (004/CA-4.6). */
+  canBeScheduled(): boolean {
+    return this.props.status === 'active';
+  }
+
+  /**
+   * D09: Ativo vai para Falecido ou Transferido; a volta para Ativo é correção de erro e só o
+   * Administrador faz. O animal continua na ficha e na unicidade de nome em qualquer situação.
+   */
+  changeStatus(next: PetStatus, actorIsAdmin: boolean): void {
+    const current = this.props.status;
+    if (next === current) return;
+    if (next === 'active') {
+      if (!actorIsAdmin) throw new Forbidden('forbidden');
+    } else if (current !== 'active') {
+      throw new InvalidTransition('invalid_transition');
+    }
+    this.props.status = next;
   }
 
   snapshot(): Readonly<PetProps> {

@@ -10,6 +10,7 @@ export function presentPet(pet: Pet, species: SpeciesRef): PetOutput {
     name: s.name,
     birthDate: s.birthDate,
     species: { id: species.id, name: species.name },
+    status: s.status,
     version: s.version,
     createdAt: s.createdAt?.toISOString() ?? '',
     updatedAt: s.updatedAt?.toISOString() ?? '',

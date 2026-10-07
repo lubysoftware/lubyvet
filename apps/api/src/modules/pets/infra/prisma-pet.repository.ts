@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import type { PetStatus } from '@lubyvet/contracts';
 import type { Pet as PetRow } from '../../../generated/prisma/client';
 import { StaleVersion } from '../../../shared/domain/errors';
 import { PrismaService } from '../../../shared/infra/prisma.service';
@@ -14,6 +15,7 @@ const toDomain = (r: PetRow): Pet =>
     name: r.name,
     birthDate: r.birthDate.toISOString().slice(0, 10),
     speciesId: r.speciesId,
+    status: r.status as PetStatus,
     version: r.version,
     createdAt: r.createdAt,
     updatedAt: r.updatedAt,
@@ -65,6 +67,7 @@ export class PrismaPetRepository implements PetRepository {
           name: s.name,
           birthDate: new Date(`${s.birthDate}T00:00:00Z`),
           speciesId: s.speciesId,
+          status: s.status,
           version: { increment: 1 },
         },
       })
