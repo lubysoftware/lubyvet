@@ -19,6 +19,12 @@ export interface PetFields {
   speciesId: number | null | undefined;
 }
 
+export interface PetPatch {
+  name?: string | undefined;
+  birthDate?: string | undefined;
+  speciesId?: number | null | undefined;
+}
+
 const isRealDate = (d: string): boolean => {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d);
   if (!m) return false;
@@ -28,7 +34,7 @@ const isRealDate = (d: string): boolean => {
 const todayIn = (now: Date): string => now.toLocaleDateString('sv-SE', { timeZone: 'America/Sao_Paulo' });
 
 /** Uma declaração só para nome, data e espécie, igual na criação e na alteração (T006, T007, CA-3.4). */
-function check(fields: Partial<PetFields>, now: Date, partial: boolean, violations: FieldViolation[]): void {
+function check(fields: PetPatch, now: Date, partial: boolean, violations: FieldViolation[]): void {
   if (fields.name !== undefined || !partial) {
     const n = (fields.name ?? '').trim();
     if (n === '') violations.push({ path: 'name', code: 'required' });
@@ -91,7 +97,7 @@ export class Pet {
     return { ...this.props };
   }
 
-  change(patch: Partial<PetFields>, expectedVersion: number, now: Date): void {
+  change(patch: PetPatch, expectedVersion: number, now: Date): void {
     if (expectedVersion !== this.props.version) throw new StaleVersion(this.snapshot());
     const violations: FieldViolation[] = [];
     check(patch, now, true, violations);

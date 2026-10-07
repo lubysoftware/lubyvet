@@ -1,5 +1,9 @@
-import { Body, Controller, Get, HttpCode, Inject, Param, Post } from '@nestjs/common';
-import { type PetOutput, RegisterPetInput, type SpeciesOutput } from '@lubyvet/contracts';
+import { Body, Controller, Get, HttpCode, Inject, Param, Patch, Post } from '@nestjs/common';
+import { ChangePetInput, type PetOutput, RegisterPetInput, type SpeciesOutput } from '@lubyvet/contracts';
+import { StaleVersion } from '../../../../shared/domain/errors';
+import { ChangePet } from '../../application/change-pet.use-case';
+import { GetPet } from '../../application/get-pet.use-case';
+import { Pet, type PetProps } from '../../domain/pet';
 import { IdParamPipe } from '../../../../shared/interface/http/id-param.pipe';
 import { ZodValidationPipe } from '../../../../shared/interface/http/zod-validation.pipe';
 import { ListSpecies } from '../../application/list-species.use-case';
@@ -12,6 +16,8 @@ export class PetsController {
   constructor(
     private readonly registerPet: RegisterPet,
     private readonly listSpecies: ListSpecies,
+    private readonly getPet: GetPet,
+    private readonly changePet: ChangePet,
     @Inject(SPECIES_CATALOG) private readonly species: SpeciesCatalog,
   ) {}
 
@@ -30,5 +36,35 @@ export class PetsController {
     const pet = await this.registerPet.execute(ownerId, body);
     const species = (await this.species.findById(pet.speciesId)) ?? { id: pet.speciesId, name: '' };
     return presentPet(pet, species);
+  }
+
+  private async present(pet: Pet): Promise<PetOutput> {
+    const species = (await this.species.findById(pet.speciesId)) ?? { id: pet.speciesId, name: '' };
+    return presentPet(pet, species);
+  }
+
+  /** CA-3.1: abre a edição com os valores atuais; P1: só pelo dono informado. */
+  @Get('owners/:ownerId/pets/:petId')
+  async get(
+    @Param('ownerId', new IdParamPipe('pet_not_found')) ownerId: number,
+    @Param('petId', new IdParamPipe('pet_not_found')) petId: number,
+  ): Promise<PetOutput> {
+    return this.present(await this.getPet.execute(ownerId, petId));
+  }
+
+  @Patch('owners/:ownerId/pets/:petId')
+  async change(
+    @Param('ownerId', new IdParamPipe('pet_not_found')) ownerId: number,
+    @Param('petId', new IdParamPipe('pet_not_found')) petId: number,
+    @Body(new ZodValidationPipe(ChangePetInput)) body: ChangePetInput,
+  ): Promise<PetOutput> {
+    const { id, version, ...patch } = body;
+    try {
+      return await this.present(await this.changePet.execute({ ownerId, petId, bodyId: id, version, patch }));
+    } catch (e) {
+      if (e instanceof StaleVersion)
+        throw new StaleVersion(await this.present(Pet.restore(e.current as PetProps)));
+      throw e;
+    }
   }
 }

@@ -100,7 +100,7 @@
       *satisfaz:* CA-1.1, CA-1.2, CA-1.3, CA-1.4, CA-1.5
       *depende de:* T010, T011
 
-- [ ] **T013** Escrever os testes do isolamento entre donos, **antes** da implementação da
+- [x] **T013** Escrever os testes do isolamento entre donos, **antes** da implementação da
       resolução do animal
       *entrega:* `UT-017-1` a `UT-017-6` passando contra a resolução que T014 entrega,
       incluindo o teste que percorre a **lista** dos caminhos que recebem dono e animal juntos
@@ -109,7 +109,7 @@
       *satisfaz:* CA-5.1, CA-5.2, CA-5.3, CA-5.4
       *depende de:* T004
 
-- [ ] **T014** Implementar a resolução do animal **pelo dono informado**, respondendo "não
+- [x] **T014** Implementar a resolução do animal **pelo dono informado**, respondendo "não
       encontrado" quando o par não combina
       *entrega:* a resolução única usada por todo caminho que recebe dono e animal, que
       responde "não encontrado" sem expor nenhum campo do animal quando o dono informado não é
@@ -117,7 +117,7 @@
       *satisfaz:* CA-5.1, CA-5.2, CA-5.4
       *depende de:* T013
 
-- [ ] **T015** Implementar a abertura e a gravação da alteração do animal
+- [x] **T015** Implementar a abertura e a gravação da alteração do animal
       *entrega:* o formulário de edição carregado com os três valores atuais e a espécie
       marcada, a gravação que mantém o mesmo identificador e termina na ficha do dono, e a
       coleção de visitas preservada em número e conteúdo
