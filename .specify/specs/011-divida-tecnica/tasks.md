@@ -68,7 +68,7 @@
       *satisfaz:* CA-1.2
       *depende de:* T007
 
-- [ ] **T009** [P] Registrar por que `operations` e `vocabularies` não têm domínio
+- [x] **T009** [P] Registrar por que `operations` e `vocabularies` não têm domínio
       *entrega:* parágrafo em `docs/padroes/arquitetura.md`: leitura agregada e manutenção de
       cadastro sem regra própria; quando surgir regra, nasce o `domain/`
       *satisfaz:* CA-1.3

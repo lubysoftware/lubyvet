@@ -18,6 +18,7 @@ export const STRUCTURAL: readonly { pattern: RegExp; why: string }[] = [
   { pattern: /^deploy\/(helm|grafana)\//, why: 'manifesto de publicação e painel versionado' },
   { pattern: /^apps\/(api|web)\/package\.json$/, why: 'dependências do que se publica' },
   { pattern: /^apps\/api\/prisma(\/|$)/, why: 'esquema e migrações versionadas (P5)' },
+  { pattern: /^docs\/padroes\/[\w-]+\.md$/, why: 'padrões escritos: o que a equipe decidiu registrar' },
 ];
 
 export function allowed(rel: string): boolean {

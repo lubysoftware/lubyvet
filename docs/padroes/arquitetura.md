@@ -35,11 +35,20 @@ modules/owners/
 | `domain/` | `domain/` do próprio módulo, `src/shared/domain/`, e só as regras puras e os limites de `@lubyvet/contracts` (`rules/`, `*_LIMITS`), para valerem igual no formulário e no domínio (P6) | NestJS, Prisma, zod, qualquer outra pasta |
 | `application/` | `domain/`, `application/` do próprio módulo, `src/shared/` | NestJS, Prisma, Redis, RabbitMQ, `infra/`, `interface/` |
 | `infra/` | `application/ports`, `domain/`, bibliotecas de infraestrutura | `interface/` |
-| `interface/http/` | `application/`, `@lubyvet/contracts`, NestJS | `infra/`, `@prisma/client` |
+| `interface/http/` | casos de uso de `application/`, `@lubyvet/contracts`, NestJS | `infra/`, `@prisma/client`, `application/ports/` (nem só o tipo: o controller chama caso de uso, 011/T006) |
 
 Um módulo usa outro só pela porta pública do outro (`application/ports/`), nunca
 importando o `domain/` alheio. A regra é escrita no `.dependency-cruiser.cjs` e roda em
 `bun run verify`. Um import proibido reprova o build.
+
+**Módulo sem `domain/`, de propósito.** `operations` e `vocabularies` não têm pasta de
+domínio. `operations` só lê estado agregado (saúde do banco, contagens de D27) e
+`vocabularies` mantém cadastro de espécie e veterinário sem regra própria além do formato
+do nome (que já mora em `vets/domain`) e da unicidade (que é restrição do banco). Criar
+entidade ali seria cerimônia sem regra para proteger. Quando surgir uma regra de verdade
+(por exemplo, uma transição de situação com condição), o `domain/` nasce junto com ela e
+com o teste de unidade dela. `identity` tinha o mesmo formato até a 011 dar domínio ao
+bloqueio por tentativas (P-15).
 
 ## Portas e casos de uso
 

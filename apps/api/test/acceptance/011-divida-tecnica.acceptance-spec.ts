@@ -8,6 +8,7 @@ import { Account } from '../../src/modules/identity/domain/account';
 import { InvalidCredentials, Login } from '../../src/modules/identity/application/login.use-case';
 import { FixedClock } from '../../src/shared/domain/clock';
 import { bootApp, idem, type TestApp } from '../support/app';
+import { listRepo, readRepo } from '../support/structural';
 import { testDb } from '../support/test-db';
 
 /**
@@ -141,5 +142,15 @@ describe('011 Dívida técnica: critérios de aceite', () => {
     await expect(login.execute('rui', 'certa')).rejects.toBeInstanceOf(InvalidCredentials);
     expect(verify).not.toHaveBeenCalled();
     expect(sessions.create).not.toHaveBeenCalled();
+  });
+
+  it('011/CA-1.3 operations e vocabularies ficam sem domínio de propósito, com o motivo escrito', () => {
+    const folders = (m: string) => listRepo(`apps/api/src/modules/${m}`).map((f) => f.split('/').pop());
+    expect(folders('operations')).not.toContain('domain');
+    expect(folders('vocabularies')).not.toContain('domain');
+    expect(folders('identity')).toContain('domain');
+    const doc = readRepo('docs/padroes/arquitetura.md');
+    expect(doc).toMatch(/Módulo sem `domain\/`, de propósito/);
+    expect(doc).toMatch(/`operations` e `vocabularies` não têm pasta de\s+domínio/);
   });
 });
