@@ -114,7 +114,7 @@
       *satisfaz:* CA-4.2
       *depende de:* T004, T014
 
-- [ ] **T016** Gerador de massa sintética e teste de desempenho da listagem
+- [x] **T016** Gerador de massa sintética e teste de desempenho da listagem
       *entrega:* um gerador de 50 mil donos sintéticos (nunca dado real) e um teste em
       `npm run verify:perf` que mede o p95 da busca e da listagem e falha acima de 500 ms
       (D08)
