@@ -1,0 +1,19 @@
+{
+  "architecture_id": "hexagonal",
+  "architecture_name": "Portas e adaptadores",
+  "note": null,
+  "stack_preferences": {
+    "stance": "chosen",
+    "prefer": [
+      "TypeScript",
+      "NestJS",
+      "PostgreSQL",
+      "Kubernetes",
+      "RabbitMQ"
+    ],
+    "avoid": [],
+    "note": "Adicione sistema de cache"
+  },
+  "decided_at": "2026-10-06T23:46:02.130Z",
+  "decided_by": "humano (Studio)"
+}

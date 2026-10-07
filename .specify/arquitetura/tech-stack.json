@@ -1,0 +1,658 @@
+{
+  "generated_at": "2026-10-06T21:30:00Z",
+  "architecture": "hexagonal",
+  "architecture_name": "Portas e adaptadores",
+  "scenario": "Aplicação web Spring Boot de clínica veterinária: 1.899 linhas de Java em 30 classes de produção e 2.398 em 20 de teste, 9 páginas Thymeleaf e 3 fragmentos, 11 bundles i18n, 17 pares método+rota sobre 12 rotas mais GET /vets em JSON. UMA única integração de runtime obrigatório — o banco por JDBC; zero API consumida, zero fila, zero webhook, zero evento, zero agendamento, zero log, zero métrica e zero controle de acesso (seis varreduras independentes). Sete tabelas, quatro relações, 47 INSERT de seed; nenhum caminho de exclusão. A resposta da Pergunta 13 fecha a questão de escala: o sistema nunca operou de verdade, é demonstração — não existe volumetria produtiva que justifique escolha alguma por carga. O refinamento acrescentou ao escopo a primeira integração de saída da história do sistema (notificar o dono, Pergunta 3), autenticação com papéis distintos de leitura e escrita (Pergunta 8; REQ-033 e REQ-034, ambos must), anonimização de dado pessoal (Pergunta 7; REQ-035), colunas de criação e alteração sem autoria (Pergunta 12), separação entre agendamento e atendimento (Pergunta 1) e situação em dono, animal e veterinário (Pergunta 4). A arquitetura escolhida é Portas e adaptadores, e a direção de stack é chosen: TypeScript, NestJS, PostgreSQL, Kubernetes, RabbitMQ, mais um sistema de cache.",
+  "current_stack": [
+    "Java 17 (pom.xml:19 e build.gradle:17-21) — estrutural",
+    "JVM, mínimo 17 imposto pelo maven-enforcer-plugin (pom.xml:185-204) — estrutural",
+    "contêiner servlet embutido, que recebe todo o tráfego e não é nomeado nem versionado em arquivo algum do repositório (D-TECH-05) — estrutural",
+    "Spring Boot 4.1.0 — o BOM fixa a versão efetiva de ~20 dependências e não há lockfile",
+    "Spring Web MVC, Spring Data JPA, Hibernate ORM — estruturais",
+    "Thymeleaf com 9 templates de página e 3 fragmentos; os nomes de campo do contrato HTTP vivem nos parâmetros dos th:replace, não nos controllers",
+    "SQL em três dialetos paralelos: H2 (perfil padrão, em memória, DROP TABLE a cada startup), MySQL 9.7, PostgreSQL 18.4 — sem migrações e sem tabela de versão de esquema",
+    "Bootstrap 5.3.8 servido por petclinic.css compilado e versionado (9.531 linhas); o SCSS fonte é um tema de Bootstrap 3 com efeito ZERO sobre a folha servida (DT-14)",
+    "Caffeine por trás de spring-cache/JCache — cache `vets` alcançado por literal string e sem nenhuma invalidação (ADR-0005)",
+    "Jakarta Bean Validation, spring-boot-actuator (exposto por inteiro, sem autenticação)",
+    "Maven 3.9.16 e Gradle 9.5.1 — dois builds divergentes, nenhum canônico (DT-01)",
+    "Maven Central, sem lockfile e sem scanner de vulnerabilidade (DT-17)",
+    "JUnit Jupiter, MockMvc, AssertJ, Mockito e Testcontainers — o único ponto em que o legado está à frente"
+  ],
+  "preferences": {
+    "stance": "chosen",
+    "prefer": [
+      "TypeScript",
+      "NestJS",
+      "PostgreSQL",
+      "Kubernetes",
+      "RabbitMQ"
+    ],
+    "avoid": [],
+    "note": "Adicione sistema de cache"
+  },
+  "slots": [
+    {
+      "id": "linguagem",
+      "label": "Linguagem",
+      "why_needed": "Portas e adaptadores é agnóstica de linguagem — este slot não existe por exigência da arquitetura, existe porque a direção de stack é `chosen` e nomeia TypeScript, e porque a linguagem é o item que precifica todos os outros: das 54 tecnologias mapeadas, 14 são estruturais e 11 delas caem juntas quando o Java sai (JVM, contêiner servlet, Spring Boot, Spring Web MVC, Spring Data JPA, Hibernate, Thymeleaf, templates, Maven, Gradle, Maven Central). É a decisão mais cara da lista e é a pessoa que a está pedindo.",
+      "recommended": "typescript",
+      "recommendation_reason": "É a direção dada por quem vai construir e manter, nada em Portas e adaptadores a impede e nada no passo 1 da migração quebra com ela — o preço, escrito e não escondido, é que a migração deixa de ser inversão de dependência e passa a ser reescrita.",
+      "candidates": [
+        {
+          "id": "typescript",
+          "name": "TypeScript",
+          "fit_reason": "É o alvo declarado em `prefer`. O domínio a transportar é pequeno e anêmico — seis entidades, 1.899 linhas, nenhum enum, nenhum cálculo — e nenhuma das 48 regras de negócio identificadas depende de recurso de linguagem que o TypeScript não tenha. O que ele não traz de graça é justamente o que o legado não escreveu: o `isNew()` de BaseEntity (51 linhas) governa 6 regras de negócio e 3 decisões de template a partir de `id == null`, e isso é comportamento de ORM, não de linguagem — tem de ser reescrito como regra explícita.",
+          "migration_friction": "alto",
+          "lock_in": "baixo — linguagem aberta, compilador e runtime com várias implementações; a dependência que nasce aqui é de ecossistema npm, não de fornecedor",
+          "cost_shape": "nenhuma (auto-hospedado)",
+          "maturity": "consolidado",
+          "risks": [
+            "4.297 linhas (1.899 de produção + 2.398 de teste), 9 templates e 11 bundles i18n reescritos; 11 das 14 tecnologias estruturais saem na mesma decisão",
+            "as 18 colunas cujo nome é derivado por `application.properties:12` sem um único `@Column` são renomeadas em silêncio por qualquer convenção de nomes diferente — e nenhum teste do legado protege isso",
+            "o isolamento entre donos é EMERGENTE de `owner.getPet(petId)` varrer só a coleção daquele dono e não tem teste nenhum; reescrever o acesso em outra linguagem é a forma mais fácil de perdê-lo sem build vermelho (a resposta da Pergunta 23 acabou de torná-lo requisito verificável)",
+            "`cascade = ALL` sem `orphanRemoval`, `fetch = EAGER` (consequência de `open-in-view=false`) e `@OrderBy(\"name\")` são comportamento que o Hibernate entrega de graça hoje e que passa a ser código escrito à mão",
+            "os testes de caracterização que o pré-requisito exige não existem ainda: têm de ser escritos primeiro em Java, para capturar o comportamento, e depois em TypeScript, para verificá-lo"
+          ]
+        },
+        {
+          "id": "java-21",
+          "name": "Java (subir para 21)",
+          "fit_reason": "É a única opção em que os seis passos de migração de `architectures.json` rodam literalmente, porque todos eles foram escritos como movimentos dentro de Java/Spring. Também resolve uma defasagem que o próprio repositório documenta: o comentário de `pom.xml:30` prende o Checkstyle na v12 porque a v13 exige JDK 21, e `.devcontainer/devcontainer.json` já instala Java 21-oracle enquanto o build exige 17.",
+          "migration_friction": "baixo",
+          "lock_in": "baixo — mas mantém as 14 tecnologias estruturais, e é esse conjunto, não a linguagem, que define o custo de qualquer saída futura",
+          "cost_shape": "nenhuma (auto-hospedado)",
+          "maturity": "consolidado",
+          "risks": [
+            "mantém Spring Data JPA e Thymeleaf, e o próprio `against` da proposta escolhida avisa que é aí que Portas e adaptadores cobra o preço todos os dias e só paga no dia da troca",
+            "contraria a direção de stack dada pela pessoa"
+          ]
+        },
+        {
+          "id": "kotlin",
+          "name": "Kotlin",
+          "fit_reason": "Fica na JVM e preserva Spring, JPA e Thymeleaf, de modo que os seis passos de migração continuam aproximadamente válidos, com sintaxe mais enxuta para seis entidades anêmicas.",
+          "migration_friction": "médio",
+          "lock_in": "baixo na linguagem; idêntico ao Java no conjunto estrutural",
+          "cost_shape": "nenhuma (auto-hospedado)",
+          "maturity": "consolidado",
+          "risks": [
+            "é o pior dos dois mundos neste cenário: cobra o custo de linguagem nova sem remover nenhuma das 11 tecnologias estruturais que a troca de linguagem existiria para remover",
+            "classes `final` por padrão e inicialização não-nula brigam com o que o Hibernate e o `@ModelAttribute` esperam — é atrito de conversão em cima da conversão",
+            "fora de `prefer`"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "framework-http",
+      "label": "Framework HTTP e adaptador de entrada",
+      "why_needed": "O que precisa ser preservado numa reescrita não é código, é superfície: 17 pares método+rota sobre 12 rotas, os nomes de campo dos 4 formulários e o envelope `vetList`. E é exatamente aqui que mora a doença que Portas e adaptadores veio tratar — o binding é `@ModelAttribute` direto sobre a entidade JPA, e o pacote `owner` importa `spring-webmvc` 24 vezes. O adaptador de entrada é o primeiro lugar onde a porta aparece ou não aparece.",
+      "recommended": "nestjs",
+      "recommendation_reason": "É o alvo de `prefer`, e é o único candidato cujo mecanismo nativo (DTO de entrada com validação declarada, resolvido por pipe antes de chegar ao caso de uso) entrega de uma vez o fim do binding sobre a entidade e a resposta da Pergunta 22, que pediu DTO de entrada com semântica declarada de alteração parcial.",
+      "candidates": [
+        {
+          "id": "nestjs",
+          "name": "NestJS",
+          "fit_reason": "O contêiner de injeção e os módulos dão expressão nativa à fronteira porta/adaptador, que neste projeto precisa ser visível para não desaparecer. O par DTO + validação declarativa substitui ponto a ponto o `@ModelAttribute` sobre a entidade e as anotações Bean Validation hoje espalhadas por 6 classes, e cobre a resposta da Pergunta 22. Para 17 rotas com POST-Redirect-GET (EM-04) e nenhuma API consumida, o roteamento convencional basta: não há nada neste sistema que exija streaming, WebSocket ou protocolo próprio.",
+          "migration_friction": "alto",
+          "lock_in": "médio — decoradores e estrutura de módulo atravessam todo arquivo do adaptador; sair do NestJS é reescrever a camada de entrada, não trocar uma dependência. A porta e o domínio, se mantidos limpos, saem intactos — e é exatamente por isso que esse limite precisa ser respeitado desde o primeiro arquivo",
+          "cost_shape": "nenhuma (auto-hospedado)",
+          "maturity": "consolidado",
+          "risks": [
+            "a convenção do framework puxa a lógica de volta para dentro dele (serviço anotado chamando repositório anotado), que é literalmente o diagnóstico que levou à escolha de Portas e adaptadores — o framework não impede a doença, só muda o nome dela",
+            "os 11 bundles i18n não têm equivalente automático, e duas chaves já são usadas pelo código sem existir em bundle algum (`size`, `mismatch`): a tradução entra na reescrita como trabalho, não como portabilidade",
+            "três chaves órfãs mantidas e traduzidas nos 11 bundles (`nonNumeric`, `duplicateFormSubmission`, `typeMismatch.date`) são fósseis; transportá-las por tabela repete o resíduo"
+          ]
+        },
+        {
+          "id": "fastify",
+          "name": "Fastify",
+          "fit_reason": "É o adaptador mais fino dos três, e adaptador fino é o que a arquitetura escolhida quer: menos framework encostando no domínio significa menos chance de a porta virar decoração. Para 12 rotas e 4 formulários, o que um framework grande oferece de estrutura não tem muito o que estruturar.",
+          "migration_friction": "alto",
+          "lock_in": "baixo — o ciclo de requisição é quase o padrão do runtime; trocar custa pouco",
+          "cost_shape": "nenhuma (auto-hospedado)",
+          "maturity": "consolidado",
+          "risks": [
+            "injeção de dependência, modularização e validação passam a ser convenção escrita à mão, e este repositório não tem nenhuma convenção de equipe para herdar — a resposta da Pergunta 13 diz que o sistema nunca operou, logo não há prática estabelecida a preservar",
+            "fora de `prefer`"
+          ]
+        },
+        {
+          "id": "express",
+          "name": "Express",
+          "fit_reason": "Serviria se já existisse uma convenção de equipe construída sobre ele; é o denominador comum do ecossistema e qualquer pessoa o lê sem treinamento.",
+          "migration_friction": "alto",
+          "lock_in": "baixo",
+          "cost_shape": "nenhuma (auto-hospedado)",
+          "maturity": "consolidado",
+          "risks": [
+            "tudo que Portas e adaptadores precisa — fronteira explícita, validação de entrada, tratamento uniforme de erro — vira código de cola, e código de cola é onde a fronteira erode primeiro",
+            "fora de `prefer`"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "apresentacao",
+      "label": "Apresentação (adaptador de saída para o navegador)",
+      "why_needed": "O sistema é HTML renderizado no servidor e o contrato que precisa sobreviver está na apresentação, não na API: 12 rotas, POST-Redirect-GET em todo formulário (EM-04), os nomes de campo que vivem nos parâmetros dos `th:replace` dos fragmentos, o idioma guardado na sessão (EM-06) e 11 bundles. A escolha aqui decide se preservar esse contrato é o comportamento padrão ou é trabalho. `prefer` não cobre este slot, então ele segue a regra de `open`: a recomendação se decide pelo cenário.",
+      "recommended": "templates-no-servidor",
+      "recommendation_reason": "É o único candidato em que as 12 rotas, o POST-Redirect-GET e os nomes de campo dos formulários continuam existindo por construção, em vez de serem reconstruídos sobre um contrato novo que ninguém pediu.",
+      "candidates": [
+        {
+          "id": "templates-no-servidor",
+          "name": "Templates renderizados no servidor pelo adaptador HTTP",
+          "fit_reason": "Reproduz o modelo atual sem reproduzir a tecnologia: 9 páginas, 3 fragmentos reutilizados e um layout que alcança todas as páginas (`views.layout` é um dos 4 pontos de alavancagem do grafo). A internacionalização por bundle e a troca de idioma por sessão continuam sendo o mesmo mecanismo. E resolve de graça um acoplamento acidental que o grafo encontrou: o fragmento compartilhado `inputField` lê `${minVisitDate}`, atributo publicado por um só controller, de modo que o `th:min` sai vazio em silêncio nos formulários de dono e de animal — um fragmento com parâmetro explícito torna isso erro em vez de silêncio.",
+          "migration_friction": "médio",
+          "lock_in": "baixo — motor de template é substituível; o HTML e as rotas ficam",
+          "cost_shape": "nenhuma (auto-hospedado)",
+          "maturity": "consolidado",
+          "risks": [
+            "REQ-047 está `wont`: as 9.531 linhas de CSS compilado e versionado não são para reaproveitar. Somado ao DT-14 (o SCSS é tema de Bootstrap 3 com efeito ZERO sobre a folha servida), não existe tema a portar — existe resultado visual a reproduzir, e a única fonte dele é o CSS compilado, que ninguém regera",
+            "os 7 defeitos de UI do legado (BUG-UI-01 confirmado: a paginação perde o filtro `lastName`) são reproduzidos se o template for transcrito em vez de reescrito",
+            "nenhum screenshot existe (RF-09 pendente): toda afirmação sobre aparência renderizada do legado está marcada vermelha, e a reescrita não tem referência visual confirmada"
+          ]
+        },
+        {
+          "id": "spa-com-api-json",
+          "name": "Front separado consumindo API JSON",
+          "fit_reason": "Serviria se o escopo futuro exigisse interface rica ou cliente móvel; o backlog não pede nenhum dos dois, e o único endpoint de dados que existe (`GET /vets`) tem consumidor apenas inferido — REQ-026, disponibilizar o catálogo como dados para outro sistema, está `could` e `bloqueado`.",
+          "migration_friction": "alto",
+          "lock_in": "médio — a API passa a ser contrato público de verdade, e contrato público é o que se versiona para sempre",
+          "cost_shape": "nenhuma (auto-hospedado) a por requisição, dependendo de onde o front é servido",
+          "maturity": "consolidado",
+          "risks": [
+            "troca um contrato de 17 pares método+rota por um contrato novo e uma aplicação a mais para manter, sem nenhum requisito pedindo a troca",
+            "o POST-Redirect-GET (EM-04) e a troca de idioma por sessão (EM-06) deixam de ser mecanismo do servidor e passam a ser estado do cliente — dois comportamentos reimplementados para ficar igual"
+          ]
+        },
+        {
+          "id": "templates-com-interacao-parcial",
+          "name": "Templates no servidor com atualização parcial de fragmento",
+          "fit_reason": "Mantém o servidor como dono das rotas e do HTML e resolve dois cards com o mesmo mecanismo: REQ-003 (avisar que o dono parece já cadastrado antes de gravar) e a proteção contra dupla submissão que a resposta da Pergunta 19 pediu — ambos são troca parcial de tela, não aplicação nova.",
+          "migration_friction": "médio",
+          "lock_in": "baixo",
+          "cost_shape": "nenhuma (auto-hospedado)",
+          "maturity": "estável",
+          "risks": [
+            "todo o JavaScript do sistema hoje são 12 linhas inline em `ownerDetails.html:79-90`; introduzir interação parcial cria uma categoria de comportamento que este time nunca manteve neste produto",
+            "o benefício depende de REQ-003 e da proteção de dupla submissão saírem do bloqueio; se ficarem fora do primeiro ano, é complexidade sem contrapartida"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "persistencia",
+      "label": "Banco de dados",
+      "why_needed": "Sete tabelas, quatro relações, três 1:N e uma N:M, todas unidirecionais; escrita do agregado inteiro em uma transação com cascata; zero polimorfismo, zero herança de tabela, zero documento. A forma do dado não dá margem: é relacional. A pergunta real é qual dialeto passa a ser a verdade — o pré-requisito da arquitetura escolhida exige eleger um, e REQ-044 (operar sobre três bancos em paralelo) já está `wont`.",
+      "recommended": "postgresql-gerenciado",
+      "recommendation_reason": "PostgreSQL é o alvo de `prefer`, já é o perfil que `k8s/petclinic.yml` ativa e é o único dialeto em que a unicidade de nome de animal por dono está escrita de forma explícita e nomeada; a forma gerenciada é recomendada porque o banco que este repositório desenha em Kubernetes é efêmero, sem backup e com credencial em claro (DT-19), e os dados em questão são pessoais.",
+      "candidates": [
+        {
+          "id": "postgresql-gerenciado",
+          "name": "PostgreSQL como serviço gerenciado",
+          "fit_reason": "É o dialeto de `prefer` e o único dos três em que a restrição que mais importa está correta: `db/postgres/schema.sql:45` declara `unique_owner_pet_name` como índice único sobre `(owner_id, LOWER(name))` — nomeado e com a insensibilidade a caixa explícita, exatamente o que REQ-011 e REQ-014 pedem. É também o perfil que o manifest de Kubernetes já ativa (`SPRING_PROFILES_ACTIVE=postgres`), de modo que eleger Postgres não contraria nada que esteja escrito. A forma gerenciada entra porque backup e ponto de recuperação são pré-requisito de REQ-035 (anonimizar ou eliminar dado pessoal a pedido) e da resposta da Pergunta 7, e o repositório não tem nenhum dos dois.",
+          "migration_friction": "baixo",
+          "lock_in": "médio — o dialeto e o dado são portáveis, mas backup, réplica, versão e janela de manutenção passam a ser do provedor; a saída é um `pg_dump` mais a reconstrução de tudo que era do painel",
+          "cost_shape": "por instância-hora mais por volume armazenado e por backup retido",
+          "maturity": "consolidado",
+          "risks": [
+            "`Person.firstName`/`lastName` é `TEXT` no DDL do Postgres (divergência 3 do dicionário): o limite de 30 caracteres existe só na aplicação. Eleger Postgres como verdade sem declarar o limite no esquema mantém a regra em uma única camada",
+            "a volumetria produtiva é inacessível e o seed tem 47 linhas: nenhuma classe de instância pode ser escolhida com base em dado deste sistema"
+          ]
+        },
+        {
+          "id": "postgresql-no-cluster",
+          "name": "PostgreSQL auto-hospedado no próprio cluster",
+          "fit_reason": "Mesmo dialeto, mesmo DDL, sem fatura por hora e sem dependência de painel de provedor — e é literalmente o que `k8s/db.yml` já desenha, o que faz dele o caminho de menor distância em relação ao que está escrito no repositório.",
+          "migration_friction": "baixo",
+          "lock_in": "baixo — nada além do próprio Postgres",
+          "cost_shape": "por instância (nó do cluster) mais por volume do armazenamento persistente",
+          "maturity": "consolidado",
+          "risks": [
+            "o que está escrito em `k8s/db.yml` não é utilizável: credencial em claro nas linhas 13-14, volume efêmero, sem `resources`, sem `startupProbe` e sem TLS (DT-19). Adotar este candidato é assumir a dívida de construir operação de banco — backup, restauração testada, atualização de versão — que o repositório não tem",
+            "nenhuma evidência no repositório de que alguém já rodou `kubectl`; os dois manifests têm risco classificado como desconhecido justamente por nunca serem exercitados por pipeline algum"
+          ]
+        },
+        {
+          "id": "mysql",
+          "name": "MySQL",
+          "fit_reason": "É o outro perfil com DDL real e carga idempotente, declarado no `docker-compose.yml` na versão 9.7, e serviria se a operação do cliente já fosse de MySQL. Não é o caso declarado.",
+          "migration_friction": "baixo",
+          "lock_in": "baixo",
+          "cost_shape": "por instância-hora ou por instância, conforme gerenciado ou não",
+          "maturity": "consolidado",
+          "risks": [
+            "em `db/mysql/schema.sql:47` a restrição de unicidade é ANÔNIMA — é a contradição C2 do domínio em pessoa: `PetController:202-205` decide a mensagem de formulário procurando a substring `unique_owner_pet_name` no texto da exceção, e sob concorrência nesse perfil o resultado é erro 500. Eleger MySQL obriga a nomear a restrição e a nunca mais ler texto de exceção",
+            "`vet_specialties` tem unicidade em MySQL e Postgres e NÃO tem em H2; qualquer eleição precisa alinhar isso (é a resposta da Pergunta 6), e esse alinhamento não é mais caro aqui que no Postgres — mas é mais um ponto a conferir",
+            "fora de `prefer`"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "acesso-a-dados",
+      "label": "Acesso a dados (o adaptador por trás da porta de persistência)",
+      "why_needed": "Este é o slot de Portas e adaptadores. A porta existe para que as seis entidades deixem de carregar ao mesmo tempo a persistência e o contrato de entrada — o pacote `owner` importa `jakarta.persistence` 22 vezes. E é aqui que ficam presas as decisões que o refinamento já tomou: as 18 colunas cujo nome é derivado por `application.properties:12` sem um único `@Column` (pré-requisito número 1 da migração), a chave primária que continua sendo inteiro gerado pelo banco (Pergunta 20), a concorrência otimista que REQ-005 pede e que hoje não existe (nenhum `@Version`), e a escrita do agregado com `cascade = ALL` sem `orphanRemoval`. `prefer` não cobre este slot.",
+      "recommended": "prisma",
+      "recommendation_reason": "É o único candidato cujo tipo gerado não tenta ser o modelo de domínio, o que é precisamente a confusão que a arquitetura escolhida veio desfazer; a escrita aninhada cobre o agregado em uma transação e o preço — a concorrência otimista de REQ-005 escrita à mão — está declarado e é pequeno diante dele.",
+      "candidates": [
+        {
+          "id": "prisma",
+          "name": "Prisma",
+          "fit_reason": "A porta de persistência fica honesta por construção: o tipo que o cliente devolve é objeto simples, nunca uma entidade decorada que alguém vai acabar usando como domínio — e o risco número 1 da proposta escolhida é exatamente 'anemia com o dobro de arquivos', que começa quando a entidade do ORM vaza para dentro do domínio. A escrita aninhada cobre em uma transação o agregado dono → animais → visitas que hoje é gravado inteiro por `cascade = ALL`, e o nome de cada coluna é declarado campo a campo, o que torna o pré-requisito número 1 (as 18 colunas) verificável por leitura do esquema em vez de por confiança na convenção.",
+          "migration_friction": "alto",
+          "lock_in": "médio — o esquema é escrito na linguagem própria da ferramenta e passa a ser a verdade do modelo; sair significa reescrever o mapeamento e assumir as migrações já aplicadas",
+          "cost_shape": "nenhuma (auto-hospedado)",
+          "maturity": "consolidado",
+          "risks": [
+            "não há concorrência otimista nativa: REQ-005 (impedir que duas edições simultâneas se sobrescrevam em silêncio) passa a ser campo de versão mais atualização condicional escritos à mão — e esse é o card que a resposta da Pergunta 24 autorizou medir no legado antes de decidir",
+            "o índice único sobre `(owner_id, LOWER(name))` que o Postgres usa não é expressável no modelo declarativo e desce para SQL cru dentro da migração; se a declaração e o SQL divergirem, volta a lacuna DD2 (nada diz se os esquemas representam o mesmo estado)",
+            "o `fetch = EAGER` do legado é consequência de `open-in-view=false`, não escolha: cada leitura precisa declarar explicitamente que traz animais e visitas, e esquecer isso troca um EAGER por dado faltando na tela — não por exceção"
+          ]
+        },
+        {
+          "id": "typeorm",
+          "name": "TypeORM",
+          "fit_reason": "É o mapeamento conceitualmente mais próximo do que existe: entidade decorada, cascata, relação eager e coluna de versão nativa. Isso tem valor concreto neste projeto — o teste de caracterização do agregado que o pré-requisito exige pode comparar comportamento contra comportamento quase um para um, e REQ-005 sai com um recurso da ferramenta em vez de código.",
+          "migration_friction": "alto",
+          "lock_in": "médio — decoradores de persistência espalhados pelas classes do modelo; retirá-los é mexer em todo arquivo do domínio, que é justamente o que a porta deveria evitar",
+          "cost_shape": "nenhuma (auto-hospedado)",
+          "maturity": "estável",
+          "risks": [
+            "convida a repetir a doença: a entidade decorada é tão parecida com a entidade JPA que o caminho de menor resistência é usá-la como domínio, e aí a porta existe no diagrama e não no código",
+            "a estratégia de nomes da ferramenta não é a `CamelCaseToUnderscoresNamingStrategy` do Hibernate: sem declarar os 18 nomes um a um, há renome silencioso de coluna",
+            "cadência de manutenção do projeto é item de `verify` — não tenho como afirmar o estado atual dele"
+          ]
+        },
+        {
+          "id": "drizzle",
+          "name": "Drizzle com driver PostgreSQL",
+          "fit_reason": "Não esconde comportamento, e este é um sistema cujo maior risco de migração é comportamento escondido: o risco número 2 da proposta escolhida diz que levar o agregado para trás de uma porta é 'reimplementar explicitamente o que o Hibernate faz hoje de graça'. Com este candidato isso não é descoberta tardia, é o modelo de trabalho desde a primeira linha — cada cascata, cada carregamento e cada transação está escrita.",
+          "migration_friction": "alto",
+          "lock_in": "baixo — o esquema é SQL e as consultas são próximas de SQL; a saída é a mais barata dos três",
+          "cost_shape": "nenhuma (auto-hospedado)",
+          "maturity": "emergente",
+          "risks": [
+            "emergente no componente mais crítico da arquitetura escolhida — a porta de persistência é por onde passam as 7 tabelas e a única escrita do sistema; é risco assumido, não neutro",
+            "cascata, ordenação de coleção (`@OrderBy(\"name\")`) e concorrência otimista são todos manuais: três comportamentos do legado que passam a depender de disciplina de quem escreve, e o legado não tem teste que os proteja",
+            "fora de `prefer` e sem convenção de primeira classe no framework HTTP recomendado"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "migracao-de-esquema",
+      "label": "Versionamento e migração de esquema",
+      "why_needed": "É o defeito estrutural do legado, não um detalhe de ferramenta. `spring.jpa.hibernate.ddl-auto=none` (`application.properties:10`) faz dos três `schema.sql` a verdade do esquema; não existe Flyway, Liquibase nem equivalente; não existe tabela de versão (lacuna DD2), de modo que nada diz se os três DDLs representam o mesmo estado — e o DT-02 é a origem de 4 das 5 contradições de camada medidas. O pré-requisito número 2 da arquitetura escolhida ('um dialeto eleito como verdade') não é declarativo: exige uma ferramenta que registre o que já foi aplicado. Sem este slot, o sistema novo nasce com o defeito do antigo.",
+      "recommended": "migracao-do-proprio-orm",
+      "recommendation_reason": "Uma verdade só: o esquema e o mapeamento saem do mesmo artefato versionado, que é a condição que a lacuna DD2 pune quando falta — com a ressalva, escrita no candidato, de que o índice sobre `LOWER(name)` desce para SQL cru.",
+      "candidates": [
+        {
+          "id": "migracao-do-proprio-orm",
+          "name": "Migração gerada pelo próprio mapeamento (a ferramenta do slot de acesso a dados)",
+          "fit_reason": "Fecha DD2 pela raiz: há uma fonte de verdade, ela é versionada no repositório e cada aplicação fica registrada no banco. Para sete tabelas e quatro relações, a geração automática acerta a quase totalidade do esquema, e a parte que ela não acerta é conhecida de antemão — o índice único sobre `(owner_id, LOWER(name))`.",
+          "migration_friction": "médio",
+          "lock_in": "médio — o histórico de migrações passa a pertencer à ferramenta; trocá-la exige consolidar o esquema em um ponto de partida novo",
+          "cost_shape": "nenhuma (auto-hospedado)",
+          "maturity": "consolidado",
+          "risks": [
+            "o que a ferramenta não consegue declarar vai para SQL cru dentro da migração, e a partir daí existem duas linguagens descrevendo o mesmo esquema — divergência entre elas reintroduz DD2 com outro nome",
+            "não ajuda em nada no passo 1 da migração, que acontece no legado em Java, antes de existir TypeScript"
+          ]
+        },
+        {
+          "id": "migracoes-sql-independentes",
+          "name": "Migrações em SQL puro, independentes do ORM",
+          "fit_reason": "Mantém o banco como dono do esquema e o ORM como leitor, que é a leitura mais fiel a Portas e adaptadores: o esquema é detalhe de infraestrutura, e detalhe de infraestrutura não deveria ser gerado pelo modelo. Expressa sem adaptação tudo o que os três DDLs atuais têm — índice funcional, restrição nomeada, colação.",
+          "migration_friction": "médio",
+          "lock_in": "baixo — são arquivos `.sql`, legíveis por qualquer ferramenta",
+          "cost_shape": "nenhuma (auto-hospedado)",
+          "maturity": "consolidado",
+          "risks": [
+            "duas descrições do esquema para manter em sincronia, o mapeamento e o SQL: é exatamente a condição que produziu as divergências da seção 6.1 do dicionário (oito itens em que Java e DDL não coincidem)",
+            "nada avisa quando elas divergem, a não ser um teste de integração contra banco real — que por isso passa a ser obrigatório, não opcional"
+          ]
+        },
+        {
+          "id": "ferramenta-de-migracao-na-jvm",
+          "name": "Ferramenta de migração da JVM, aplicada já no legado",
+          "fit_reason": "É o único candidato que serve ao passo 1 da migração, que acontece **antes** da reescrita: eleger o dialeto verdadeiro, alinhar o H2 aos outros dois (resposta da Pergunta 6) e nomear a restrição do MySQL são mudanças de esquema no sistema atual, em Java, e precisam ficar registradas em algum lugar. Transforma o pré-requisito número 2 em passo executável em vez de intenção.",
+          "migration_friction": "baixo",
+          "lock_in": "baixo — o formato é SQL versionado, e a tabela de controle é legível",
+          "cost_shape": "nenhuma (auto-hospedado)",
+          "maturity": "consolidado",
+          "risks": [
+            "mantém uma dependência de JVM no caminho de entrega de uma stack que está saindo da JVM; é candidato de transição, e tratá-lo como permanente contradiz a decisão de linguagem",
+            "se o alinhamento de esquema acontecer aqui e o sistema novo gerar o esquema por outro caminho, há dois históricos de migração para a mesma base — que é a lacuna DD2 duplicada"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cache",
+      "label": "Cache",
+      "why_needed": "A `note` da decisão pede explicitamente ('Adicione sistema de cache'), e o cenário é mais específico do que o pedido: cache já existe. `CacheConfiguration:37` cria o cache `vets` e `VetRepository:45,55` o consome — por literal string, de modo que renomear um dos dois lados não quebra o build nem falha teste algum. O que não existe é **invalidação**: o ADR-0005 registra um catálogo somente leitura cacheado sem nenhuma invalidação, e REQ-025 pede que um veterinário recém-incluído apareça na consulta seguinte sem reiniciar a aplicação. Como a entrega escolhida é Kubernetes, e Kubernetes pressupõe mais de uma réplica, cache em processo não pode ser invalidado. `prefer` não cobre este slot.",
+      "recommended": "redis",
+      "recommendation_reason": "O que está sendo pedido é invalidação compartilhada entre réplicas, e só cache fora do processo entrega isso no momento em que existir mais de um pod — a velocidade não entra no argumento porque nada neste sistema foi medido.",
+      "candidates": [
+        {
+          "id": "redis",
+          "name": "Redis",
+          "fit_reason": "Resolve o que o legado não resolve: invalidação explícita na escrita. Com REQ-046 (manter o quadro de veterinários e suas especialidades pelo próprio sistema) o catálogo deixa de ser imutável, e aí a invalidação é obrigatória, não refinamento — é literalmente o critério de aceite de REQ-025. O dado cacheado é minúsculo e estável (6 veterinários, 3 especialidades, 5 vínculos no seed) e é lido por `/vets.html` e por `GET /vets`, os dois caminhos de leitura do módulo `vet`, que o grafo mostra ser um subgrafo de chave estrangeira disjunto do de `owner`.",
+          "migration_friction": "médio",
+          "lock_in": "baixo no protocolo, que é aberto e tem mais de uma implementação; a licença do servidor mudou nos últimos anos e é item de `verify`, não afirmação minha",
+          "cost_shape": "por instância, mais tráfego de rede quando gerenciado",
+          "maturity": "consolidado",
+          "risks": [
+            "com 14 linhas de catálogo, um salto de rede pode ser mais lento que não ter cache nenhum: o ganho desta escolha é invalidação, não velocidade, e não existe medição neste sistema que sustente o contrário (a resposta da Pergunta 13 diz que ele nunca operou)",
+            "é a primeira dependência de runtime compartilhada da história do sistema depois do banco: o legado tem exatamente uma, e indisponibilidade do cache passa a ser um modo de falha novo, que precisa degradar para leitura direta em vez de derrubar a página",
+            "estado compartilhado entre réplicas exige decidir o que acontece na expiração e na partição; nada disso está escrito em arquivo hoje (lacunas G6 e G7: nenhum timeout, pool, retry ou política de cache existe no repositório)"
+          ]
+        },
+        {
+          "id": "valkey",
+          "name": "Valkey",
+          "fit_reason": "Mesmo protocolo e mesmo modelo de uso do candidato anterior, sob licença permissiva — existe por causa da mudança de licença do original, que é justamente a incerteza registrada ali.",
+          "migration_friction": "médio",
+          "lock_in": "baixo — compatível com o protocolo, o que torna a troca entre os dois quase mecânica",
+          "cost_shape": "por instância",
+          "maturity": "emergente",
+          "risks": [
+            "emergente em um componente que a recomendação transforma em estado compartilhado entre réplicas; o risco é de governança e de cadência de manutenção do projeto, não de protocolo, e ambos são item de `verify`",
+            "a oferta gerenciada é menos difundida que a do candidato anterior, o que empurra para auto-hospedagem e, portanto, para mais operação"
+          ]
+        },
+        {
+          "id": "cache-em-processo",
+          "name": "Cache em processo (o que o legado tem hoje)",
+          "fit_reason": "É o que já existe, custa zero infraestrutura e é proporcional ao dado: um catálogo somente leitura de 14 linhas em uma réplica única não precisa de mais do que isso. Serve se a entrega ficar em um processo só.",
+          "migration_friction": "nenhum",
+          "lock_in": "nenhum",
+          "cost_shape": "nenhuma (dentro do próprio processo)",
+          "maturity": "consolidado",
+          "risks": [
+            "reproduz o defeito que o ADR-0005 documenta e que REQ-025 pede para corrigir: invalidar em uma réplica não invalida nas outras, de modo que um veterinário recém-incluído aparece ou não aparece dependendo de qual pod atendeu a requisição — e o critério de aceite de REQ-025 exige um teste que verifique a aparição imediata",
+            "contradiz a entrega escolhida: Kubernetes com uma réplica única é o pior dos dois mundos, e com mais de uma este candidato não atende",
+            "é também a pista de que a `note` da decisão merece conversa: o legado já tem cache, e o que falta nele não é cache"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mensageria",
+      "label": "Mensageria e caminho assíncrono",
+      "why_needed": "Portas e adaptadores não exige barramento — o que exige é a resposta da Pergunta 3, que escolheu os quatro desfechos da visita, 'incluindo notificação ao dono'. Essa é a primeira integração de saída da história do sistema: zero fila, zero webhook, zero evento, zero `@Scheduled` e zero `@Async`, reconfirmados por varredura independente em duas etapas. E o passo 5 da migração escolhida diz onde ela entra: 'introduzir o adaptador de notificação já do lado de fora da porta, em vez de dentro de `VisitController`'. Soma-se a EM-03: a transição Agendada → Passada acontece com o relógio e NADA no sistema a observa.",
+      "recommended": "rabbitmq",
+      "recommendation_reason": "É o alvo de `prefer` e o requisito é exatamente o que uma fila com confirmação faz — uma mensagem por visita agendada, com retentativa e fila de descarte — sem exigir a operação de um log distribuído; a parte de acordar na data da visita continua sendo item aberto e está escrita como risco.",
+      "candidates": [
+        {
+          "id": "rabbitmq",
+          "name": "RabbitMQ",
+          "fit_reason": "O volume é uma mensagem por visita agendada — o seed tem 4 visitas na base inteira e a resposta da Pergunta 13 diz que o sistema nunca operou, logo não há argumento de vazão a fazer. O requisito é entrega confiável de um aviso ao dono, com retentativa e destino de descarte quando o aviso falha, e isso é trabalho de fila, não de log de eventos. O modelo de um produtor e um consumidor dispensa particionamento, grupo de consumo e tudo o que encarece a alternativa.",
+          "migration_friction": "médio",
+          "lock_in": "baixo — o protocolo é aberto e a troca de intermediário é mudança de conexão e de configuração de topologia",
+          "cost_shape": "por instância",
+          "maturity": "consolidado",
+          "risks": [
+            "entrega atrasada — 'acordar na data da visita' — NÃO é recurso de fila: depende de extensão do intermediário ou de um agendador separado. Tratar isso como resolvido pela escolha do intermediário é o erro mais provável deste slot, e EM-03 mostra que é exatamente o buraco de domínio que o refinamento abriu",
+            "mais um processo para operar em um sistema que hoje tem exatamente uma dependência de runtime; somado ao cache e ao banco, a conta de operação sai de 1 para 3",
+            "licença e conjunto de extensões mudaram ao longo dos anos para vários intermediários — é item de `verify`, não afirmação minha",
+            "'visita gravada' e 'notificação enfileirada' não são atômicas por si: sem padrão de caixa de saída, existe o caso de a visita existir e o aviso não — e o agregado já é gravado em uma transação, o que torna a inconsistência visível"
+          ]
+        },
+        {
+          "id": "caixa-de-saida-no-banco",
+          "name": "Caixa de saída (outbox) no próprio PostgreSQL",
+          "fit_reason": "É o único candidato em que 'visita gravada' e 'notificação enfileirada' são a mesma transação — e isso importa aqui porque a escrita do agregado já é transacional com cascata, de modo que a notificação ficaria dentro da única fronteira transacional que o sistema tem. Mantém em 1 o número de dependências de runtime, que é o número que o legado tem hoje.",
+          "migration_friction": "baixo",
+          "lock_in": "baixo — é tabela e consulta no banco já eleito",
+          "cost_shape": "nenhuma (usa o banco já contratado)",
+          "maturity": "estável",
+          "risks": [
+            "a latência passa a ser o intervalo de varredura, e a tabela cresce sem política de retenção até alguém escrever uma — o sistema legado não tem nenhuma política de retenção de nada, nem caminho de exclusão",
+            "não é o que a direção de stack pediu; entra aqui como o leque honesto, não como contraproposta"
+          ]
+        },
+        {
+          "id": "kafka",
+          "name": "Apache Kafka",
+          "fit_reason": "Só compensaria se o histórico de visitas precisasse ser reprocessado — e o backlog não pede: REQ-021 (registrar o atendimento realizado) é `should` e está bloqueado, e a resposta da Pergunta 1 separou agendamento de atendimento em duas entidades, não em um fluxo de eventos.",
+          "migration_friction": "alto",
+          "lock_in": "médio — o modelo de log molda o código do consumidor e condiciona o desenho do domínio",
+          "cost_shape": "por instância",
+          "maturity": "consolidado",
+          "risks": [
+            "operação desproporcional a um sistema de 1.899 linhas com 4 visitas de seed e nenhum histórico de operação real",
+            "fora de `prefer`"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "autenticacao",
+      "label": "Autenticação e autorização",
+      "why_needed": "REQ-033 e REQ-034 são `must` e estão bloqueados, e a resposta da Pergunta 8 fechou o desenho: papéis distintos de leitura e escrita, sem registro de acesso. Hoje a matriz de permissões tem UMA linha e a ausência de controle de acesso está provada por seis varreduras independentes; os 17 endpoints foram listados um a um e nenhum exige identificação. Há um agravante que torna este slot inseparável da arquitetura escolhida: o isolamento entre donos é EMERGENTE de `owner.getPet(petId)` varrer só a coleção daquele dono, não é verificado por teste algum, e trocar essa chamada por uma busca direta no repositório o removeria sem nenhum build vermelho — a resposta da Pergunta 23 transformou isso em requisito verificável (REQ-017). `prefer` não cobre este slot.",
+      "recommended": "guardas-no-adaptador",
+      "recommendation_reason": "O requisito são dois papéis em uma clínica, e a guarda dentro do adaptador é o único candidato cujo custo é proporcional a isso — o preço, assumir a guarda de senha, está escrito e é a única objeção séria a ele.",
+      "candidates": [
+        {
+          "id": "guardas-no-adaptador",
+          "name": "Autenticação e papéis no próprio adaptador HTTP",
+          "fit_reason": "REQ-034 pede que 'cada papel definido tem a lista de ações permitidas declarada em um só lugar', e com dois papéis — leitura e escrita, conforme a resposta da Pergunta 8 — esse 'um só lugar' é um arquivo de política mais uma guarda no adaptador. REQ-033 pede expiração por inatividade, o que favorece sessão no servidor em vez de credencial sem estado: a decisão cabe dentro deste candidato e não exige componente novo. Importante para a arquitetura: a autorização fica no adaptador e o isolamento entre donos fica no domínio, que é onde REQ-017 precisa dele — os dois não são a mesma coisa e confundi-los é como o isolamento se perde.",
+          "migration_friction": "médio",
+          "lock_in": "baixo — identidades e papéis ficam no banco eleito",
+          "cost_shape": "nenhuma (auto-hospedado)",
+          "maturity": "consolidado",
+          "risks": [
+            "assumir armazenamento de senha, redefinição e bloqueio é assumir a classe de defeito mais grave que este sistema nunca teve — e o repositório não ajuda: a única 'conta' que existe nele é uma conta de banco em `db/mysql/user.sql` com `GRANT ALL` e senha igual ao nome",
+            "REQ-036 (registrar autoria) está no backlog e a resposta da Pergunta 12 escolheu colunas de criação e alteração SEM autoria: construir autenticação agora sem reservar o gancho de autoria significa uma segunda migração de esquema depois, nas sete tabelas",
+            "nenhum teste de permissão existe hoje; REQ-034 e REQ-040 exigem um por caminho de escrita e por caminho de gestão, e isso é trabalho novo, não adaptação"
+          ]
+        },
+        {
+          "id": "servidor-de-identidade",
+          "name": "Servidor de identidade auto-hospedado",
+          "fit_reason": "Entrega papéis, sessão, política de senha e redefinição sem que ninguém escreva guarda de credencial, e roda no Kubernetes que já foi escolhido para a entrega. Serviria se o número de papéis crescer além dos dois que a resposta da Pergunta 8 definiu, ou se houver outro sistema na clínica para federar.",
+          "migration_friction": "alto",
+          "lock_in": "médio — o modelo de papéis e os fluxos ficam no produto; migrar identidades é possível e não é barato",
+          "cost_shape": "por instância",
+          "maturity": "consolidado",
+          "risks": [
+            "é um servidor mais pesado do que o sistema que ele protege, que tem 1.899 linhas; operá-lo é disciplina nova para um contexto em que, segundo a resposta da Pergunta 13, nunca se operou nada",
+            "com dois papéis e um só inquilino, a maior parte do que ele oferece não tem uso previsto no backlog"
+          ]
+        },
+        {
+          "id": "identidade-gerenciada",
+          "name": "Identidade como serviço gerenciado",
+          "fit_reason": "Remove inteiramente o armazenamento de credencial, que é a objeção mais séria ao primeiro candidato — e isso tem peso num sistema que guarda nome, endereço e telefone de clientes e que precisa atender REQ-035 (anonimização) e a resposta da Pergunta 7.",
+          "migration_friction": "médio",
+          "lock_in": "alto — a base de usuários passa a morar no provedor, e ela é o único ativo que não se re-deriva do código nem do banco; sair exige migrar identidades e, em geral, forçar redefinição de senha",
+          "cost_shape": "por usuário ativo",
+          "maturity": "consolidado",
+          "risks": [
+            "introduz dependência de internet em um sistema que hoje roda integralmente offline desde que o banco esteja acessível — e essa propriedade foi confirmada por varredura: nem o servidor nem o navegador buscam nada fora do host",
+            "indisponibilidade do provedor passa a ser indisponibilidade do atendimento no balcão, que é o uso que o `soul.md` infere para o sistema"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "observabilidade",
+      "label": "Observabilidade",
+      "why_needed": "O legado tem zero: nenhum arquivo de log, nenhuma configuração de `logback`/`log4j`, nenhuma ocorrência de `Logger`, `log.` ou `slf4j` em `src/main/java`, nenhuma métrica, nenhum rastro — a configuração inteira são 3 linhas em `application.properties:24-26`, duas comentadas. REQ-041 pede log e métricas, e a resposta da Pergunta 11 muda o quadro: existe log de produção ou APM a que se pode ter acesso. Ou seja, há um destino, e qual é ele não está escrito em lugar nenhum deste repositório. `prefer` não cobre este slot.",
+      "recommended": "instrumentacao-neutra",
+      "recommendation_reason": "A resposta da Pergunta 11 diz que existe um destino e não diz qual — instrumentação neutra é o único candidato em que descobrir a resposta depois não significa reinstrumentar o código.",
+      "candidates": [
+        {
+          "id": "instrumentacao-neutra",
+          "name": "Instrumentação neutra de fornecedor com coletor, exportando para métrica e rastro",
+          "fit_reason": "O código é instrumentado uma vez e o destino se decide na configuração do coletor, que é exatamente a forma da incerteza aqui: a resposta da Pergunta 11 confirma que existe APM ou log de produção e não nomeia qual. Cobre os três critérios de aceite de REQ-041 — falha com momento, caminho e identificador da ocorrência; escrita de dono, animal e visita registradas; log sem dado pessoal — e dá o percentil que REQ-012 vai exigir quando sair do bloqueio.",
+          "migration_friction": "médio",
+          "lock_in": "baixo — é o ponto do leque em que o lock-in é a razão de escolher: a instrumentação não conhece o destino",
+          "cost_shape": "por instância para o coletor; por volume no destino, quando o destino for gerenciado",
+          "maturity": "estável",
+          "risks": [
+            "auto-hospedar o destino de métrica e rastro é mais peça em operação do que a própria aplicação, num sistema de 1.899 linhas",
+            "REQ-012 (tempo de resposta) está bloqueado por falta de limite acordado, não por falta de instrumento: métrica vai ser coletada sem alvo até alguém acordar o número e o volume representativo",
+            "a maturidade da parte de log da instrumentação neutra é mais recente que a de métrica e rastro, e isso precisa ser conferido antes de depender dela como único caminho de log (item de `verify`)"
+          ]
+        },
+        {
+          "id": "apm-gerenciado",
+          "name": "APM gerenciado com agente",
+          "fit_reason": "É o caminho mais curto para ter rastro, métrica e log correlacionados sem operar nada — e se o APM a que a resposta da Pergunta 11 se refere for um produto desses, adotá-lo é alinhar-se ao que já existe em vez de montar um segundo.",
+          "migration_friction": "baixo",
+          "lock_in": "médio a alto — agente, painéis e linguagem de consulta; os dados históricos não saem junto",
+          "cost_shape": "por volume ingerido — e é essa a linha que surpreende, porque cresce com o log, não com o uso",
+          "maturity": "consolidado",
+          "risks": [
+            "o custo acompanha o volume de log, que é ilimitado até REQ-041 ('o log não contém dado pessoal nem credencial') ser de fato cumprido — e o precedente contrário está no próprio repositório: o `PropertiesLogger` de `PostgresIntegrationTests:110-134` imprime a senha do banco sem máscara no caminho `main()` (lacuna G12)",
+            "trocar de fornecedor depois exige reinstrumentar, que é precisamente o que o primeiro candidato evita"
+          ]
+        },
+        {
+          "id": "log-estruturado-apenas",
+          "name": "Somente log estruturado, enviado a um destino existente",
+          "fit_reason": "Entrega os três critérios de aceite de REQ-041 e nada além — é o menor movimento que fecha o card, e tem a vantagem de poder ser ligado ao destino que a resposta da Pergunta 11 diz que já existe, sem escolher stack nova.",
+          "migration_friction": "baixo",
+          "lock_in": "baixo — log estruturado é texto, e texto se redireciona",
+          "cost_shape": "por volume armazenado no destino",
+          "maturity": "consolidado",
+          "risks": [
+            "sem métrica não há percentil, e REQ-012 fica bloqueado por falta de instrumento além da falta de limite acordado",
+            "sem rastro, diagnosticar uma falha que atravessa aplicação, cache e intermediário de mensagem volta a ser leitura de log em três lugares — e a arquitetura escolhida acabou de criar esses três lugares"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "testes",
+      "label": "Testes",
+      "why_needed": "É o único slot em que o legado está à frente: 2.398 linhas de teste contra 1.899 de produção, com Testcontainers já declarado. E é pré-requisito explícito da arquitetura escolhida — 'teste de caracterização do agregado: criação, edição e agendamento, cobrindo cascade e ordem da coleção' —, mais o passo 2 da migração, que manda escrever o teste de isolamento entre donos (resposta da Pergunta 23, REQ-017) e o de concorrência de nome de animal, que já existe e cujo comentário prova que houve um defeito de corrida real corrigido de propósito: 'With the fix, exactly ONE concurrent request must succeed'. Esses testes são a especificação executável do que a reescrita tem de reproduzir.",
+      "recommended": "jest-com-banco-real",
+      "recommendation_reason": "O que decide este slot não é o executor e sim a bancada — requisição de verdade mais banco de verdade em contêiner —, e entre os executores a convenção documentada do framework HTTP escolhido é a única diferença real para um time que está chegando à stack.",
+      "candidates": [
+        {
+          "id": "jest-com-banco-real",
+          "name": "Jest com requisição HTTP real e banco em contêiner",
+          "fit_reason": "Testcontainers já está no legado, de modo que testar contra um PostgreSQL real é continuidade e não novidade — e é obrigatório aqui, porque as contradições que mais machucam são de dialeto: C2 (restrição anônima em MySQL) e C3 (busca insensível a caixa só em H2) só aparecem contra banco real. A bancada mapeia um a um o que existe: MockMvc vira requisição HTTP de teste, teste de fatia de persistência vira contêiner. É também a convenção documentada do framework HTTP recomendado, o que reduz o custo de todo exemplo que o time vai ler.",
+          "migration_friction": "médio",
+          "lock_in": "baixo",
+          "cost_shape": "nenhuma (auto-hospedado)",
+          "maturity": "consolidado",
+          "risks": [
+            "o teste de concorrência de REQ-014 depende de requisições genuinamente paralelas: um executor que serializa por padrão faz o teste passar sem provar nada, e esse teste é o que guarda um defeito de corrida real já corrigido no legado",
+            "Testcontainers exige Docker disponível no executor de integração contínua; os três fluxos de trabalho atuais nunca exercitaram nem Kubernetes nem buildpacks, então não há evidência de que o ambiente de CI deste projeto consiga",
+            "nenhum número de cobertura é reportável hoje (JaCoCo só no Maven, sem limite mínimo e sem relatório gerado): a reescrita começa sem linha de base de cobertura para comparar"
+          ]
+        },
+        {
+          "id": "vitest-com-banco-real",
+          "name": "Vitest com requisição HTTP real e banco em contêiner",
+          "fit_reason": "Bancada idêntica à do candidato anterior — e a bancada é o que importa neste cenário — com execução mais rápida e suporte nativo a módulos ES. A diferença em relação ao anterior é de velocidade e ergonomia, não de capacidade.",
+          "migration_friction": "médio",
+          "lock_in": "baixo",
+          "cost_shape": "nenhuma (auto-hospedado)",
+          "maturity": "estável",
+          "risks": [
+            "menos exemplos do ecossistema do framework HTTP escolhido assumem este executor, o que cobra tradução de cada receita que o time encontrar",
+            "o risco do teste de concorrência de REQ-014 é idêntico: paralelismo de verdade tem de ser verificado, não presumido"
+          ]
+        },
+        {
+          "id": "executor-do-runtime",
+          "name": "Executor de testes do próprio runtime, sem dependência externa",
+          "fit_reason": "Zero dependência de teste a manter, o que tem valor num projeto cuja dívida DT-17 é justamente ausência de lockfile e de scanner de vulnerabilidade — menos superfície de dependência é menos superfície a escanear.",
+          "migration_friction": "médio",
+          "lock_in": "nenhum",
+          "cost_shape": "nenhuma (auto-hospedado)",
+          "maturity": "estável",
+          "risks": [
+            "dublês, cobertura e relatório passam a ser montados à mão, e o legado já falha nesse ponto exato: nenhum número de cobertura é reportável (DT-20). Este candidato torna fácil repetir isso",
+            "a bancada que realmente importa — requisição real mais banco em contêiner — continua sendo dependência externa, então a economia é menor do que parece"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "entrega",
+      "label": "Entrega e plataforma de execução",
+      "why_needed": "Não é um slot para escolher Kubernetes: `prefer` já o escolheu, e o repositório já tem dois manifests em `k8s/`. É um slot para dimensionar o que falta para que esses manifests sejam reais — eles têm risco classificado como desconhecido porque nunca foram exercitados por pipeline algum, a imagem que eles referenciam (`dsyer/petclinic`, sem tag e sem digest) NÃO é produzida por este repositório (DT-16) e o banco que eles sobem tem credencial em claro e volume efêmero (DT-19). A arquitetura escolhida também muda a conta: com intermediário de mensagem, cache e banco, o sistema sai de 1 processo para 4.",
+      "recommended": "kubernetes",
+      "recommendation_reason": "É o alvo de `prefer` e os processos novos da arquitetura escolhida o justificam — o trabalho aqui não é adotá-lo, é consertar o que já está escrito: DT-16 e DT-19 são o passo zero.",
+      "candidates": [
+        {
+          "id": "kubernetes",
+          "name": "Kubernetes",
+          "fit_reason": "A arquitetura escolhida acrescenta intermediário de mensagem, cache e, possivelmente, identidade: um processo passa a ser quatro, e é nesse ponto que orquestrador deixa de ser excesso. O repositório já aponta para cá — `k8s/petclinic.yml` ativa o perfil `postgres`, que é o dialeto recomendado, e as sondas de vivacidade e prontidão que REQ-039 pede já existem no Actuator. É também a única plataforma dos três candidatos em que a réplica múltipla é o padrão, o que é a premissa do cache compartilhado recomendado.",
+          "migration_friction": "médio",
+          "lock_in": "baixo na API, que é portável; médio no concreto — classe de armazenamento, controlador de entrada e plano de controle gerenciado não atravessam provedor sem reescrita",
+          "cost_shape": "por instância (nós do cluster) mais por volume armazenado",
+          "maturity": "consolidado",
+          "risks": [
+            "nada no repositório indica que alguém já rodou `kubectl`: o primeiro implante real encontra DT-16 (imagem de terceiro, sem tag, não construída aqui) e DT-19 (credencial em claro em `k8s/db.yml:13-14`, banco efêmero, sem `resources`, sem `startupProbe`, sem TLS) de uma vez",
+            "para 1.899 linhas de aplicação, o cluster é o maior item operacional do orçamento — e a resposta da Pergunta 13 diz que não há histórico de operação para apoiar essa escolha",
+            "o perfil padrão do legado é um processo único com H2 em memória e zero dependência de rede; todo raciocínio de resiliência feito nesse perfil é falso no cluster, e é esse perfil que a resposta da Pergunta 24 autorizou executar"
+          ]
+        },
+        {
+          "id": "plataforma-de-conteiner-gerenciada",
+          "name": "Plataforma de contêiner gerenciada, um serviço por processo",
+          "fit_reason": "Entrega os mesmos quatro processos sem plano de controle para operar — tamanho honesto para um contexto sem histórico operacional. Encaixa no que o repositório já sabe produzir: há imagem por buildpacks declarada, ainda que nunca exercitada.",
+          "migration_friction": "médio",
+          "lock_in": "médio a alto — descritor de serviço, rede e identidade de carga de trabalho são do provedor; o contêiner é portável, o entorno não",
+          "cost_shape": "por requisição ou por instância-hora, conforme o produto",
+          "maturity": "consolidado",
+          "risks": [
+            "os dois manifests de `k8s/` passam a ser descarte, e eles são a única intenção de implante escrita no repositório",
+            "fora de `prefer`"
+          ]
+        },
+        {
+          "id": "host-unico-com-conteineres",
+          "name": "Host único com contêineres declarados em composição",
+          "fit_reason": "O `docker-compose.yml` já existe e o perfil padrão do legado é literalmente um processo com zero dependência de rede. Para quatro processos em uma clínica, é o menor arranjo que funciona.",
+          "migration_friction": "baixo",
+          "lock_in": "nenhum",
+          "cost_shape": "por instância (uma máquina)",
+          "maturity": "consolidado",
+          "risks": [
+            "sem réplica não há implante sem interrupção — e, por coerência, sem réplica o cache em processo bastaria: escolher este candidato muda a recomendação do slot `cache`, e essa dependência entre slots é real, não teórica",
+            "o `./conf.d` que o `docker-compose.yml` monta NÃO existe no repositório: o arquivo que seria a base deste candidato já está quebrado hoje",
+            "fora de `prefer`"
+          ]
+        }
+      ]
+    }
+  ],
+  "verify": [
+    "DATA DE CORTE: nenhuma afirmação deste documento sobre versão, licença ou estado de manutenção de tecnologia nova foi confirmada — não há acesso à rede nesta etapa e o repositório não contém um único manifesto TypeScript, Node ou npm. Todo número citado vem de `technologies.json` ou de manifesto do próprio repositório, com a origem escrita ao lado.",
+    "Fixar a versão de Node suportada pela plataforma de destino e conferir a janela de suporte dela antes de escrever o primeiro `package.json` — e exigir lockfile desde o primeiro commit, porque a ausência de lockfile é a dívida DT-17 do legado e não há motivo para herdá-la.",
+    "PASSO 1 DA MIGRAÇÃO, E ELE É NO LEGADO: declarar `@Column(name = ...)` nas 18 colunas hoje derivadas por `application.properties:12` (resposta da Pergunta 14) e conferir coluna por coluna o resultado contra o DDL eleito, ANTES de qualquer linha de TypeScript. A convenção de nomes do ORM escolhido não é a `CamelCaseToUnderscoresNamingStrategy` do Hibernate, e a diferença renomeia coluna em silêncio.",
+    "Rodar `./mvnw test` e `./mvnw dependency:tree` na mesma sessão — é a dúvida de maior alavancagem de todo o processo (D-ARQ-03, D-GRA-02, D-TECH-03). O primeiro fecha as contradições C1, C2 e C4, que são a especificação do comportamento que a reescrita tem de reproduzir; o segundo resolve dez campos de 'versão não fixada' do inventário.",
+    "Executar o cenário de concorrência autorizado pela resposta da Pergunta 24 (dois atendentes sobre o mesmo dono, sob o perfil padrão H2) e registrar o resultado: ele decide se REQ-005 precisa de concorrência otimista ou apenas de fronteira transacional mais estreita — e, por consequência, se a ausência de `@Version` nativo no candidato recomendado do slot `acesso-a-dados` é um custo real ou nenhum.",
+    "Conferir licença e cadência de manutenção atuais do intermediário de mensagem e do servidor de cache escolhidos. As duas mudaram em projetos desta categoria nos últimos anos, e a existência do candidato `valkey` neste documento é consequência de uma dessas mudanças.",
+    "Conferir o estado de manutenção e a licença da ferramenta de acesso a dados escolhida antes de fechar o slot — é o adaptador mais crítico da arquitetura e o item em que o leque deste documento está menos verificável.",
+    "Confirmar com o provedor de PostgreSQL gerenciado a versão oferecida e se o índice único sobre expressão (`UNIQUE INDEX ... (owner_id, LOWER(name))`, `db/postgres/schema.sql:45`) é suportado sem restrição — é a restrição que sustenta REQ-011 e REQ-014.",
+    "Descobrir QUAL é o log de produção ou APM que a resposta da Pergunta 11 afirma existir, e se há acesso de fato. Essa resposta é o que qualifica a priorização MoSCoW das 9 units e é o que decide entre os três candidatos do slot `observabilidade`; sem ela, a recomendação é 'instrumente de forma neutra para não precisar refazer', que é uma aposta na incerteza e não uma escolha.",
+    "Verificar se `GET /vets` tem consumidor real antes de mudar o envelope (lacuna G2 / LAC-UC-04). REQ-027 (expor o indicador interno de persistência no contrato público) e REQ-028 (responder em XML) estão `wont`, e remover o campo `new` da resposta é quebra de contrato se existir alguém do outro lado — e esse alguém, hoje, é inferido, não confirmado.",
+    "Confirmar a versão do cluster Kubernetes de destino e se o ambiente de integração contínua tem Docker disponível. Os dois manifests de `k8s/`, os buildpacks e o JMeter têm risco classificado como desconhecido exatamente por nunca serem exercitados por nenhum dos três fluxos de trabalho — e Testcontainers, que o slot `testes` recomenda, depende de Docker no executor.",
+    "Levar a uma pessoa o conflito entre a resposta da Pergunta 10 ('manter toda a superfície de gestão exposta e sem autenticação') e REQ-040, que é `must` ('os caminhos de gestão que revelam configuração, ambiente ou credencial exigem identificação'). Não é dúvida técnica: sob os perfis `mysql` e `postgres`, `/actuator/env` torna legível por HTTP a credencial do banco (lacuna G9). O Arquiteto de Refatoração já deixou este conflito em aberto e ele continua aberto aqui."
+  ],
+  "notes": [
+    "O QUE MUDA NO PLANO DE MIGRAÇÃO, e é o achado desta etapa: os seis passos de `architectures.json` foram escritos como movimentos DENTRO de Java e Spring ('abrir a primeira porta em `vet`', 'inverter a escrita do agregado `Owner`'). A direção de stack `chosen` troca a linguagem, e isso não quebra Portas e adaptadores — a arquitetura é agnóstica de linguagem —, mas muda a natureza da obra: os passos 1 e 2 (declarar `@Column` nas 18 colunas; escrever os testes de isolamento e de concorrência) continuam obrigatórios e ficam MAIS importantes, porque deixam de ser preparação da inversão e passam a ser a especificação executável do que a reescrita tem de reproduzir — e os dois acontecem no legado, em Java, antes de existir TypeScript. Os passos 3 a 6 deixam de significar 'abrir porta' e passam a significar 'construir o sistema novo'; a ordem deles, porém, continua valendo como ordem de risco e foi preservada no caminho recomendado: `vet` primeiro, agregado `Owner` por último.",
+    "SOBRE A `note` DA DECISÃO ('Adicione sistema de cache'): o legado já tem cache. `CacheConfiguration:37` cria o cache `vets` e `VetRepository:45,55` o consome — por literal string, de modo que renomear um dos dois lados não quebra o build nem falha teste algum. O que ele não tem é invalidação (ADR-0005), e é isso que REQ-025 pede. O slot foi preenchido como 'cache que pode ser invalidado e compartilhado entre réplicas', não como 'cache', porque entregar o segundo seria entregar o que já existe.",
+    "CONFLITO NÃO ARBITRADO, e não é meu para arbitrar: a resposta da Pergunta 10 manda manter toda a superfície de gestão exposta e sem autenticação, e REQ-040 é `must` e pede o contrário. Orcei REQ-040 dentro do slot `autenticacao` porque ele é `must`, e registrei o conflito em `verify`. A consequência concreta, caso a resposta da Pergunta 10 prevaleça: sob os perfis `mysql` e `postgres`, `/actuator/env` torna a credencial do banco legível por HTTP (lacuna G9).",
+    "NENHUM ARGUMENTO DE ESCALA FOI FEITO, e isso é decisão, não omissão. A resposta da Pergunta 13 diz que o sistema nunca operou de verdade — é demonstração —, a volumetria produtiva é inacessível (confiança vermelha no dicionário de dados) e o seed tem 47 linhas em sete tabelas. Não existe número medido neste sistema, e por isso nenhuma recomendação deste documento se apoia em desempenho. Em particular: o cache recomendado não é recomendado por velocidade, e a fila recomendada não é recomendada por vazão.",
+    "DEPENDÊNCIA ENTRE SLOTS, explícita porque muda recomendação: se a entrega sair de Kubernetes para host único, o cache em processo volta a ser suficiente e a recomendação do slot `cache` cai. E se o slot `acesso-a-dados` mudar de candidato, a recomendação do slot `migracao-de-esquema` muda com ele. Os dois pares não são independentes e lê-los slot a slot, isolados, produz combinações incoerentes.",
+    "O CONTRATO A PRESERVAR não é código, e não é a API: são 17 pares método+rota sobre 12 rotas, os nomes de campo dos 4 formulários e o envelope `vetList`. E os nomes de campo NÃO estão nos controllers — estão nos parâmetros dos `th:replace` dos fragmentos Thymeleaf (`createOrUpdateOwnerForm.html:10-14`, `createOrUpdatePetForm.html:20-22`, `createOrUpdateVisitForm.html:32-33`). Quem planejar a reescrita lendo só o Java vai reescrever o contrato HTTP sem perceber que o reescreveu.",
+    "ORÇAMENTO DE INTEGRAÇÃO DO LEGADO É ZERO, e isso é um presente raro: zero API consumida, zero fila, zero webhook, zero evento, zero agendamento, zero e-mail e zero SDK de fornecedor, reconfirmados por varredura independente em duas etapas; o sistema roda integralmente offline desde que o banco esteja acessível, servidor e navegador inclusive. Não há contrato de terceiro a preservar nesta reescrita. O que a arquitetura escolhida acrescenta — notificação (Pergunta 3), cache, identidade — é integração NOVA, e é a primeira da história do sistema em cada caso.",
+    "DIVERGÊNCIA ENTRE DESENHO OFICIAL E REALIDADE, herdada e grave para quem for planejar: o README e o Javadoc descrevem uma arquitetura em camadas com serviço de domínio que NÃO EXISTE em `src/main` — `src/test/java/.../service/ClinicServiceTests` exercita repositórios. Quem planejar a migração pela documentação do projeto vai planejar sobre uma camada que não está lá, e vai subestimar o quanto da lógica mora hoje nos controllers.",
+    "O MAIOR MÓDULO EM LINHAS NÃO É TRABALHO, É DESCARTE: `assets` tem 9.919 linhas, das quais 9.531 são CSS compilado e versionado que ninguém regera, e o SCSS fonte é um tema de Bootstrap 3 rodando contra Bootstrap 5.3.8, cujas 23 variáveis Sass têm efeito ZERO sobre a folha servida (DT-14). REQ-047 ('reaproveitar o tema e a folha compilada') está `wont`. Em orçamento de reescrita, isso não é 9.919 linhas a portar — é uma decisão de descarte e um resultado visual a reproduzir sem referência, porque nenhum screenshot existe.",
+    "CAMINHO DIVERGENTE DE INSUMO, pela segunda vez: o SKILL prevê `<output_folder>/technologies.json` e no disco o arquivo está em `_reversa_sdd/tech/technologies.json`. Os sete insumos previstos foram lidos; `decision.json`, `architectures.json` e `technologies.json` não foram alterados.",
+    "SOBRE OS SLOTS NÃO ABERTOS: não há slot de orquestração separado da entrega (Kubernetes é a plataforma de execução e não existe saga nem coreografia; o sistema continua sendo um implantável), nem slot de descoberta de serviço, contrato versionado ou rastreamento distribuído, que pertencem a microsserviços e não a Portas e adaptadores, nem slot próprio de idempotência de entrega, exigido por `event-driven` e `cqrs-event-sourcing` e aqui dispensável porque a mensageria tem um produtor e um consumidor. Preencher slot que o cenário não pede é o mesmo vício de recomendar microsserviço por moda, e o SKILL o nomeia.",
+    "UM BURACO DE DOMÍNIO QUE NENHUM SLOT FECHA: EM-03 mostra que a transição Agendada → Passada acontece com o relógio e NADA no sistema a observa; somado a REG-28 (recusa a data de hoje) e REG-34 (sem edição nem cancelamento), `Visit` só modela compromisso futuro imutável, nunca atendimento realizado. A resposta da Pergunta 1 separou agendamento de atendimento, o que é a correção certa — mas quem acorda na data da visita para notificar o dono (Pergunta 3) é entrega atrasada ou agendador, e isso NÃO vem de graça com a escolha do intermediário de mensagem. Está escrito como risco no slot `mensageria` porque é onde a escolha costuma se dar por resolvida sem estar."
+  ]
+}

@@ -1,0 +1,152 @@
+{
+  "generated_at": "2026-10-06T09:30:00Z",
+  "system": {
+    "kind": "web-app",
+    "summary": "Clínica veterinária em Spring Boot que renderiza HTML no servidor, guarda dono, animais e visitas como um único agregado transacional e não conversa com nenhum sistema externo além do banco. 1.899 linhas de Java em 30 classes, um artefato implantável, zero assincronia.",
+    "containers": 9,
+    "modules": 11,
+    "cycles": 6,
+    "sync_integrations": 15,
+    "async_integrations": 0,
+    "loc": 11350
+  },
+  "proposals": [
+    {
+      "id": "monolito-modular",
+      "name": "Monólito modular",
+      "fit": 84,
+      "fit_reason": "Três medidas sustentam o número. (1) O sistema já é um monólito e não há o que consolidar: 1 artefato implantável e 6 dos 9 containers rodando dentro do mesmo processo no perfil padrão. (2) A fronteira é aplicável hoje, sem refatoração prévia: as 30 classes de `src/main/java` formam um DAG perfeito — ZERO ciclos de import estáticos, verificado por busca em profundidade própria da etapa do grafo. É a condição que falta na maioria dos legados e que aqui já está satisfeita. (3) O recorte já existe no código: entre os quatro pacotes Java há 5 arestas somando peso 23, e `owner` e `vet` não têm NENHUMA aresta entre si (grafos de chave estrangeira disjuntos, zero import cruzado). O desconto de 16 pontos vem de onde o acoplamento realmente está: `views`, peso 129, presente em 5 dos 6 ciclos, 43 unidades de peso só com `owner`, e nenhuma dessas arestas é verificada por compilador algum.",
+      "why": "O que falta neste sistema não é separação física, é lugar para a regra morar. Não existe uma única classe de serviço em `src/main` — os seis controllers chamam os três repositórios Spring Data diretamente, e a regra de negócio vive espalhada em controller, entidade, Validator e anotação. O README e o Javadoc do projeto descrevem uma camada de serviço que não existe no código: a divergência entre desenho oficial e realidade já está medida. E o backlog aponta para o mesmo buraco: dos 20 cards `must`, quatro dos cinco de estimativa G (REQ-021 registrar atendimento, REQ-033 autenticar, REQ-034 papéis, REQ-035 anonimizar) acrescentam capacidade transversal que, sem módulo com fronteira, acaba dentro de `OwnerController` — exatamente onde já moram as contradições C1, C2 e C5.",
+      "against": "É escolha errada se o objetivo real for só limpar o que está sujo. Para 1.899 linhas de Java que, segundo a resposta da Pergunta 13, nunca operaram de verdade, a fronteira formal pode ser cerimônia: as 20 dívidas técnicas medidas são de qualidade (credencial em claro, ausência de scanner, cobertura não reportável, dialetos divergentes) e nenhuma delas se resolve movendo módulo. Também é errada se a aposta for que o sistema vai mesmo crescer a ponto de precisar de times separados — aí o custo de modularizar é pago duas vezes, porque a separação verdadeira vem depois.",
+      "risks": [
+        "A fronteira que importa não é vista pelo compilador. Cinco dos seis ciclos passam pela camada de template e as 43 unidades de peso entre `owner` e `views` são todas resolvidas por string em runtime. Modularizar o Java e deixar os templates lendo propriedade de entidade por nome mantém o acoplamento intacto e dá a sensação falsa de fronteira.",
+        "Os nomes de campo do contrato HTTP não estão em Java: estão nos parâmetros dos `th:replace` dos fragmentos (`createOrUpdateOwnerForm.html:10-14`). Mover um módulo pode mudar o contrato HTTP sem tocar em um único `.java` e sem build vermelho.",
+        "`Owner` + `pets` + `visits` é um agregado único com `cascade = ALL`: toda escrita do sistema passa por `owners.save(owner)`, inclusive gravar uma visita (`VisitController:109`). Dar repositório próprio a um módulo de agenda quebra a única garantia transacional existente — e a resposta da Pergunta 1 (separar agendamento de atendimento em duas entidades) atravessa justamente esse agregado.",
+        "Não existe hoje um comando que signifique 'verde': dois builds divergentes sem canônico (DT-01) e cobertura não reportável (JaCoCo só no Maven, sem relatório). Fronteira sem verificação automática volta a ser convenção em três meses."
+      ],
+      "migration": [
+        "Eleger um build canônico entre Maven e Gradle (DT-01) e tornar reportável a cobertura dos 20 arquivos de teste e 2.398 linhas que já existem — é a rede de segurança que já está escrita e ninguém mede.",
+        "Rodar `./mvnw test` e `./mvnw dependency:tree` antes de qualquer movimento: a Pergunta 24 autorizou executar contra o legado sob o perfil padrão, e esses dois comandos fecham as contradições C1, C2 e C4 e as dez versões não fixadas.",
+        "Extrair `vet` primeiro, porque é o único módulo cuja fronteira já está pronta: grafo de chave estrangeira disjunto do de `owner`, zero import cruzado, 8 de 28 componentes, peso 61 — e a resposta da Pergunta 2 fixou que ele permanece catálogo institucional, isto é, não vai crescer e a extração é definitiva.",
+        "Criar no módulo `owner` a camada de domínio que o README já promete: mover as regras de `OwnerController`, `PetController` e `VisitController` para dentro dela, preservando `owners.save(owner)` como a única porta de escrita do agregado.",
+        "Declarar `@Column(name = ...)` nas 18 colunas hoje derivadas por `application.properties:12` (resposta da Pergunta 14), congelando o esquema antes que qualquer arquivo mude de pacote.",
+        "Só então atacar o acoplamento de template: um objeto de apresentação por tela, para tirar `views` de dentro de 5 dos 6 ciclos."
+      ],
+      "prerequisites": [
+        "build canônico único — hoje Maven e Gradle divergem e nenhum é a verdade (DT-01)",
+        "cobertura reportável sobre os 20 arquivos de teste existentes; hoje nenhum número pode ser citado",
+        "verificação automática de fronteira (ArchUnit ou equivalente) no mesmo commit que criar o primeiro módulo",
+        "teste do isolamento entre donos, que hoje é emergente de `owner.getPet(petId)` e não tem um único teste (a Pergunta 23 tornou esse isolamento requisito)"
+      ],
+      "effort": "médio",
+      "team_shape": "1 time",
+      "confidence": "confirmado"
+    },
+    {
+      "id": "hexagonal",
+      "name": "Portas e adaptadores",
+      "fit": 76,
+      "fit_reason": "O diagnóstico de 'domínio preso a framework e a banco' é literal aqui, e dá para medir. As seis entidades carregam ao mesmo tempo a persistência e o contrato de entrada: o pacote `owner` importa `jakarta.persistence` 22 vezes, `spring-webmvc` 24 e `jakarta.validation` 8, e o binding dos formulários é `@ModelAttribute` direto sobre a entidade JPA. `model.BaseEntity` tem 51 linhas e impacta 16 das 17 colunas da matriz de impacto; seu `isNew()` é `id == null` — um detalhe de persistência que governa 6 regras de negócio e 3 decisões de template. E o módulo de maior risco do sistema tem 43 linhas e nenhuma delas é Java: `application.properties:12` decide o nome de TODA coluna sem um único `@Column`, `:11` é a razão de todos os `EAGER` e `:10` faz dos três `schema.sql` a verdade do esquema. Não chega a 84 porque a resposta da Pergunta 20 — a chave primária continua sendo inteiro gerado pelo banco — desarma justamente o risco que mais justificava inverter a dependência.",
+      "why": "Quatro das cinco contradições de camada medidas em `domain.md` são infraestrutura vazando regra de negócio, não bug: C1 (a espécie é obrigatória no `PetValidator` só na criação e `NOT NULL` nos três DDLs sempre), C2 (`PetController:202-205` decide uma mensagem de formulário procurando a string `unique_owner_pet_name` dentro do texto de uma exceção — e em MySQL essa constraint é anônima), C3 e C4 (limite de tamanho e unicidade que existem em dois dialetos e não no terceiro). Uma porta de persistência é o lugar onde cada uma dessas regras deixa de depender de qual banco está embaixo. Soma-se a isso a primeira integração de saída da história do sistema, pedida na resposta da Pergunta 3: notificar o dono é, por definição, um adaptador — e hoje não existe nenhum lugar no código onde um adaptador caberia.",
+      "against": "É escolha errada se a decisão for ficar com Spring Data JPA e Thymeleaf pelos próximos anos — e as próprias respostas apontam para isso: a Pergunta 14 escolheu anotar as colunas em vez de trocar a estratégia, e a Pergunta 20 manteve a chave do banco. A inversão cobra o preço do mapeamento entre domínio e entidade todos os dias e só paga no dia da troca, que ninguém marcou. Em um domínio que são seis entidades anêmicas e 1.899 linhas, a camada de tradução tem chance real de ficar maior que o domínio que ela protege.",
+      "risks": [
+        "Duplicação de modelo sem ganho: as seis entidades são anêmicas (data + texto livre, no caso de `Visit`). Separar domínio de entidade num modelo desses costuma produzir anemia com o dobro de arquivos.",
+        "O agregado depende de comportamento do ORM — `cascade = ALL`, `fetch = EAGER`, `@OrderBy(\"name\")`, coleção `final` sem setter nem remoção. Levar isso para um repositório de domínio é reimplementar explicitamente o que o Hibernate faz hoje de graça, e é aí que o isolamento entre donos — que é EMERGENTE de `owner.getPet(petId)` varrer só a coleção daquele dono, e não tem teste nenhum — pode desaparecer sem build vermelho. A Pergunta 23 acabou de transformar esse isolamento em requisito verificável.",
+        "Os 18 nomes de coluna derivados por `application.properties:12`: inverter a dependência antes de declarar `@Column` renomeia coluna em silêncio, e nenhum teste do legado protege.",
+        "`open-in-view=false` é a razão dos `EAGER`. Quem mover a leitura para trás de uma porta sem reproduzir essa decisão troca um `EAGER` por `LazyInitializationException` em produção, não em teste."
+      ],
+      "migration": [
+        "Declarar `@Column(name = ...)` nas 18 colunas hoje derivadas pela estratégia física (resposta da Pergunta 14) — congela o esquema antes de qualquer movimento e é pré-requisito, não consequência.",
+        "Escrever o teste do isolamento entre donos (Pergunta 23) e o de concorrência de nome de animal, que já existe e prova que houve um defeito de corrida real corrigido de propósito.",
+        "Abrir a primeira porta onde o escopo é menor e o acoplamento mais caro: `vet`. `VetRepository extends Repository` já é somente leitura por construção e o cache `vets` já é um adaptador disfarçado, criado em `CacheConfiguration:37` e alcançado por literal string.",
+        "Mover para o domínio a regra que hoje depende do texto de uma exceção de banco: a unicidade de nome de animal por dono (`PetController:202-205`, contradição C2), resolvendo junto o alinhamento do H2 pedido na resposta da Pergunta 6.",
+        "Introduzir o adaptador de notificação exigido pela resposta da Pergunta 3 já do lado de fora da porta, em vez de dentro de `VisitController`.",
+        "Só então inverter a escrita do agregado `Owner`, que é a operação mais arriscada e deve ser a última."
+      ],
+      "prerequisites": [
+        "`@Column` declarado nas 18 colunas derivadas — sem isso a primeira porta renomeia coluna em silêncio",
+        "um dialeto de banco eleito como verdade; o card REQ-044 (operar sobre três bancos em paralelo) já está marcado `wont` e isso precisa virar execução",
+        "teste de caracterização do agregado: criação, edição e agendamento, cobrindo `cascade` e ordem da coleção",
+        "contrato versionado de `GET /vets` ou a confirmação de que ele não tem consumidor (G2 / LAC-UC-04), antes de a porta mudar o envelope"
+      ],
+      "effort": "alto",
+      "team_shape": "1 time",
+      "confidence": "confirmado"
+    },
+    {
+      "id": "manter-e-endurecer",
+      "name": "Manter a arquitetura atual e endurecê-la",
+      "fit": 71,
+      "fit_reason": "A estrutura não pede socorro: 1.899 linhas de Java em 30 classes e 4 pacotes, 1 artefato implantável, 1 integração de runtime obrigatória, 0 ciclos de import, e 2.398 linhas de teste já escritas em 20 arquivos. Praticamente tudo que foi medido como problema é qualidade, não estrutura — das 20 dívidas técnicas, as de severidade alta são dois builds divergentes sem canônico, três DDLs paralelos sem migração, credencial em claro em cinco arquivos, zero scanner de vulnerabilidade e zero lockfile, cobertura não reportável e zero teste de permissão. Nenhuma delas melhora um grama ao se mover um módulo. O desconto vem do backlog: são 20 cards `must`, e quatro dos cinco de estimativa G acrescentam capacidade que hoje não existe em lugar nenhum (atendimento realizado, autenticação, papéis, anonimização) — num sistema sem camada de domínio, essa capacidade vai parar dentro dos controllers, que é como o sistema chegou em C1, C2 e C5.",
+      "why": "É a linha de base, e aqui ela não é concessão: é a opção mais barata e a que resolve o maior número de achados por real gasto. Além disso, o maior ganho de volume do projeto inteiro não exige arquitetura nova — 9.919 das 11.350 linhas de `src/main` são o módulo `assets`, das quais 9.531 são CSS compilado e versionado que ninguém regera, apoiado num SCSS de Bootstrap 3 rodando contra Bootstrap 5.3.8 cujas 23 variáveis têm efeito ZERO sobre a folha servida. O card REQ-047 já marcou isso como `wont`: descartar é trabalho de decisão e remoção, não de reescrita.",
+      "against": "É escolha errada se as respostas do refinamento forem levadas a sério na ordem em que vieram. A Pergunta 1 separa agendamento de atendimento em duas entidades; a Pergunta 3 pede notificação ao dono, que é a primeira integração de saída da história do sistema; as Perguntas 8 e 12 pedem papéis distintos de leitura e escrita e colunas de criação e alteração. São quatro mudanças estruturais, e encaixá-las num sistema sem camada de domínio significa ampliar os controllers — que já concentram 13 dos 17 pares método+rota em `owner` e já são a origem de três das cinco contradições.",
+      "risks": [
+        "'Endurecer' sem fronteira tende a virar mais regra no controller. O módulo `owner` tem peso 301, 11 componentes e 13 dos 17 pares método+rota: é para lá que todo card novo escorre.",
+        "A resposta da Pergunta 10 mandou manter toda a superfície de gestão exposta e sem autenticação. Sob os perfis `mysql` e `postgres` isso torna a credencial do datasource legível por HTTP em `/actuator/env` (G9), e contraria o card REQ-040, que é `must`. Endurecer o resto e manter isso é endurecer a porta e deixar a janela.",
+        "Os três DDLs paralelos sem migração continuam produzindo quatro das cinco contradições enquanto o REQ-044 (`wont`) não virar execução — e o perfil padrão, H2, é justamente o que tem menos restrições das três.",
+        "Sem camada de domínio, a anonimização pedida na resposta da Pergunta 7 precisa alcançar um agregado cuja única porta de escrita é `owners.save(owner)`. Fazer isso por SQL direto, como o legado fazia com os vocabulários, recria o problema que a própria pergunta existe para resolver."
+      ],
+      "migration": [
+        "Eleger o build canônico (DT-01) e publicar a cobertura dos 20 arquivos de teste já existentes — é o passo que transforma 2.398 linhas de teste em rede de segurança de verdade.",
+        "Executar `./mvnw test` e `./mvnw dependency:tree`, autorizados pela resposta da Pergunta 24: fecham as contradições C1, C2 e C4, a dúvida do histórico de visitas e as dez versões não fixadas, de uma sessão só. É a pendência de maior alavancagem de todo o processo.",
+        "Tirar a credencial dos cinco arquivos onde ela está em texto puro e reabrir com uma pessoa a resposta da Pergunta 10, que é a única resposta do refinamento a contrariar um achado de segurança medido.",
+        "Resolver C1 e C2 onde elas nascem: tornar a espécie obrigatória também na edição (resposta da Pergunta 5) e nomear a constraint de unicidade nos três dialetos, alinhando o H2 (resposta da Pergunta 6).",
+        "Corrigir no template a paginação que desfaz o filtro `lastName` que o controller preserva (`ownersList.html:35,44,49,54` contra `OwnerController:110-112`) — defeito confirmado, não hipótese.",
+        "Descartar o módulo `assets` (9.919 linhas) e o SCSS sem efeito, e introduzir scanner de dependência nos três workflows, que hoje não têm nenhum."
+      ],
+      "prerequisites": [
+        "build canônico único e cobertura reportável — sem os dois, 'endurecer' não tem como ser verificado",
+        "scanner de vulnerabilidade e lockfile, inexistentes nos três workflows de CI (DT-17)",
+        "um dialeto de banco eleito como verdade antes de mexer em qualquer regra que o banco também aplica",
+        "decisão humana sobre a superfície de gestão, hoje em conflito aberto entre a resposta da Pergunta 10 e o card REQ-040"
+      ],
+      "effort": "baixo",
+      "team_shape": "1 time",
+      "confidence": "confirmado"
+    }
+  ],
+  "discarded": [
+    {
+      "id": "event-driven",
+      "fit": 24,
+      "reason": "Zero fila, zero webhook, zero evento de domínio, zero `@Scheduled`, zero `@Async` e zero API consumida em `src/main` — reconfirmado por varreduras independentes em duas etapas. A única integração de runtime obrigatória é o banco por JDBC, e os 6 ciclos do grafo, embora de runtime, não atravessam processo: cinco passam pela camada de template dentro do mesmo heap e dois são auto-redirecionamento HTTP do próprio controller. A notificação ao dono pedida na resposta da Pergunta 3 cria UM evento de saída: isso é uma fila dentro do monólito modular, não um barramento."
+    },
+    {
+      "id": "serverless",
+      "fit": 20,
+      "reason": "Duas peças de estado entre requisições derrubam a premissa: o idioma vive em sessão de servidor (`SessionLocaleResolver`, REG-45) e o catálogo de veterinários vive em cache dentro do processo, sem TTL, sem limite e sem invalidação (G7). Somam-se o perfil padrão com H2 em memória e, principalmente, a ausência total de medida de carga — a resposta da Pergunta 13 diz que o sistema nunca operou de verdade. Sem perfil de carga medido, afirmar 'carga intermitente' seria premissa minha virando arquitetura dos outros."
+    },
+    {
+      "id": "soa-bff",
+      "fit": 14,
+      "reason": "Existe exatamente UM front-end, e ele é renderizado no servidor pelo próprio processo (12 templates, 546 linhas, 9 páginas sob um único fragmento `layout`). A única rota voltada a máquina é `GET /vets`, cujo consumidor é desconhecido (G2 / LAC-UC-04) e que o backlog classificou como `could` (REQ-026), com dois cards `wont` associados. BFF existe para vários front-ends disputando a mesma API; aqui não há nem dois."
+    },
+    {
+      "id": "cqrs-event-sourcing",
+      "fit": 12,
+      "reason": "Não há assimetria medida entre leitura e escrita porque não há medida nenhuma: sem log de aplicação, sem métrica, sem volumetria produtiva, e a Pergunta 13 respondeu que o sistema nunca operou. A única otimização de leitura existente é um cache de seis registros. E a resposta da Pergunta 7 pede anonimização com registro de alteração — um log de eventos imutável é o oposto do direito de eliminação que essa resposta precisa atender (D-DET-04, LGPD art. 18). A auditoria pedida é 'este registro foi alterado', não 'por quê'."
+    },
+    {
+      "id": "microsservicos",
+      "fit": 8,
+      "reason": "1.899 linhas de Java, 30 classes, 4 pacotes — e, acima de tudo, uma fronteira transacional única: `Owner` + `pets` + `visits` com `cascade = ALL`, em que toda escrita do sistema passa por `owners.save(owner)`, inclusive gravar uma visita (`VisitController:109` salva o dono). Partir agenda de cadastro exigiria transação distribuída sobre um agregado de três tabelas. A única fronteira limpa é `vet` (grafo de chave estrangeira disjunto), e a resposta da Pergunta 2 fixou que o veterinário permanece catálogo institucional, isto é, não vai crescer. Um commit e um autor no repositório: não há times para distribuir."
+    },
+    {
+      "id": "pipeline-batch",
+      "fit": 3,
+      "reason": "O sistema não lê nem escreve um único arquivo em runtime: a varredura de `java.io`, `java.nio`, `Files.`, `Paths.`, `getResourceAsStream`, `ProcessBuilder` e `Runtime.getRuntime` em `src/main/java` devolve UMA ocorrência, e é `import java.io.Serializable` em `BaseEntity.java:18`. Zero job, zero agendamento, zero transformação em lote. O valor do sistema está inteiro na requisição."
+    }
+  ],
+  "notes": [
+    "CAMINHO DIVERGENTE DE INSUMO: o SKILL prevê `<output_folder>/technologies.json`; no disco o arquivo está em `_reversa_sdd/tech/technologies.json`. Os três insumos obrigatórios foram lidos. `federation/contact-points.json` não existe — este sistema não faz parte de federação, e a escolha de arquitetura é só dele.",
+    "SOBRE `loc`: 11.350 é `src/main` inteiro, conforme o grafo. Dessas, 9.919 são o módulo `assets` (9.531 de CSS compilado e versionado). O código Java de produção são 1.899 linhas em 30 arquivos, contados nesta etapa, e é esse o número que sustenta todo argumento de massa — usar 11.350 para discutir tamanho de sistema superestima o legado em 6 vezes. Os testes somam 2.398 linhas em 20 arquivos: há mais linha de teste que de produção.",
+    "SOBRE `containers`: 9 internos, mais o navegador como externo (10 nós no grafo). Seis dos nove rodam DENTRO do processo da aplicação no perfil padrão, em que o 'banco' é uma chamada de método no mesmo heap. Qualquer raciocínio de resiliência feito sobre o perfil padrão é falso para `mysql` e `postgres`.",
+    "SOBRE `async_integrations: 0`: não é lacuna de levantamento, é achado. Zero fila, zero webhook, zero evento e zero agendamento foram reconfirmados por varredura independente em duas etapas. Das 15 integrações, exatamente 1 é de runtime obrigatório (JDBC) e 6 são de tempo de build ou de deploy.",
+    "CONFLITO NÃO ARBITRADO, e não é meu para arbitrar: a resposta da Pergunta 10 manda manter toda a superfície de gestão exposta e sem autenticação, o que contraria os achados G9 e DT-19 e o card REQ-040, que é `must`. As três propostas registram o custo; a decisão precisa voltar para uma pessoa antes de qualquer uma delas começar.",
+    "A resposta da Pergunta 3 (notificação ao dono) cria a primeira integração de saída da história do sistema e foi considerada no `fit` de `event-driven`, sem levá-lo a 30. Hoje o orçamento de integração de uma migração é essencialmente zero: não existe contrato de terceiro a preservar. O que precisa ser preservado é o que o sistema EXPÕE — 17 pares método+rota sobre 12 rotas, os nomes de campo dos 4 formulários e o envelope `vetList`.",
+    "A resposta da Pergunta 20 (a chave primária continua sendo inteiro gerado pelo banco) desarmou o risco transversal que o Writer e o Backlog registraram como o mais grave da reescrita: trocar o tipo da chave inverteria em silêncio as 6 regras governadas por `isNew()`. Isso baixou o `fit` de `hexagonal` e deve ser relido se a decisão mudar.",
+    "DIVERGÊNCIA ENTRE DESENHO OFICIAL E REALIDADE, herdada e relevante para as três propostas: o README e o Javadoc descrevem uma arquitetura em camadas com serviço de domínio que NÃO EXISTE em `src/main`. `src/test/java/.../service/ClinicServiceTests` exercita repositórios. Quem planejar a migração lendo a documentação do projeto vai planejar sobre uma camada que não está lá.",
+    "Nenhuma proposta foi marcada como escolhida e `refactor/decision.json` não foi escrito — ele é do Studio, quando uma pessoa clicar.",
+    "Nenhum build, teste, execução da aplicação, conexão a banco, requisição HTTP, `docker` ou `kubectl` nesta etapa; nenhum valor de segredo reproduzido. A escrita ficou restrita a `_reversa_sdd/refactor/`, a `.reversa/work/lubylegado-refactor-architect/` e ao checkpoint em `.reversa/state.json`. `.claude/`, `.reversa/`, `.rtk/` e `CLAUDE.md` ficaram fora de toda contagem e análise."
+  ]
+}
