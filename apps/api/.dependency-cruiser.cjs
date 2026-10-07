@@ -38,6 +38,14 @@ module.exports = {
       to: { path: ['/infra/', '^node_modules/@prisma/', '^src/generated/'] },
     },
     {
+      name: 'interface-calls-use-cases',
+      comment:
+        '011/T006: interface/ (controller, guard, presenter) chama caso de uso; porta de repositório ou leitor só se usa em application/ e infra/. Vale também para import só de tipo.',
+      severity: 'error',
+      from: { path: '^src/modules/[^/]+/interface/' },
+      to: { path: '^src/modules/[^/]+/application/ports/' },
+    },
+    {
       name: 'modules-talk-through-ports',
       comment: 'um módulo só usa outro pela porta pública (application/ports).',
       severity: 'error',

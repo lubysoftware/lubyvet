@@ -1,5 +1,5 @@
 import type { PetOutput } from '@lubyvet/contracts';
-import type { SpeciesRef } from '../../application/ports/pet-repository.port';
+import type { SpeciesRef } from '../../application/species-of.use-case';
 import type { Pet } from '../../domain/pet';
 
 export function presentPet(pet: Pet, species: SpeciesRef): PetOutput {

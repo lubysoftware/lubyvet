@@ -1,23 +1,17 @@
-import { Body, Controller, Delete, Get, HttpCode, Inject, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Post, Req, Res } from '@nestjs/common';
 import { LoginInput, type SessionOutput } from '@lubyvet/contracts';
 import type { Request, Response } from 'express';
 import type { Actor } from '../../../../shared/interface/http/roles';
 import { ZodValidationPipe } from '../../../../shared/interface/http/zod-validation.pipe';
 import { Login } from '../../application/login.use-case';
-import {
-  SESSION_STORE,
-  type SessionStore,
-  USER_STORE,
-  type UserStore,
-} from '../../application/ports/identity.port';
+import { Sessions } from '../../application/sessions.use-cases';
 import { SESSION_COOKIE } from './auth.guard';
 
 @Controller('session')
 export class SessionController {
   constructor(
     private readonly login: Login,
-    @Inject(SESSION_STORE) private readonly sessions: SessionStore,
-    @Inject(USER_STORE) private readonly users: UserStore,
+    private readonly sessions: Sessions,
   ) {}
 
   @Post()
@@ -39,15 +33,15 @@ export class SessionController {
 
   @Get()
   async me(@Req() req: Request & { actor: Actor }): Promise<SessionOutput> {
-    const user = await this.users.byId(req.actor.userId);
-    return { userId: req.actor.userId, name: user?.name ?? '', role: req.actor.role };
+    const { name } = await this.sessions.describe(req.actor.userId);
+    return { userId: req.actor.userId, name, role: req.actor.role };
   }
 
   @Delete()
   @HttpCode(204)
   async close(@Req() req: Request, @Res({ passthrough: true }) res: Response): Promise<void> {
     const token = (req.cookies as Record<string, string> | undefined)?.[SESSION_COOKIE];
-    if (token) await this.sessions.destroy(token);
+    await this.sessions.close(token);
     res.clearCookie(SESSION_COOKIE, { path: '/' });
   }
 }

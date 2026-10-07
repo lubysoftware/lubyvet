@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Inject, Param, Patch, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Patch, Post, Req } from '@nestjs/common';
 import { ChangePetInput, type PetOutput, RegisterPetInput, type SpeciesOutput } from '@lubyvet/contracts';
 import { StaleVersion } from '../../../../shared/domain/errors';
 import type { Actor } from '../../../../shared/interface/http/roles';
@@ -8,7 +8,7 @@ import { Pet, type PetProps } from '../../domain/pet';
 import { IdParamPipe } from '../../../../shared/interface/http/id-param.pipe';
 import { ZodValidationPipe } from '../../../../shared/interface/http/zod-validation.pipe';
 import { ListSpecies } from '../../application/list-species.use-case';
-import { SPECIES_CATALOG, type SpeciesCatalog } from '../../application/ports/pet-repository.port';
+import { SpeciesOf } from '../../application/species-of.use-case';
 import { RegisterPet } from '../../application/register-pet.use-case';
 import { presentPet } from './pet.presenter';
 
@@ -19,7 +19,7 @@ export class PetsController {
     private readonly listSpecies: ListSpecies,
     private readonly getPet: GetPet,
     private readonly changePet: ChangePet,
-    @Inject(SPECIES_CATALOG) private readonly species: SpeciesCatalog,
+    private readonly speciesOf: SpeciesOf,
   ) {}
 
   @Get('species')
@@ -35,12 +35,12 @@ export class PetsController {
     @Body(new ZodValidationPipe(RegisterPetInput)) body: RegisterPetInput,
   ): Promise<PetOutput> {
     const pet = await this.registerPet.execute(ownerId, body);
-    const species = (await this.species.findById(pet.speciesId)) ?? { id: pet.speciesId, name: '' };
+    const species = await this.speciesOf.execute(pet.speciesId);
     return presentPet(pet, species);
   }
 
   private async present(pet: Pet): Promise<PetOutput> {
-    const species = (await this.species.findById(pet.speciesId)) ?? { id: pet.speciesId, name: '' };
+    const species = await this.speciesOf.execute(pet.speciesId);
     return presentPet(pet, species);
   }
 

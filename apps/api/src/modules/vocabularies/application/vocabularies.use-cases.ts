@@ -3,6 +3,8 @@ import type { VetCatalogCache } from '../../vets/application/ports/vet-catalog.p
 import { checkVetNames } from '../../vets/application/ports/vet-catalog.port';
 import type { SpeciesRow, VetRow, VocabularyRepository } from './ports/vocabulary.port';
 
+export type { SpeciesRow, VetRow };
+
 /** 009: manutenção de espécies e do quadro de veterinários; toda escrita invalida o catálogo (P-08). */
 export class Vocabularies {
   constructor(

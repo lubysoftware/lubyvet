@@ -1,10 +1,5 @@
-import { Body, Controller, Get, HttpCode, Inject, Param, Patch, Post, Query } from '@nestjs/common';
-import {
-  type Authorship,
-  OWNER_AUTHORSHIP,
-  type OwnerAuthorshipReader,
-} from '../../application/ports/owner-repository.port';
-import { OwnerNotFound } from '../../domain/owner.errors';
+import { Body, Controller, Get, HttpCode, Param, Patch, Post, Query } from '@nestjs/common';
+import { type Authorship, GetAuthorship } from '../../application/get-authorship.use-case';
 import {
   ChangeOwnerContactInput,
   type OwnerOutput,
@@ -29,7 +24,7 @@ export class OwnersController {
     private readonly getOwner: GetOwner,
     private readonly changeOwnerContact: ChangeOwnerContact,
     private readonly searchOwners: SearchOwners,
-    @Inject(OWNER_AUTHORSHIP) private readonly authorshipReader: OwnerAuthorshipReader,
+    private readonly getAuthorship: GetAuthorship,
   ) {}
 
   /** 007/T018: autoria consultável por cadastro, para todos os papéis. */
@@ -37,9 +32,7 @@ export class OwnersController {
   async authorship(
     @Param('ownerId', new IdParamPipe('owner_not_found')) ownerId: number,
   ): Promise<Authorship> {
-    const a = await this.authorshipReader.authorship(ownerId);
-    if (!a) throw new OwnerNotFound();
-    return a;
+    return this.getAuthorship.execute(ownerId);
   }
 
   /** 002: busca pelo começo do sobrenome, paginada; o termo normalizado volta para os links. */

@@ -15,7 +15,8 @@ import {
 } from './application/anonymize-owner.use-case';
 import { PrismaAnonymization } from './infra/prisma-anonymization';
 import { PrismaOwnerAuthorship } from './infra/prisma-owner-authorship';
-import { OWNER_AUTHORSHIP } from './application/ports/owner-repository.port';
+import { GetAuthorship } from './application/get-authorship.use-case';
+import { OWNER_AUTHORSHIP, type OwnerAuthorshipReader } from './application/ports/owner-repository.port';
 import { PrismaOwnerRepository } from './infra/prisma-owner.repository';
 import { AnonymizationController } from './interface/http/anonymization.controller';
 import { OwnersController } from './interface/http/owners.controller';
@@ -48,6 +49,11 @@ import { OwnersController } from './interface/http/owners.controller';
       inject: [OWNER_REPOSITORY, CLOCK, METRICS],
     },
     { provide: GetOwner, useFactory: (r: OwnerRepository) => new GetOwner(r), inject: [OWNER_REPOSITORY] },
+    {
+      provide: GetAuthorship,
+      useFactory: (r: OwnerAuthorshipReader) => new GetAuthorship(r),
+      inject: [OWNER_AUTHORSHIP],
+    },
   ],
   exports: [OWNER_REPOSITORY],
 })

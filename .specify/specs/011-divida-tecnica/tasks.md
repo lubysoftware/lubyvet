@@ -44,7 +44,7 @@
       *satisfaz:* CA-2.2
       *depende de:* —
 
-- [ ] **T006** Regra de fronteira: interface não importa porta
+- [x] **T006** Regra de fronteira: interface não importa porta
       *entrega:* regra nova no `.dependency-cruiser.cjs` proibindo `interface/` de importar
       `application/ports/`. Hoje sete arquivos fazem isso e passam a chamar caso de uso:
       `session.controller.ts` e `auth.guard.ts` (sessão e usuário), `health.controller.ts` e

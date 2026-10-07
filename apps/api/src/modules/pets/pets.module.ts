@@ -13,6 +13,7 @@ import {
   type SpeciesCatalog,
 } from './application/ports/pet-repository.port';
 import { RegisterPet } from './application/register-pet.use-case';
+import { SpeciesOf } from './application/species-of.use-case';
 import { PrismaPetRepository, PrismaSpeciesCatalog } from './infra/prisma-pet.repository';
 import { PetsController } from './interface/http/pets.controller';
 
@@ -34,6 +35,7 @@ import { PetsController } from './interface/http/pets.controller';
       useFactory: (g: GetPet, p: PetRepository, s: SpeciesCatalog, c: Clock) => new ChangePet(g, p, s, c),
       inject: [GetPet, PET_REPOSITORY, SPECIES_CATALOG, CLOCK],
     },
+    { provide: SpeciesOf, useFactory: (s: SpeciesCatalog) => new SpeciesOf(s), inject: [SPECIES_CATALOG] },
     {
       provide: ListSpecies,
       useFactory: (s: SpeciesCatalog) => new ListSpecies(s),

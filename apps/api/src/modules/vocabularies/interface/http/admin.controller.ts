@@ -2,8 +2,7 @@ import { Body, Controller, Get, HttpCode, Param, Patch, Post } from '@nestjs/com
 import { ChangeSpeciesInput, ChangeVetInput, SpeciesInput, VetInput } from '@lubyvet/contracts';
 import { IdParamPipe } from '../../../../shared/interface/http/id-param.pipe';
 import { ZodValidationPipe } from '../../../../shared/interface/http/zod-validation.pipe';
-import type { SpeciesRow, VetRow } from '../../application/ports/vocabulary.port';
-import { Vocabularies } from '../../application/vocabularies.use-cases';
+import { type SpeciesRow, type VetRow, Vocabularies } from '../../application/vocabularies.use-cases';
 
 /** 009: superfície administrativa (D18: só Administrador, aplicado pela 007). */
 @Controller('admin')

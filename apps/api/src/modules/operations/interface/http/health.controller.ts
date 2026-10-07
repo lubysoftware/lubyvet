@@ -1,11 +1,11 @@
-import { Controller, Get, HttpCode, Inject, Res } from '@nestjs/common';
+import { Controller, Get, HttpCode, Res } from '@nestjs/common';
 import type { Response } from 'express';
-import { OPS_READER, type OpsReader } from '../../application/ports/ops.port';
+import { Operations } from '../../application/operations.use-cases';
 
 /** 008/T008, D03: sondas abertas, só com o estado agregado. */
 @Controller('health')
 export class HealthController {
-  constructor(@Inject(OPS_READER) private readonly ops: OpsReader) {}
+  constructor(private readonly ops: Operations) {}
 
   @Get('live')
   @HttpCode(200)
@@ -15,7 +15,7 @@ export class HealthController {
 
   @Get('ready')
   async ready(@Res({ passthrough: true }) res: Response): Promise<{ status: 'up' | 'down' }> {
-    if (await this.ops.databaseUp()) return { status: 'up' };
+    if (await this.ops.ready()) return { status: 'up' };
     res.status(503);
     return { status: 'down' };
   }

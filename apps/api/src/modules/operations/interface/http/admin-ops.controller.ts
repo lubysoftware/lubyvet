@@ -1,10 +1,10 @@
-import { Controller, Get, Inject } from '@nestjs/common';
-import { OPS_READER, type OpsReader } from '../../application/ports/ops.port';
+import { Controller, Get } from '@nestjs/common';
+import { Operations } from '../../application/operations.use-cases';
 
 /** 008/T018, D03: gestão só para Administrador. T021, D27: indicadores sem dado pessoal. */
 @Controller('admin')
 export class AdminOpsController {
-  constructor(@Inject(OPS_READER) private readonly ops: OpsReader) {}
+  constructor(private readonly ops: Operations) {}
 
   @Get('info')
   info(): { service: string; node: string } {
@@ -13,6 +13,6 @@ export class AdminOpsController {
 
   @Get('metrics')
   metrics(): Promise<Record<string, number | Record<string, number>>> {
-    return this.ops.metrics();
+    return this.ops.indicators();
   }
 }

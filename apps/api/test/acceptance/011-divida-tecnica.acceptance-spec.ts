@@ -43,4 +43,41 @@ describe('011 Dívida técnica: critérios de aceite', () => {
       },
     );
   });
+
+  it('011/CA-2.3 a regra de fronteira recusa interface importando porta, e o código atual passa nela', () => {
+    interface Rule {
+      name: string;
+      from: { path: string };
+      to: { path: string };
+    }
+    const config = jest.requireActual<{ forbidden: Rule[] }>('../../.dependency-cruiser.cjs');
+    const rule = config.forbidden.find((r) => r.name === 'interface-calls-use-cases');
+    expect(rule).toBeDefined();
+    const hits = (from: string, to: string) =>
+      new RegExp(rule?.from.path ?? '$^').test(from) && new RegExp(rule?.to.path ?? '$^').test(to);
+    expect(
+      hits(
+        'src/modules/vets/interface/http/vets.controller.ts',
+        'src/modules/vets/application/ports/vet-catalog.port.ts',
+      ),
+    ).toBe(true);
+    expect(
+      hits(
+        'src/modules/identity/interface/http/auth.guard.ts',
+        'src/modules/identity/application/ports/identity.port.ts',
+      ),
+    ).toBe(true);
+    expect(
+      hits(
+        'src/modules/vets/interface/http/vets.controller.ts',
+        'src/modules/vets/application/list-vet-patients.use-case.ts',
+      ),
+    ).toBe(false);
+    expect(
+      hits(
+        'src/modules/vets/infra/prisma-vet-patients.ts',
+        'src/modules/vets/application/ports/vet-catalog.port.ts',
+      ),
+    ).toBe(false);
+  });
 });
