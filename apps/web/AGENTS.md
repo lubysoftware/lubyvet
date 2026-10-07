@@ -20,8 +20,9 @@ Next.js (App Router) com shadcn/ui e Tailwind 4. É só apresentação (D31). Va
   `code` da API.
 - Formulário usa o schema de entrada de `@lubyvet/contracts` no resolver, manda
   `Idempotency-Key` e desabilita o botão durante o envio.
-- Componente do shadcn entra por `npx shadcn add`, em `src/components/ui/`, e é ajustado aos
-  tokens. Não se copia componente de template de terceiros.
+- As peças do design system ficam em `src/components/ui/`, escritas sobre os tokens. Não se
+  copia componente de template de terceiros. (O `npx shadcn add` não roda nesta máquina, onde
+  o npm encerra sem erro; as peças foram escritas à mão no vocabulário do shadcn.)
 - Toda tela nova ganha teste de componente e entra no E2E de acessibilidade nos dois temas
   (D07, D38).
 

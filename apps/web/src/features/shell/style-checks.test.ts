@@ -23,6 +23,12 @@ describe('verificações de estilo', () => {
     expect(failingPairs(tokensOf(css, ":root[data-theme='dark']"))).toEqual([]);
   });
 
+  it('D38: o tema "sistema" escuro usa exatamente os tokens do tema escuro explícito', () => {
+    expect(tokensOf(css, ":root:not([data-theme='light'])")).toEqual(
+      tokensOf(css, ":root[data-theme='dark']"),
+    );
+  });
+
   it('T005: a verificação aponta o par reprovado pelo nome', () => {
     expect(failingPairs({ foreground: '#777777', background: '#ffffff' })[0]).toBe(
       'texto (foreground sobre background)',
@@ -50,6 +56,7 @@ describe('verificações de estilo', () => {
       'l',
       'x',
       'y',
+      'balance',
     ]);
     expect([...requested].filter((c) => !delivered.has(c) && !builtIn.has(c) && !/^\d/.test(c))).toEqual([]);
   });

@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from 'next-intl';
 import { LOCALE_COOKIE, LOCALES } from '@/i18n/config';
-import { THEME_COOKIE, THEMES } from '../theme';
+import { THEME_COOKIE, THEMES, type Theme } from '../theme';
 
 const setCookie = (name: string, value: string) => {
   document.cookie = `${name}=${value}; path=/; max-age=31536000; samesite=lax`;
@@ -10,7 +10,7 @@ const setCookie = (name: string, value: string) => {
 };
 
 /** 006/T007: troca de idioma ligada ao mesmo cookie que a resolução lê (P-04). 010/T011: troca de tema. */
-export function Preferences() {
+export function Preferences({ theme = 'system' }: { theme?: Theme }) {
   const t = useTranslations();
   const locale = useLocale();
   return (
@@ -36,7 +36,7 @@ export function Preferences() {
       <select
         id="lv-theme"
         className="h-11 rounded-md border border-input bg-surface-raised px-2"
-        defaultValue="system"
+        defaultValue={theme}
         onChange={(e) => setCookie(THEME_COOKIE, e.target.value)}
       >
         {THEMES.map((th) => (

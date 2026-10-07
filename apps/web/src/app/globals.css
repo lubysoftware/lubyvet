@@ -53,6 +53,37 @@
   --status-pending-bg: #3a2c10;
   --status-pending-fg: #f5cb73;
   --status-pending-row: #211c10;
+  color-scheme: dark;
+}
+/* Tema "sistema" (D38): sem escolha explícita, vale a preferência do aparelho. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --background: #0e1a18;
+    --surface: #162724;
+    --surface-raised: #12211f;
+    --foreground: #eaf2ef;
+    --muted-foreground: #a7bdb7;
+    --primary: #4fc1b3;
+    --primary-foreground: #0e1a18;
+    --primary-soft: #173a35;
+    --accent: #f0b456;
+    --border: #24403b;
+    --input: #5f7d77;
+    --ring: #4fc1b3;
+    --destructive: #f97066;
+    --status-scheduled-bg: #1a2b44;
+    --status-scheduled-fg: #9cc4f2;
+    --status-done-bg: #16301f;
+    --status-done-fg: #94d8ac;
+    --status-cancelled-bg: #272a31;
+    --status-cancelled-fg: #b7bcc7;
+    --status-noshow-bg: #3a1a1c;
+    --status-noshow-fg: #f2a3a6;
+    --status-pending-bg: #3a2c10;
+    --status-pending-fg: #f5cb73;
+    --status-pending-row: #211c10;
+    color-scheme: dark;
+  }
 }
 
 @theme inline {
@@ -69,6 +100,17 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-destructive: var(--destructive);
+  --color-status-scheduled-bg: var(--status-scheduled-bg);
+  --color-status-scheduled-fg: var(--status-scheduled-fg);
+  --color-status-done-bg: var(--status-done-bg);
+  --color-status-done-fg: var(--status-done-fg);
+  --color-status-cancelled-bg: var(--status-cancelled-bg);
+  --color-status-cancelled-fg: var(--status-cancelled-fg);
+  --color-status-noshow-bg: var(--status-noshow-bg);
+  --color-status-noshow-fg: var(--status-noshow-fg);
+  --color-status-pending-bg: var(--status-pending-bg);
+  --color-status-pending-fg: var(--status-pending-fg);
+  --color-status-pending-row: var(--status-pending-row);
   --font-sans: var(--font-figtree), system-ui, sans-serif;
   --radius-md: 8px;
   --duration-fast: 100ms;

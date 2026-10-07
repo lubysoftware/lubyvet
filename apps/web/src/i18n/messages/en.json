@@ -5,9 +5,9 @@
   },
   "nav": {
     "owners": "Owners",
-    "schedule": "Schedule",
     "vets": "Vets",
-    "admin": "Administration"
+    "admin": "Administration",
+    "label": "Main menu"
   },
   "language": {
     "label": "Language",
@@ -35,7 +35,9 @@
     "firstName": "First name",
     "address": "Address",
     "cpf": "CPF",
-    "email": "E-mail"
+    "email": "E-mail",
+    "save": "Save owner",
+    "messagingConsent": "Agrees to receive visit reminders on WhatsApp"
   },
   "errors": {
     "unauthenticated": "Sign in to continue.",
@@ -94,7 +96,9 @@
     "name": "Pet name",
     "birthDate": "Birth date",
     "species": "Species",
-    "save": "Save pet"
+    "save": "Save pet",
+    "chooseSpecies": "Choose the species",
+    "status": "Status"
   },
   "visits": {
     "schedule": "Schedule visit",
@@ -104,6 +108,37 @@
     "date": "Encounter date",
     "chiefComplaint": "Chief complaint",
     "scheduledSection": "Scheduled visits",
-    "attendedSection": "Completed encounters"
+    "attendedSection": "Completed encounters",
+    "weightKg": "Weight (kg)",
+    "diagnosis": "Diagnosis",
+    "conduct": "Treatment",
+    "returnDate": "Return date",
+    "vet": "Veterinarian",
+    "noVet": "No veterinarian"
+  },
+  "login": {
+    "title": "Sign in",
+    "login": "Login",
+    "password": "Password",
+    "submit": "Sign in"
+  },
+  "session": {
+    "signedInAs": "{name} · {role}",
+    "logout": "Sign out"
+  },
+  "roles": {
+    "reader": "Read only",
+    "writer": "Write",
+    "admin": "Administrator"
+  },
+  "common": {
+    "back": "Back"
+  },
+  "appointmentStatus": {
+    "scheduled": "Scheduled",
+    "done": "Done",
+    "cancelled": "Cancelled",
+    "no_show": "No-show",
+    "pending": "Pending record"
   }
 }

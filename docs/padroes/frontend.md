@@ -9,10 +9,11 @@ Não tem regra de negócio, não acessa banco e não guarda dado pessoal no nave
 apps/web/src/
   app/                       rotas do App Router; arquivos finos que compõem features
     (auth)/login/
-    (app)/owners/  (app)/owners/[ownerId]/  (app)/schedule/  (app)/vets/  (app)/admin/
+    (app)/owners/  (app)/owners/[ownerId]/  (app)/vets/  (app)/admin/
   features/<contexto>/       components/, hooks/, server/ (chamadas à API feitas no servidor)
-  components/ui/             componentes do shadcn/ui, tematizados pelos tokens do design system
-  lib/api/                   cliente HTTP tipado pelos schemas de @lubyvet/contracts
+  components/ui/             peças do design system (botão, selo, diálogo), só com tokens
+  lib/api.ts                 leitura no servidor (load, currentSession)
+  lib/api-client.ts          gravação no navegador (apiSend), erro pelo envelope do contrato
   i18n/messages/pt-BR.json   catálogos (P7, P-20)
   i18n/messages/en.json
   test/                      helpers de teste
@@ -25,9 +26,11 @@ apps/web/src/
   design system já tem um e siga o README dele.
 - **Leitura no servidor, gravação pela API.** Server Components buscam dados repassando o
   cookie de sessão (D31); formulários chamam `/api` com o cliente tipado (P-22).
-- **Formulário:** react-hook-form com o resolver zod do schema de entrada do contrato. O
-  erro 422 da API vira erro no campo pelo `path`. O valor digitado nunca se perde. O botão
-  fica desabilitado durante o envio, com a `Idempotency-Key` do formulário (D16, P-25).
+- **Formulário:** `useApiForm` (`features/forms/use-api-form.ts`) valida com o schema de
+  entrada do contrato antes de chamar a API; o código do erro de campo vem do próprio schema.
+  O erro 422 da API vira erro no campo pelo `path`. O valor digitado nunca se perde (campos
+  não controlados). O botão fica desabilitado durante o envio, com a `Idempotency-Key` do
+  formulário, que se repete na nova tentativa e se renova depois de gravar (D16, P-25).
 - **Texto:** `next-intl`. Nenhuma string visível no JSX: tudo pelo catálogo, inclusive
   mensagens de erro, montadas a partir do `code` da API (`t('errors.cpf_taken')`).
 - **URL é estado:** busca, filtros, página, aba e animal selecionado ficam na URL (`nuqs`).

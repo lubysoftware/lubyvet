@@ -5,9 +5,9 @@
   },
   "nav": {
     "owners": "Donos",
-    "schedule": "Agenda",
     "vets": "Veterinários",
-    "admin": "Administração"
+    "admin": "Administração",
+    "label": "Menu principal"
   },
   "language": {
     "label": "Idioma",
@@ -35,7 +35,9 @@
     "firstName": "Nome",
     "address": "Endereço",
     "cpf": "CPF",
-    "email": "E-mail"
+    "email": "E-mail",
+    "save": "Salvar dono",
+    "messagingConsent": "Aceita receber lembretes de visita por WhatsApp"
   },
   "errors": {
     "unauthenticated": "Entre para continuar.",
@@ -94,7 +96,9 @@
     "name": "Nome do animal",
     "birthDate": "Data de nascimento",
     "species": "Espécie",
-    "save": "Salvar animal"
+    "save": "Salvar animal",
+    "chooseSpecies": "Escolha a espécie",
+    "status": "Situação"
   },
   "visits": {
     "schedule": "Agendar visita",
@@ -104,6 +108,37 @@
     "date": "Data do atendimento",
     "chiefComplaint": "Queixa principal",
     "scheduledSection": "Visitas agendadas",
-    "attendedSection": "Atendimentos realizados"
+    "attendedSection": "Atendimentos realizados",
+    "weightKg": "Peso (kg)",
+    "diagnosis": "Diagnóstico",
+    "conduct": "Conduta",
+    "returnDate": "Data de retorno",
+    "vet": "Veterinário",
+    "noVet": "Sem veterinário"
+  },
+  "login": {
+    "title": "Entrar",
+    "login": "Login",
+    "password": "Senha",
+    "submit": "Entrar"
+  },
+  "session": {
+    "signedInAs": "{name} · {role}",
+    "logout": "Sair"
+  },
+  "roles": {
+    "reader": "Leitura",
+    "writer": "Escrita",
+    "admin": "Administrador"
+  },
+  "common": {
+    "back": "Voltar"
+  },
+  "appointmentStatus": {
+    "scheduled": "Agendada",
+    "done": "Realizada",
+    "cancelled": "Cancelada",
+    "no_show": "Não compareceu",
+    "pending": "Pendente de registro"
   }
 }

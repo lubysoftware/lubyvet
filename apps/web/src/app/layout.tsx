@@ -3,7 +3,6 @@ import { Figtree } from 'next/font/google';
 import { cookies } from 'next/headers';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages, getTranslations } from 'next-intl/server';
-import { AppShell } from '@/features/shell/components/app-shell';
 import { THEME_COOKIE, resolveTheme } from '@/features/shell/theme';
 import './globals.css';
 
@@ -26,9 +25,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   return (
     <html lang={locale} data-theme={theme === 'system' ? undefined : theme} className={figtree.variable}>
       <body>
-        <NextIntlClientProvider messages={await getMessages()}>
-          <AppShell>{children}</AppShell>
-        </NextIntlClientProvider>
+        <NextIntlClientProvider messages={await getMessages()}>{children}</NextIntlClientProvider>
       </body>
     </html>
   );
