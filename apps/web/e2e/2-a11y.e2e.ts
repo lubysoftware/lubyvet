@@ -61,3 +61,12 @@ test('sem escolha de tema, vale a preferência do aparelho (D38)', async ({ page
   await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(14, 26, 24)');
   await expectAccessible(page);
 });
+
+test('no celular nenhuma tela rola para o lado (design system: casca)', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await login(page, 'admin');
+  for (const path of ['/owners?lastName=', '/vets', '/admin', '/admin?tab=species']) {
+    await page.goto(path);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBe(0);
+  }
+});

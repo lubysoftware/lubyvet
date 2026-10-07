@@ -23,7 +23,7 @@ export function NavLinks({
   const t = useTranslations('nav');
   const path = usePathname();
   return (
-    <nav aria-label={label} className={horizontal ? 'flex gap-1' : 'grid gap-1'}>
+    <nav aria-label={label} className={horizontal ? 'flex gap-1 overflow-x-auto' : 'grid gap-1'}>
       {items.map((i) => {
         const Icon = ICONS[i.key];
         const active = path === i.href || path.startsWith(`${i.href}/`);
@@ -32,7 +32,7 @@ export function NavLinks({
             key={i.href}
             href={i.href}
             aria-current={active ? 'page' : undefined}
-            className={`flex h-11 items-center gap-2 rounded-md px-3 font-medium hover:bg-primary-soft ${
+            className={`flex h-11 shrink-0 items-center gap-2 rounded-md px-3 font-medium hover:bg-primary-soft ${
               active ? 'bg-primary-soft text-primary' : ''
             }`}
           >

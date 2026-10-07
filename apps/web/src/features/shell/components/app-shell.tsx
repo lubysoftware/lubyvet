@@ -43,7 +43,7 @@ export async function AppShell({
       </aside>
       <div className="min-w-0">
         <header className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-4 py-2">
-          <div className="md:hidden">
+          <div className="w-full min-w-0 md:hidden">
             <NavLinks items={items} label={t('nav.label')} horizontal />
           </div>
           <div className="ml-auto flex flex-wrap items-center gap-3">
