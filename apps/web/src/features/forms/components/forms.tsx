@@ -125,7 +125,14 @@ export function PetForm({
   );
 }
 
-export function AppointmentForm({ errors, onSubmit, defaults = {}, pending }: FormProps) {
+/** 004/T006: `min` e a data sugerida vêm da mesma regra que a API aplica (@lubyvet/contracts). */
+export function AppointmentForm({
+  errors,
+  onSubmit,
+  defaults = {},
+  pending,
+  min,
+}: FormProps & { min?: string }) {
   const t = useTranslations('visits');
   return (
     <Form label={t('schedule')} submit={t('schedule')} pending={pending} onSubmit={onSubmit}>
@@ -133,6 +140,7 @@ export function AppointmentForm({ errors, onSubmit, defaults = {}, pending }: Fo
         name="scheduledAt"
         label={t('scheduledAt')}
         type="datetime-local"
+        min={min}
         errors={errors}
         defaultValue={defaults.scheduledAt}
       />
@@ -152,11 +160,20 @@ export function EncounterForm({
   defaults = {},
   pending,
   vets = [],
-}: FormProps & { vets?: Option[] }) {
+  today,
+  firstReturn,
+}: FormProps & { vets?: Option[]; today?: string; firstReturn?: string }) {
   const t = useTranslations('visits');
   return (
     <Form label={t('record')} submit={t('record')} pending={pending} onSubmit={onSubmit}>
-      <Field name="date" label={t('date')} type="date" errors={errors} defaultValue={defaults.date} />
+      <Field
+        name="date"
+        label={t('date')}
+        type="date"
+        max={today}
+        errors={errors}
+        defaultValue={defaults.date ?? today}
+      />
       <TextAreaField
         name="chiefComplaint"
         label={t('chiefComplaint')}
@@ -166,7 +183,7 @@ export function EncounterForm({
       <Field name="weightKg" label={t('weightKg')} type="number" step="0.01" errors={errors} />
       <TextAreaField name="diagnosis" label={t('diagnosis')} errors={errors} />
       <TextAreaField name="conduct" label={t('conduct')} errors={errors} />
-      <Field name="returnDate" label={t('returnDate')} type="date" errors={errors} />
+      <Field name="returnDate" label={t('returnDate')} type="date" min={firstReturn} errors={errors} />
       <SelectField name="vetId" label={t('vet')} errors={errors} options={vets} empty={t('noVet')} />
     </Form>
   );

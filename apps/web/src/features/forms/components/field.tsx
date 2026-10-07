@@ -47,8 +47,8 @@ interface A11y {
   'aria-describedby': string | undefined;
 }
 
-export function Field(props: Common & { type?: string; step?: string }) {
-  const { type = 'text', step, defaultValue, required } = props;
+export function Field(props: Common & { type?: string; step?: string; min?: string; max?: string }) {
+  const { type = 'text', step, min, max, defaultValue, required } = props;
   return (
     <Shell {...props}>
       {(a) => (
@@ -56,6 +56,8 @@ export function Field(props: Common & { type?: string; step?: string }) {
           {...a}
           type={type}
           step={step}
+          min={min}
+          max={max}
           required={required}
           defaultValue={defaultValue}
           className={`h-11 ${control}`}

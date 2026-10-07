@@ -13,7 +13,7 @@ import { type Option, AppointmentForm, EncounterForm } from '@/features/forms/co
 import { optional, optionalNumber } from '@/features/forms/form-values';
 import { useApiForm } from '@/features/forms/use-api-form';
 import { apiSend } from '@/lib/api-client';
-import { fromLocalInput, toLocalInput, today } from '@/lib/format';
+import { fromLocalInput, toLocalInput } from '@/lib/format';
 
 type Raw = Record<string, string>;
 const back = (ownerId: number, petId: number, saved: string) =>
@@ -45,10 +45,13 @@ export function AppointmentEditor({
   ownerId,
   petId,
   appointment,
+  limits = {},
 }: {
   ownerId: number;
   petId: number;
   appointment?: AppointmentOutput;
+  /** Preparação do formulário (004/T006): limite do campo e data sugerida, no fuso do negócio. */
+  limits?: { min?: string; suggested?: string };
 }) {
   const base = `/api/owners/${ownerId}/pets/${petId}/appointments`;
   const form = useApiForm(
@@ -67,11 +70,11 @@ export function AppointmentEditor({
       <AppointmentForm
         errors={form.errors}
         pending={form.pending}
+        min={limits.min}
         defaults={
-          appointment && {
-            scheduledAt: toLocalInput(appointment.scheduledAt),
-            description: appointment.description,
-          }
+          appointment
+            ? { scheduledAt: toLocalInput(appointment.scheduledAt), description: appointment.description }
+            : { scheduledAt: limits.suggested }
         }
         onSubmit={(raw) => void form.submit(appointmentInput(raw, appointment?.version))}
       />
@@ -85,11 +88,14 @@ export function EncounterEditor({
   petId,
   vets,
   appointment,
+  dates = {},
 }: {
   ownerId: number;
   petId: number;
   vets: Option[];
   appointment?: { id: number; version: number };
+  /** Hoje e o primeiro dia de retorno, no fuso do negócio (D06, D26). */
+  dates?: { today?: string; firstReturn?: string };
 }) {
   const form = useApiForm(
     RecordEncounterInput,
@@ -104,7 +110,8 @@ export function EncounterEditor({
         errors={form.errors}
         pending={form.pending}
         vets={vets}
-        defaults={{ date: today() }}
+        today={dates.today}
+        firstReturn={dates.firstReturn}
         onSubmit={(raw) => void form.submit(encounterInput(raw, appointment))}
       />
     </div>

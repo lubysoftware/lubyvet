@@ -1,4 +1,9 @@
-import type { PetVisitsOutput, VetCatalogOutput } from '@lubyvet/contracts';
+import {
+  businessToday,
+  firstReturnDate,
+  type PetVisitsOutput,
+  type VetCatalogOutput,
+} from '@lubyvet/contracts';
 import { getFormatter, getTranslations } from 'next-intl/server';
 import { PageHeader } from '@/components/ui/page-header';
 import { EncounterEditor } from '@/features/visits/components/visit-editors';
@@ -40,6 +45,7 @@ export default async function NewEncounterPage({
         ownerId={owner.id}
         petId={pet.id}
         appointment={appointment && { id: appointment.id, version: appointment.version }}
+        dates={{ today: businessToday(new Date()), firstReturn: firstReturnDate(new Date()) }}
         vets={vets.items.map((v) => ({ value: String(v.id), label: `${v.firstName} ${v.lastName}` }))}
       />
     </>

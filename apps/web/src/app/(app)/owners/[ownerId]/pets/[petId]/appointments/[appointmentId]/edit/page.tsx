@@ -5,6 +5,7 @@ import { PageHeader } from '@/components/ui/page-header';
 import { AppointmentEditor } from '@/features/visits/components/visit-editors';
 import { petContext } from '@/features/visits/server/pet-context';
 import { load } from '@/lib/api';
+import { toBusinessInput } from '@/lib/format';
 
 export default async function RescheduleAppointmentPage({
   params,
@@ -21,7 +22,12 @@ export default async function RescheduleAppointmentPage({
   return (
     <>
       <PageHeader title={t('reschedule')} crumbs={crumbs} crumbsLabel={crumbsLabel} />
-      <AppointmentEditor ownerId={owner.id} petId={pet.id} appointment={appointment} />
+      <AppointmentEditor
+        ownerId={owner.id}
+        petId={pet.id}
+        appointment={appointment}
+        limits={{ min: toBusinessInput(new Date()) }}
+      />
     </>
   );
 }

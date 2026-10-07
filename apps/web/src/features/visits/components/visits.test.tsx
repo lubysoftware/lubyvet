@@ -185,6 +185,7 @@ describe('agendar, remarcar e registrar atendimento (004/US-1, US-3, US-4)', () 
         petId={4}
         appointment={{ id: 1, version: 2 }}
         vets={[{ value: '9', label: 'Helena Costa' }]}
+        dates={{ today: '2026-10-07', firstReturn: '2026-10-08' }}
       />,
     );
     await userEvent.type(screen.getByLabelText('Queixa principal'), 'Tosse');
@@ -197,5 +198,33 @@ describe('agendar, remarcar e registrar atendimento (004/US-1, US-3, US-4)', () 
       vetId: 9,
     });
     expect(assign).toHaveBeenCalledWith('/owners/7?pet=4&saved=encounterSaved');
+  });
+});
+
+describe('faixa de datas no formulário (004/T006)', () => {
+  it('004/CA-1.4 o agendamento abre com a data sugerida e o campo não aceita antes do limite', () => {
+    renderWithIntl(
+      <AppointmentEditor
+        ownerId={7}
+        petId={4}
+        limits={{ min: '2026-10-07T12:00', suggested: '2026-10-08T12:00' }}
+      />,
+    );
+    expect(screen.getByLabelText('Data e hora')).toHaveValue('2026-10-08T12:00');
+    expect(screen.getByLabelText('Data e hora')).toHaveAttribute('min', '2026-10-07T12:00');
+  });
+
+  it('004/CA-3.3 o atendimento sugere hoje, limita a data a hoje e o retorno a partir de amanhã', () => {
+    renderWithIntl(
+      <EncounterEditor
+        ownerId={7}
+        petId={4}
+        vets={[]}
+        dates={{ today: '2026-10-07', firstReturn: '2026-10-08' }}
+      />,
+    );
+    expect(screen.getByLabelText('Data do atendimento')).toHaveValue('2026-10-07');
+    expect(screen.getByLabelText('Data do atendimento')).toHaveAttribute('max', '2026-10-07');
+    expect(screen.getByLabelText('Data de retorno')).toHaveAttribute('min', '2026-10-08');
   });
 });

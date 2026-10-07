@@ -1,3 +1,5 @@
+import { BUSINESS_TZ } from '@lubyvet/contracts';
+
 /** Máscaras de exibição do design system (README, Conteúdo). O valor gravado não muda. */
 export function formatPhone(e164: string): string {
   const d = e164.replace(/\D/g, '').replace(/^55(?=\d{11}$)/, '');
@@ -23,8 +25,6 @@ export function toLocalInput(iso: string): string {
 export const fromLocalInput = (v: string | undefined): string | undefined =>
   v ? new Date(v).toISOString() : v;
 
-export const today = (): string => {
-  const d = new Date();
-  const p = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
-};
+/** Valor de datetime-local no fuso do negócio, para o servidor preparar o formulário. */
+export const toBusinessInput = (d: Date): string =>
+  d.toLocaleString('sv-SE', { timeZone: BUSINESS_TZ }).replace(' ', 'T').slice(0, 16);
