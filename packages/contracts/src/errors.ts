@@ -67,3 +67,7 @@ export const ErrorEnvelope = z.object({
   }),
 });
 export type ErrorEnvelope = z.infer<typeof ErrorEnvelope>;
+
+/** D18: papéis da equipe. */
+export const ROLES = ['reader', 'writer', 'admin'] as const;
+export type Role = (typeof ROLES)[number];

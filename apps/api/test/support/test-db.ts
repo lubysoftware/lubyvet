@@ -29,7 +29,8 @@ export const testDb = {
     // A memória do catálogo (005) não pode atravessar testes.
     if (process.env.REDIS_URL) {
       const r = new Redis(process.env.REDIS_URL);
-      await r.flushdb();
+      const keys = await r.keys('lubyvet:vets:*');
+      if (keys.length) await r.del(...keys);
       r.disconnect();
     }
     const { rows } = await testDb.sql.query<{ tablename: string }>(
@@ -47,6 +48,19 @@ export const testDb = {
     await testDb.sql.query(
       "insert into specialties (name, updated_at) values ('Radiologia', now()), ('Cirurgia', now()), ('Odontologia', now())",
     );
+    await testDb.seedUsers();
+  },
+  /** Usuários de teste: 1 admin, 2 writer, 3 reader, todos com a senha sintética (D18). */
+  async seedUsers(): Promise<void> {
+    await testDb.sql.query(
+      `insert into users (id, name, login, password_hash, role, updated_at) values
+        (1, 'Ana Admin', 'admin@lubyvet.test', $1, 'admin', now()),
+        (2, 'Carla Escrita', 'writer@lubyvet.test', $1, 'writer', now()),
+        (3, 'Rui Leitura', 'reader@lubyvet.test', $1, 'reader', now())
+       on conflict (id) do update set status = 'active', failed_attempts = 0, locked_until = null`,
+      [process.env.TEST_PASSWORD_HASH],
+    );
+    await testDb.sql.query("select setval('users_id_seq', 3)");
   },
   async count(table: string, where: Record<string, unknown> = {}): Promise<number> {
     const keys = Object.keys(where);

@@ -1,4 +1,3 @@
-import request from 'supertest';
 import { OWNER_PET_ROUTES } from '../../src/shared/interface/http/route-inventory';
 import { anOwnerInput } from '../builders/owner.builder';
 import { bootApp, idem, type TestApp } from '../support/app';
@@ -17,10 +16,9 @@ describe('isolamento entre donos (P1)', () => {
   });
 
   const ownerWithPet = async (name: string) => {
-    const owner = (await request(t.http).post('/api/owners').set(idem()).send(anOwnerInput()).expect(201))
-      .body;
+    const owner = (await t.api.post('/api/owners').set(idem()).send(anOwnerInput()).expect(201)).body;
     const pet = (
-      await request(t.http)
+      await t.api
         .post(`/api/owners/${owner.id}/pets`)
         .set(idem())
         .send({ name, birthDate: '2020-05-01', speciesId: SPECIES.dog })
@@ -29,13 +27,12 @@ describe('isolamento entre donos (P1)', () => {
     return { owner, pet };
   };
   const call = (r: (typeof OWNER_PET_ROUTES)[number], ownerId: number, petId: number) =>
-    request(t.http)
-      [r.method](
-        r.path
-          .replace(':ownerId', String(ownerId))
-          .replace(':petId', String(petId))
-          .replace(':appointmentId', '1'),
-      )
+    t.api[r.method](
+      r.path
+        .replace(':ownerId', String(ownerId))
+        .replace(':petId', String(petId))
+        .replace(':appointmentId', '1'),
+    )
       .set(idem())
       .send({
         version: 0,
@@ -60,7 +57,7 @@ describe('isolamento entre donos (P1)', () => {
 
   it('UT-017-3: o caminho legítimo continua funcionando', async () => {
     const a = await ownerWithPet('Thor');
-    const res = await request(t.http).get(`/api/owners/${a.owner.id}/pets/${a.pet.id}`).expect(200);
+    const res = await t.api.get(`/api/owners/${a.owner.id}/pets/${a.pet.id}`).expect(200);
     expect(res.body.name).toBe('Thor');
   });
 

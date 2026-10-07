@@ -1,4 +1,3 @@
-import request from 'supertest';
 import { bootApp, idem, type TestApp } from '../support/app';
 import { anOwner, aPetInput, postPet } from '../support/pets';
 import { testDb } from '../support/test-db';
@@ -24,7 +23,7 @@ describe('veterinário no atendimento', () => {
     const thor = (await postPet(t, o.id, aPetInput({ name: 'Thor' })).expect(201)).body;
     const mel = (await postPet(t, o.id, aPetInput({ name: 'Mel' })).expect(201)).body;
     const enc = (petId: number, body: object) =>
-      request(t.http)
+      t.api
         .post(`/api/owners/${o.id}/pets/${petId}/encounters`)
         .set(idem())
         .send({ date: '2026-10-07', chiefComplaint: 'Tosse', ...body });
@@ -34,7 +33,7 @@ describe('veterinário no atendimento', () => {
     expect((await enc(mel.id, { vetId: 999 }).expect(422)).body.error.fields).toEqual([
       { path: 'vetId', code: 'vet_inactive' },
     ]);
-    expect((await request(t.http).get(`/api/vets/${vetId}/patients`).expect(200)).body).toEqual([
+    expect((await t.api.get(`/api/vets/${vetId}/patients`).expect(200)).body).toEqual([
       { petId: thor.id, petName: 'Thor', ownerId: o.id, encounters: 2 },
     ]);
   });

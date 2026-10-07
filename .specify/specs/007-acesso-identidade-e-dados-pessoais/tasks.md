@@ -19,34 +19,34 @@
       feature
       *satisfaz:* — (infraestrutura, pré-requisito de CA-1.1, CA-1.4 e CA-2.3)
 
-- [ ] **T002** Modelar a identidade e os três papéis (D17, D18)
+- [x] **T002** Modelar a identidade e os três papéis (D17, D18)
       *entrega:* a identidade com credencial guardada de forma irreversível, papel e situação,
       mais a migração versionada correspondente: a identidade é tabela própria no PostgreSQL,
       com hash argon2id (D17). Os papéis são três: Leitura, Escrita e Administrador (D18)
       *satisfaz:* — (infraestrutura, pré-requisito de todo o resto da feature)
 
-- [ ] **T003** Implementar a autenticação com recusa genérica
+- [x] **T003** Implementar a autenticação com recusa genérica
       *entrega:* a autenticação cuja recusa é **indistinguível** entre credencial errada e
       usuário inexistente, em mensagem e em qualquer outro sinal observável, incluindo tempo de
       resposta
       *satisfaz:* CA-1.2
       *depende de:* T002
 
-- [ ] **T004** Declarar a matriz de ações por papel em um único arquivo
+- [x] **T004** Declarar a matriz de ações por papel em um único arquivo
       *entrega:* a declaração de quais ações cada um dos dois papéis permite, de modo que
       acrescentar uma ação em **um** lugar já a torne visível a quem decide. A matriz do legado
       tinha uma linha e zero controle; esta tem duas linhas e é declaração, não dado
       *satisfaz:* CA-2.1
       *depende de:* T001, T002
 
-- [ ] **T005** Implementar a decisão de autorização, recusando por padrão
+- [x] **T005** Implementar a decisão de autorização, recusando por padrão
       *entrega:* a decisão que permite **por declaração** e recusa em todos os outros casos,
       incluindo identidade sem papel algum, em vez de tratar ausência de regra como permissão.
       A recusa não distingue dado existente de inexistente
       *satisfaz:* CA-2.2
       *depende de:* T004
 
-- [ ] **T006** Exigir identificação em todo caminho do inventário, **sem exceção** (D04)
+- [x] **T006** Exigir identificação em todo caminho do inventário, **sem exceção** (D04)
       *entrega:* a exigência de identificação aplicada antes de qualquer leitura, de modo que
       nenhum dado pessoal seja lido para depois ser descartado, em todos os caminhos de T001.
       A listagem completa da base de clientes também exige login: a exceção da Pergunta 9
@@ -62,7 +62,7 @@
       *satisfaz:* CA-1.4
       *depende de:* T006
 
-- [ ] **T008** [P] Implementar a expiração da sessão por inatividade
+- [x] **T008** [P] Implementar a expiração da sessão por inatividade
       *entrega:* a sessão que, no limite do tempo configurado, ainda vale, e no instante
       seguinte já não é aceita, com relógio injetável
       *satisfaz:* CA-1.3
@@ -99,7 +99,7 @@
       *satisfaz:* CA-3.1, CA-3.2, CA-3.3, CA-3.4
       *depende de:* T010, T011
 
-- [ ] **T013** Fechar todo caminho de escrita anônimo
+- [x] **T013** Fechar todo caminho de escrita anônimo
       *entrega:* nenhuma operação de gravação de dono, de animal ou de visita aceitando pedido
       sem identidade, e os campos de auditoria vindos de fora **ignorados**, de modo que um
       formulário que tente enviar momento próprio não consiga. A segunda metade é a extensão da

@@ -1,4 +1,3 @@
-import request from 'supertest';
 import { anOwnerInput } from '../builders/owner.builder';
 import { bootApp, idem, type TestApp } from '../support/app';
 import { testDb } from '../support/test-db';
@@ -7,7 +6,7 @@ import { testDb } from '../support/test-db';
 describe('criação de dono', () => {
   let t: TestApp;
   const post = (body: unknown) =>
-    request(t.http)
+    t.api
       .post('/api/owners')
       .set(idem())
       .send(body as object);
@@ -74,7 +73,7 @@ describe('criação de dono', () => {
 
   it('UT-001-7: depois de gravar, o destino é a ficha do dono criado', async () => {
     const { body } = await post(anOwnerInput()).expect(201);
-    const ficha = await request(t.http).get(`/api/owners/${body.id}`).expect(200);
+    const ficha = await t.api.get(`/api/owners/${body.id}`).expect(200);
     expect(ficha.body.id).toBe(body.id);
   });
 

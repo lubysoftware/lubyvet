@@ -1,4 +1,3 @@
-import request from 'supertest';
 import { anOwnerInput } from '../builders/owner.builder';
 import { bootApp, idem, type TestApp } from '../support/app';
 import { testDb } from '../support/test-db';
@@ -14,8 +13,7 @@ describe('aviso de dono parecido e dupla submissão', () => {
     await t.close();
     await testDb.close();
   });
-  const post = (body: object, headers = idem()) =>
-    request(t.http).post('/api/owners').set(headers).send(body);
+  const post = (body: object, headers = idem()) => t.api.post('/api/owners').set(headers).send(body);
 
   it('UT-003-1: mesmo celular de outro dono apresenta o candidato e não grava', async () => {
     const first = (await post(anOwnerInput({ telephone: '(11) 98765-4321' })).expect(201)).body;
@@ -53,7 +51,7 @@ describe('aviso de dono parecido e dupla submissão', () => {
   });
 
   it('gravação sem a chave de idempotência é recusada', async () => {
-    const res = await request(t.http).post('/api/owners').send(anOwnerInput()).expect(422);
+    const res = await t.api.post('/api/owners').send(anOwnerInput()).expect(422);
     expect(res.body.error.code).toBe('idempotency_key_required');
   });
 

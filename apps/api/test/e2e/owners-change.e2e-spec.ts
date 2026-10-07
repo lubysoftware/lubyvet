@@ -1,4 +1,3 @@
-import request from 'supertest';
 import { anOwnerInput } from '../builders/owner.builder';
 import { bootApp, idem, type TestApp } from '../support/app';
 import { testDb } from '../support/test-db';
@@ -16,7 +15,7 @@ describe('PATCH /api/owners/:ownerId', () => {
   });
   const create = async () =>
     (
-      await request(t.http)
+      await t.api
         .post('/api/owners')
         .set(idem())
         .send(anOwnerInput({ city: 'São Paulo' }))
@@ -25,12 +24,12 @@ describe('PATCH /api/owners/:ownerId', () => {
 
   it('UT-004-1: a edição abre com os dados atuais (a mesma leitura da ficha)', async () => {
     const owner = await create();
-    expect((await request(t.http).get(`/api/owners/${owner.id}`).expect(200)).body).toEqual(owner);
+    expect((await t.api.get(`/api/owners/${owner.id}`).expect(200)).body).toEqual(owner);
   });
 
   it('UT-004-2: grava os dados novos, mantém o identificador e termina na ficha', async () => {
     const owner = await create();
-    const res = await request(t.http)
+    const res = await t.api
       .patch(`/api/owners/${owner.id}`)
       .set(idem())
       .send({ version: owner.version, city: 'Campinas' })
@@ -45,7 +44,7 @@ describe('PATCH /api/owners/:ownerId', () => {
 
   it('UT-004-3: as validações do cadastro valem na edição e nada é gravado', async () => {
     const owner = await create();
-    const res = await request(t.http)
+    const res = await t.api
       .patch(`/api/owners/${owner.id}`)
       .set(idem())
       .send({ version: owner.version, city: '', lastName: 'x'.repeat(31) })
@@ -56,12 +55,12 @@ describe('PATCH /api/owners/:ownerId', () => {
         { path: 'lastName', code: 'too_long' },
       ]),
     );
-    expect((await request(t.http).get(`/api/owners/${owner.id}`)).body.city).toBe('São Paulo');
+    expect((await t.api.get(`/api/owners/${owner.id}`)).body.city).toBe('São Paulo');
   });
 
   it('REG-05: corpo que nomeia outro dono é recusado', async () => {
     const owner = await create();
-    const res = await request(t.http)
+    const res = await t.api
       .patch(`/api/owners/${owner.id}`)
       .set(idem())
       .send({ id: owner.id + 1, version: owner.version })
@@ -70,6 +69,6 @@ describe('PATCH /api/owners/:ownerId', () => {
   });
 
   it('dono inexistente responde 404', async () => {
-    await request(t.http).patch('/api/owners/999').set(idem()).send({ version: 0 }).expect(404);
+    await t.api.patch('/api/owners/999').set(idem()).send({ version: 0 }).expect(404);
   });
 });

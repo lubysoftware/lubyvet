@@ -1,4 +1,3 @@
-import request from 'supertest';
 import { OwnerSearchOutput } from '@lubyvet/contracts';
 import { anOwnerInput } from '../builders/owner.builder';
 import { bootApp, idem, type TestApp } from '../support/app';
@@ -16,8 +15,8 @@ describe('GET /api/owners', () => {
     await testDb.close();
   });
   const add = (lastName: string, firstName = 'Ana') =>
-    request(t.http).post('/api/owners').set(idem()).send(anOwnerInput({ lastName, firstName })).expect(201);
-  const search = (q: string) => request(t.http).get(`/api/owners?${q}`).expect(200);
+    t.api.post('/api/owners').set(idem()).send(anOwnerInput({ lastName, firstName })).expect(201);
+  const search = (q: string) => t.api.get(`/api/owners?${q}`).expect(200);
 
   it('T011: encontra pelo começo do sobrenome, no formato do contrato', async () => {
     await add('Davis');
@@ -53,8 +52,8 @@ describe('GET /api/owners', () => {
     const p2 = await search('lastName=Lima&page=2&pageSize=5');
     expect(p2.body.items).toHaveLength(1);
     expect(p2.body.items[0].firstName).toBe('Dono5');
-    await request(t.http).get('/api/owners?pageSize=4').expect(422);
-    await request(t.http).get('/api/owners?pageSize=51').expect(422);
+    await t.api.get('/api/owners?pageSize=4').expect(422);
+    await t.api.get('/api/owners?pageSize=51').expect(422);
   });
 
   it('T012: página fora da faixa vira a última; base vazia tem uma página', async () => {
@@ -76,7 +75,7 @@ describe('GET /api/owners', () => {
 
   it('a listagem traz os nomes dos animais do dono', async () => {
     const o = (await add('Davis')).body;
-    await request(t.http)
+    await t.api
       .post(`/api/owners/${o.id}/pets`)
       .set(idem())
       .send({ name: 'Thor', birthDate: '2020-01-01', speciesId: 2 })

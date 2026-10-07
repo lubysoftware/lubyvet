@@ -5,3 +5,4 @@ export * from './owners';
 export * from './pets';
 export * from './visits';
 export * from './vets';
+export * from './identity';

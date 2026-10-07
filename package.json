@@ -2,7 +2,7 @@
   "name": "lubyvet",
   "private": true,
   "version": "0.0.0",
-  "description": "LubyVet: sistema de balc\u00e3o de cl\u00ednica veterin\u00e1ria",
+  "description": "LubyVet: sistema de balcão de clínica veterinária",
   "engines": {
     "node": ">=24 <25"
   },
@@ -32,6 +32,7 @@
   },
   "trustedDependencies": [
     "@swc/core",
+    "argon2",
     "unrs-resolver"
   ]
 }

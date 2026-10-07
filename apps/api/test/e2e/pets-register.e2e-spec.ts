@@ -1,4 +1,3 @@
-import request from 'supertest';
 import { PetOutput } from '@lubyvet/contracts';
 import { anOwnerInput } from '../builders/owner.builder';
 import { bootApp, idem, type TestApp } from '../support/app';
@@ -15,11 +14,11 @@ describe('POST /api/owners/:ownerId/pets (003/US-1)', () => {
     await testDb.close();
   });
   const owner = async () =>
-    (await request(t.http).post('/api/owners').set(idem()).send(anOwnerInput()).expect(201)).body;
+    (await t.api.post('/api/owners').set(idem()).send(anOwnerInput()).expect(201)).body;
 
   it('cadastra o animal do dono no formato do contrato', async () => {
     const o = await owner();
-    const res = await request(t.http)
+    const res = await t.api
       .post(`/api/owners/${o.id}/pets`)
       .set(idem())
       .send({ name: 'Thor', birthDate: '2020-05-01', speciesId: SPECIES.dog })
@@ -34,7 +33,7 @@ describe('POST /api/owners/:ownerId/pets (003/US-1)', () => {
   it('nomes que diferem só pela caixa são o mesmo nome, no mesmo dono, mesmo em paralelo (T008, T009)', async () => {
     const o = await owner();
     const send = (name: string) =>
-      request(t.http)
+      t.api
         .post(`/api/owners/${o.id}/pets`)
         .set(idem())
         .send({ name, birthDate: '2020-05-01', speciesId: SPECIES.dog });
@@ -45,7 +44,7 @@ describe('POST /api/owners/:ownerId/pets (003/US-1)', () => {
   });
 
   it('lista as seis espécies do vocabulário', async () => {
-    const res = await request(t.http).get('/api/species').expect(200);
+    const res = await t.api.get('/api/species').expect(200);
     expect(res.body).toHaveLength(6);
   });
 });

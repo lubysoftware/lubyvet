@@ -1,4 +1,3 @@
-import request from 'supertest';
 import { bootApp, idem, type TestApp } from '../support/app';
 import { anOwner, aPetInput, patchPet, postPet } from '../support/pets';
 import { SPECIES, testDb } from '../support/test-db';
@@ -14,8 +13,8 @@ describe('administração de vocabulários', () => {
     await t.close();
     await testDb.close();
   });
-  const post = (url: string, body: object) => request(t.http).post(url).set(idem()).send(body);
-  const patch = (url: string, body: object) => request(t.http).patch(url).set(idem()).send(body);
+  const post = (url: string, body: object) => t.api.post(url).set(idem()).send(body);
+  const patch = (url: string, body: object) => t.api.patch(url).set(idem()).send(body);
 
   it('T007: inclui espécie e recusa repetida com outra caixa', async () => {
     await post('/api/admin/species', { name: 'Coelho' }).expect(201);
@@ -30,16 +29,14 @@ describe('administração de vocabulários', () => {
     const renamed = (
       await patch(`/api/admin/species/${SPECIES.dog}`, { version: 0, name: 'Cachorro' }).expect(200)
     ).body;
-    expect((await request(t.http).get(`/api/owners/${o.id}/pets/${p.id}`)).body.species.name).toBe(
-      'Cachorro',
-    );
+    expect((await t.api.get(`/api/owners/${o.id}/pets/${p.id}`)).body.species.name).toBe('Cachorro');
     expect(renamed.petsCount).toBe(1);
     await patch(`/api/admin/species/${SPECIES.dog}`, { version: renamed.version, status: 'inactive' }).expect(
       200,
     );
-    expect(
-      (await request(t.http).get('/api/species')).body.map((s: { name: string }) => s.name),
-    ).not.toContain('Cachorro');
+    expect((await t.api.get('/api/species')).body.map((s: { name: string }) => s.name)).not.toContain(
+      'Cachorro',
+    );
     expect(
       (await postPet(t, o.id, aPetInput({ name: 'Rex', speciesId: SPECIES.dog })).expect(422)).body.error
         .fields,
@@ -57,13 +54,13 @@ describe('administração de vocabulários', () => {
         201,
       )
     ).body;
-    expect((await request(t.http).get('/api/vets')).body.total).toBe(1);
+    expect((await t.api.get('/api/vets')).body.total).toBe(1);
     const off = (
       await patch(`/api/admin/vets/${vet.id}`, { version: vet.version, status: 'dismissed' }).expect(200)
     ).body;
-    expect((await request(t.http).get('/api/vets')).body.total).toBe(0);
+    expect((await t.api.get('/api/vets')).body.total).toBe(0);
     await patch(`/api/admin/vets/${vet.id}`, { version: off.version, status: 'active' }).expect(200);
-    expect((await request(t.http).get('/api/vets')).body.total).toBe(1);
+    expect((await t.api.get('/api/vets')).body.total).toBe(1);
     expect(
       (await post('/api/admin/vets', { firstName: '', lastName: 'x'.repeat(31) }).expect(422)).body.error
         .fields,

@@ -174,3 +174,22 @@ model VetSpecialty {
   @@id([vetId, specialtyId], map: "vet_specialties_pkey")
   @@map("vet_specialties")
 }
+
+/// Usuário da equipe da clínica (007, D17): identidade própria, um papel por usuário (D18).
+model User {
+  id             Int       @id @default(autoincrement()) @map("id")
+  name           String    @map("name") @db.VarChar(80)
+  login          String    @map("login") @db.VarChar(120)
+  passwordHash   String    @map("password_hash") @db.VarChar(255)
+  /// reader | writer | admin
+  role           String    @map("role") @db.VarChar(10)
+  /// active | inactive
+  status         String    @default("active") @map("status") @db.VarChar(10)
+  failedAttempts Int       @default(0) @map("failed_attempts")
+  lockedUntil    DateTime? @map("locked_until") @db.Timestamptz(3)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@unique([login], map: "users_login_key")
+  @@map("users")
+}

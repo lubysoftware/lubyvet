@@ -1,4 +1,3 @@
-import request from 'supertest';
 import { bootApp, idem, type TestApp } from '../support/app';
 import { anOwner, aPetInput, patchPet, postPet } from '../support/pets';
 import { testDb } from '../support/test-db';
@@ -23,7 +22,7 @@ describe('regras da agenda', () => {
     return { o, p, url: `/api/owners/${o.id}/pets/${p.id}` };
   };
   const schedule = (url: string, scheduledAt: string, description = 'Vacina') =>
-    request(t.http).post(`${url}/appointments`).set(idem()).send({ scheduledAt, description });
+    t.api.post(`${url}/appointments`).set(idem()).send({ scheduledAt, description });
 
   it('T008: agenda no futuro e recusa descrição vazia, longa demais e data ausente', async () => {
     const { url } = await setup();
@@ -35,8 +34,8 @@ describe('regras da agenda', () => {
       (await schedule(url, '2026-10-08T09:00:00-03:00', 'a'.repeat(256)).expect(422)).body.error.fields,
     ).toEqual([{ path: 'description', code: 'too_long' }]);
     expect(
-      (await request(t.http).post(`${url}/appointments`).set(idem()).send({ description: 'x' }).expect(422))
-        .body.error.fields,
+      (await t.api.post(`${url}/appointments`).set(idem()).send({ description: 'x' }).expect(422)).body.error
+        .fields,
     ).toEqual([{ path: 'scheduledAt', code: 'required' }]);
   });
 
@@ -54,7 +53,7 @@ describe('regras da agenda', () => {
       { path: 'scheduledAt', code: 'date_in_past' },
     ]);
     const enc = (date: string) =>
-      request(t.http).post(`${url}/encounters`).set(idem()).send({ date, chiefComplaint: 'Tosse' });
+      t.api.post(`${url}/encounters`).set(idem()).send({ date, chiefComplaint: 'Tosse' });
     await enc('2026-10-07').expect(201);
     await enc('2019-03-01').expect(201);
     expect((await enc('2026-10-08').expect(422)).body.error.fields).toEqual([
@@ -66,7 +65,7 @@ describe('regras da agenda', () => {
     const { url } = await setup();
     await schedule(url, '2026-10-20T09:00:00-03:00', 'Segunda').expect(201);
     await schedule(url, '2026-10-09T09:00:00-03:00', 'Primeira').expect(201);
-    const visits = (await request(t.http).get(`${url}/visits`).expect(200)).body;
+    const visits = (await t.api.get(`${url}/visits`).expect(200)).body;
     expect(visits.appointments.map((a: { description: string }) => a.description)).toEqual([
       'Primeira',
       'Segunda',
@@ -81,7 +80,7 @@ describe('regras da agenda', () => {
     const a = (await schedule(url, '2026-10-08T09:00:00-03:00').expect(201)).body;
     t.clock.set('2026-10-09T08:00:00-03:00');
     const ns = (
-      await request(t.http)
+      await t.api
         .post(`${url}/appointments/${a.id}/no-show`)
         .set(idem())
         .send({ version: a.version })
@@ -90,38 +89,34 @@ describe('regras da agenda', () => {
     expect(ns.status).toBe('no_show');
     expect(
       (
-        await request(t.http)
+        await t.api
           .post(`${url}/appointments/${a.id}/cancel`)
           .set(idem())
           .send({ version: ns.version })
           .expect(422)
       ).body.error.code,
     ).toBe('invalid_transition');
-    await request(t.http)
-      .patch(`${url}/encounters/1`)
-      .set(idem())
-      .send({ chiefComplaint: 'outra' })
-      .expect(404);
+    await t.api.patch(`${url}/encounters/1`).set(idem()).send({ chiefComplaint: 'outra' }).expect(404);
   });
 
   it('T019: remarca e cancela só antes da data, sem apagar nada; versão vencida é 409', async () => {
     const { url } = await setup();
     const a = (await schedule(url, '2026-10-08T09:00:00-03:00').expect(201)).body;
     const r = (
-      await request(t.http)
+      await t.api
         .patch(`${url}/appointments/${a.id}`)
         .set(idem())
         .send({ version: a.version, scheduledAt: '2026-10-09T10:00:00-03:00' })
         .expect(200)
     ).body;
     expect(r.scheduledAt).toBe('2026-10-09T13:00:00.000Z');
-    await request(t.http)
+    await t.api
       .post(`${url}/appointments/${a.id}/cancel`)
       .set(idem())
       .send({ version: a.version })
       .expect(409);
     const c = (
-      await request(t.http)
+      await t.api
         .post(`${url}/appointments/${a.id}/cancel`)
         .set(idem())
         .send({ version: r.version })
@@ -131,12 +126,12 @@ describe('regras da agenda', () => {
     expect(await testDb.count('appointments')).toBe(1);
     const b = (await schedule(url, '2026-10-08T09:00:00-03:00').expect(201)).body;
     t.clock.set('2026-10-09T08:00:00-03:00');
-    await request(t.http)
+    await t.api
       .post(`${url}/appointments/${b.id}/cancel`)
       .set(idem())
       .send({ version: b.version })
       .expect(422);
-    await request(t.http)
+    await t.api
       .patch(`${url}/appointments/${b.id}`)
       .set(idem())
       .send({ version: b.version, description: 'x' })

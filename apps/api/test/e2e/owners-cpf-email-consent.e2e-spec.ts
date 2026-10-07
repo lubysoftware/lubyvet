@@ -1,4 +1,3 @@
-import request from 'supertest';
 import { anOwnerInput, validCpf } from '../builders/owner.builder';
 import { bootApp, idem, type TestApp } from '../support/app';
 import { testDb } from '../support/test-db';
@@ -6,7 +5,7 @@ import { testDb } from '../support/test-db';
 // 001/T020: CPF, e-mail e consentimento (CA-1.5 a CA-1.8; D12, D13, D15).
 describe('CPF, e-mail e consentimento do dono', () => {
   let t: TestApp;
-  const post = (body: object) => request(t.http).post('/api/owners').set(idem()).send(body);
+  const post = (body: object) => t.api.post('/api/owners').set(idem()).send(body);
   beforeAll(async () => {
     t = await bootApp();
   });

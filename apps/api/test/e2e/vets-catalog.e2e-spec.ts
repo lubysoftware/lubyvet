@@ -1,4 +1,3 @@
-import request from 'supertest';
 import { VetCatalogOutput } from '@lubyvet/contracts';
 import { bootApp, type TestApp } from '../support/app';
 import { testDb } from '../support/test-db';
@@ -31,7 +30,7 @@ describe('GET /api/vets', () => {
     await vet('Paula', 'Rezende', [2, 1]);
     await vet('Caio', 'Álvares');
     const res = VetCatalogOutput.parse(
-      (await request(t.http).get('/api/vets?pageSize=5').set('Accept', 'application/json').expect(200)).body,
+      (await t.api.get('/api/vets?pageSize=5').set('Accept', 'application/json').expect(200)).body,
     );
     expect(res.items.map((v) => v.lastName)).toEqual(['Álvares', 'Rezende']);
     expect(res.items[1]?.specialties.map((s) => s.name)).toEqual(['Cirurgia', 'Radiologia']);
@@ -44,16 +43,16 @@ describe('GET /api/vets', () => {
     const seen: number[] = [];
     for (const page of [1, 2, 3])
       seen.push(
-        ...(await request(t.http).get(`/api/vets?page=${page}&pageSize=5`).expect(200)).body.items.map(
+        ...(await t.api.get(`/api/vets?page=${page}&pageSize=5`).expect(200)).body.items.map(
           (v: { id: number }) => v.id,
         ),
       );
     expect(new Set(seen).size).toBe(12);
-    expect((await request(t.http).get('/api/vets?page=99&pageSize=5').expect(200)).body.page).toBe(1);
+    expect((await t.api.get('/api/vets?page=99&pageSize=5').expect(200)).body.page).toBe(1);
   });
 
   it('T013: pedido de outro formato é recusado com 406, sem resposta malformada', async () => {
-    const res = await request(t.http).get('/api/vets').set('Accept', 'application/xml').expect(406);
+    const res = await t.api.get('/api/vets').set('Accept', 'application/xml').expect(406);
     expect(res.body).toEqual({ error: { code: 'unsupported_format' } });
   });
 });
