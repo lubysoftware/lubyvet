@@ -1,8 +1,10 @@
 import {
   FieldRuleViolation,
   Forbidden,
+  IdempotencyKeyRequired,
   InvalidTransition,
   NotFound,
+  RequestInProgress,
   StaleVersion,
   Unauthenticated,
 } from './errors';
@@ -28,5 +30,10 @@ describe('erros de domínio', () => {
       fields: [{ path: 'cpf', code: 'cpf_taken' }],
     });
     expect(e.message).toBe('cpf:cpf_taken');
+  });
+
+  it('idempotência: chave ausente é regra (422), chave em processamento é conflito (409)', () => {
+    expect(new IdempotencyKeyRequired('x')).toMatchObject({ code: 'idempotency_key_required', kind: 'rule' });
+    expect(new RequestInProgress('x')).toMatchObject({ code: 'request_in_progress', kind: 'conflict' });
   });
 });

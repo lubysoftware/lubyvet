@@ -158,7 +158,7 @@
       *satisfaz:* CA-2.1, CA-2.3
       *depende de:* T006
 
-- [ ] **T022** Implementar e testar o aviso de dono parecido pelo celular
+- [x] **T022** Implementar e testar o aviso de dono parecido pelo celular
       *entrega:* ao confirmar um cadastro ou uma alteração cujo celular já pertence a outro
       dono, o candidato é apresentado antes de gravar; a confirmação explícita grava (T017).
       Dois homônimos com celulares distintos não disparam aviso

@@ -1,7 +1,7 @@
 import { FixedClock } from '../../../shared/domain/clock';
 import { FieldRuleViolation, StaleVersion } from '../../../shared/domain/errors';
 import { Owner } from '../domain/owner';
-import { OwnerNotFound } from '../domain/owner.errors';
+import { OwnerNotFound, SimilarOwnerFound } from '../domain/owner.errors';
 import { ChangeOwnerContact } from './change-owner-contact.use-case';
 import type { OwnerRepository } from './ports/owner-repository.port';
 
@@ -23,11 +23,14 @@ const stored = () =>
     id: 7,
     version: 2,
   });
-const repo = (owner: Owner | null): OwnerRepository => ({
+const repo = (
+  owner: Owner | null,
+  similar: { id: number; firstName: string; lastName: string; city: string }[] = [],
+): OwnerRepository => ({
   insert: async (o) => o,
   findById: async () => owner,
   update: async (o) => o,
-  findByTelephone: async () => [],
+  findByTelephone: async () => similar,
 });
 
 describe('ChangeOwnerContact', () => {
@@ -67,5 +70,39 @@ describe('ChangeOwnerContact', () => {
         patch: { city: 'X' },
       }),
     ).rejects.toBeInstanceOf(StaleVersion);
+  });
+
+  const other = [{ id: 9, firstName: 'Marcos', lastName: 'Lima', city: 'Rio' }];
+
+  it('D14: trocar para o celular de outro dono apresenta o candidato', async () => {
+    await expect(
+      new ChangeOwnerContact(repo(stored(), other), clock).execute({
+        ownerId: 7,
+        bodyId: undefined,
+        version: 2,
+        patch: { telephone: '(21) 99123-0045' },
+      }),
+    ).rejects.toBeInstanceOf(SimilarOwnerFound);
+  });
+
+  it('D14: com a confirmação, grava e registra a dispensa', async () => {
+    const updated = await new ChangeOwnerContact(repo(stored(), other), clock).execute({
+      ownerId: 7,
+      bodyId: undefined,
+      version: 2,
+      patch: { telephone: '(21) 99123-0045' },
+      confirmSimilar: true,
+    });
+    expect(updated.snapshot().similarityDismissedAt).toEqual(clock.now());
+  });
+
+  it('celular novo sem coincidência grava sem aviso', async () => {
+    const updated = await new ChangeOwnerContact(repo(stored(), []), clock).execute({
+      ownerId: 7,
+      bodyId: undefined,
+      version: 2,
+      patch: { telephone: '(21) 99123-0045' },
+    });
+    expect(updated.telephone).toBe('+5521991230045');
   });
 });

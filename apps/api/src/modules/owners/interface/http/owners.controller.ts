@@ -38,9 +38,11 @@ export class OwnersController {
     @Param('ownerId', new IdParamPipe('owner_not_found')) ownerId: number,
     @Body(new ZodValidationPipe(ChangeOwnerContactInput)) body: ChangeOwnerContactInput,
   ): Promise<OwnerOutput> {
-    const { id, version, confirmSimilar: _confirm, ...patch } = body;
+    const { id, version, confirmSimilar, ...patch } = body;
     try {
-      return presentOwner(await this.changeOwnerContact.execute({ ownerId, bodyId: id, version, patch }));
+      return presentOwner(
+        await this.changeOwnerContact.execute({ ownerId, bodyId: id, version, patch, confirmSimilar }),
+      );
     } catch (e) {
       // CA-5.2: os valores atuais vão junto, no formato do contrato (P9), para o usuário decidir se regrava.
       if (e instanceof StaleVersion)
