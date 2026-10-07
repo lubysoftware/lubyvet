@@ -1,0 +1,21 @@
+# Contexto das imagens (apps/api/Dockerfile, apps/web/Dockerfile): só o que o build precisa.
+**/node_modules
+**/.next
+**/.next-e2e
+**/dist
+**/coverage
+**/test-results
+**/playwright-report
+**/*.tsbuildinfo
+**/.env
+**/.env.*
+!.env.example
+.git
+.github
+_discovery
+.specify
+memory
+docs
+deploy
+apps/api/src/generated
+**/.DS_Store

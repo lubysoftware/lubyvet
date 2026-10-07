@@ -1,3 +1,4 @@
+import { join } from 'node:path';
 import type { NextConfig } from 'next';
 import createNextIntlPlugin from 'next-intl/plugin';
 
@@ -7,6 +8,10 @@ const config: NextConfig = {
   agentRules: false,
   // O E2E compila com a API dos containers embutida no rewrite; não sobrescreve o build normal.
   distDir: process.env.NEXT_DIST_DIR ?? '.next',
+  // A imagem Docker (apps/web/Dockerfile) usa o servidor standalone, com o monorepo como raiz.
+  ...(process.env.NEXT_OUTPUT === 'standalone'
+    ? { output: 'standalone' as const, outputFileTracingRoot: join(process.cwd(), '../..') }
+    : {}),
   async rewrites() {
     return [
       { source: '/api/:path*', destination: `${process.env.API_URL ?? 'http://localhost:3001'}/api/:path*` },

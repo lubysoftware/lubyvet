@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Clonou, roda. ./run.sh [dev|verify|infra|stop|user]
+# Clonou, roda. ./run.sh [dev|verify|infra|stop|user|docker|docker-user|docker-stop]
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -41,5 +41,17 @@ case "${1:-dev}" in
     bun run --cwd apps/api build >/dev/null
     node apps/api/dist/commands/create-user.js
     ;;
-  *) echo "uso: ./run.sh [dev|verify|infra|stop|user]"; exit 1 ;;
+  docker)
+    # A solução inteira em containers: migração, API, worker e web (http://localhost:8088).
+    docker compose --profile app up -d --build --wait
+    echo "LubyVet em http://localhost:${WEB_PORT:-8088}"
+    ;;
+  docker-user)
+    # Cria ou atualiza um usuário dentro da pilha Docker; a senha vem do ambiente, nunca de arquivo:
+    #   LV_LOGIN=ana@clinica LV_NAME="Ana" LV_ROLE=admin LV_PASSWORD=... ./run.sh docker-user
+    docker compose --profile app run --rm --no-deps -e LV_LOGIN -e LV_NAME -e LV_ROLE -e LV_PASSWORD \
+      api node dist/commands/create-user.js
+    ;;
+  docker-stop) docker compose --profile app down ;;
+  *) echo "uso: ./run.sh [dev|verify|infra|stop|user|docker|docker-user|docker-stop]"; exit 1 ;;
 esac

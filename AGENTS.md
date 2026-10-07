@@ -52,6 +52,7 @@ existem só os `AGENTS.md` de cada pasta.
 | comando | o que faz |
 |---|---|
 | `./run.sh` | sobe a infra em Docker e a API e o web no host |
+| `./run.sh docker` | a solução inteira em containers (migração, API, worker e web) em http://localhost:8088; `./run.sh docker-user` cria usuário nela e `./run.sh docker-stop` derruba |
 | `./run.sh user` | cria ou atualiza um usuário da equipe; login, nome, papel e senha vêm de `LV_*` no ambiente |
 | `./run.sh verify` | o mesmo que `bun run verify` |
 | `bun run verify` | **o único veredito** (P8): lint, typecheck, unidade, integração, contrato, e2e da API, componentes do web, cobertura por camada, `prisma migrate diff`, regra de fronteira e conferência do OpenAPI |

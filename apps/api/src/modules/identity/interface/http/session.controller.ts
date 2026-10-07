@@ -30,7 +30,8 @@ export class SessionController {
     res.cookie(SESSION_COOKIE, token, {
       httpOnly: true,
       sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
+      // Em produção o cookie é Secure; COOKIE_SECURE=false só para servir por HTTP (Docker local).
+      secure: process.env.NODE_ENV === 'production' && process.env.COOKIE_SECURE !== 'false',
       path: '/',
     });
     return { userId: user.id, name: user.name, role: user.role };

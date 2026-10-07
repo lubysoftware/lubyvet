@@ -1,11 +1,28 @@
-# Infra de desenvolvimento local (D34). Nenhuma credencial real: os valores abaixo valem só aqui.
+# Infra de desenvolvimento local (D34) e, no perfil "app", a solução inteira em containers.
+#   docker compose up -d                      só Postgres, Redis e RabbitMQ (./run.sh)
+#   docker compose --profile app up -d --build a solução inteira em http://localhost:8088 (./run.sh docker)
+# Nenhuma credencial real: os valores padrão abaixo valem só nesta máquina; troque por variável
+# de ambiente (POSTGRES_PASSWORD, RABBITMQ_PASSWORD) fora dela.
+x-app-env: &app-env
+  NODE_ENV: production
+  TZ: America/Sao_Paulo
+  DATABASE_URL: postgresql://lubyvet:${POSTGRES_PASSWORD:-lubyvet_dev}@postgres:5432/lubyvet
+  REDIS_URL: redis://redis:6379
+  RABBITMQ_URL: amqp://lubyvet:${RABBITMQ_PASSWORD:-lubyvet_dev}@rabbitmq:5672
+  SESSION_IDLE_HOURS: '8'
+  CLINIC_NAME: ${CLINIC_NAME:-}
+  CLINIC_PHONE: ${CLINIC_PHONE:-}
+  # Servido por HTTP em localhost; atrás de TLS, remova para o cookie de sessão voltar a ser Secure.
+  COOKIE_SECURE: 'false'
+  OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+
 services:
   postgres:
     image: postgres:17-alpine
     environment:
       POSTGRES_DB: lubyvet
       POSTGRES_USER: lubyvet
-      POSTGRES_PASSWORD: lubyvet_dev
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-lubyvet_dev}
     ports: ['5433:5432']
     volumes: [pgdata:/var/lib/postgresql/data]
     healthcheck:
@@ -15,8 +32,71 @@ services:
   redis:
     image: redis:8-alpine
     ports: ['6380:6379']
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 2s
+      retries: 30
   rabbitmq:
     image: rabbitmq:4-management-alpine
+    environment:
+      # O usuário guest só entra por loopback; os outros containers usam este.
+      RABBITMQ_DEFAULT_USER: lubyvet
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-lubyvet_dev}
     ports: ['5673:5672', '15673:15672']
+    healthcheck:
+      test: ['CMD', 'rabbitmq-diagnostics', '-q', 'ping']
+      interval: 5s
+      retries: 30
+
+  # Aplica as migrações versionadas (P5) e termina; a API só sobe depois dele.
+  migrate:
+    profiles: [app]
+    build: { context: ., dockerfile: apps/api/Dockerfile }
+    image: lubyvet-api:local
+    command: ['../../node_modules/.bin/prisma', 'migrate', 'deploy']
+    environment: *app-env
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  api:
+    profiles: [app]
+    image: lubyvet-api:local
+    environment: *app-env
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+    restart: unless-stopped
+
+  # D12, P-18: publica a caixa de saída e envia pelo notificador (o padrão registra no log).
+  worker:
+    profiles: [app]
+    image: lubyvet-api:local
+    command: ['node', 'dist/worker.js']
+    # Sem HTTP: a sonda da imagem é da API.
+    healthcheck: { disable: true }
+    environment:
+      <<: *app-env
+      NOTIFIER: ${NOTIFIER:-fake}
+    depends_on:
+      api: { condition: service_healthy }
+    restart: unless-stopped
+
+  # D31: só o web é exposto; /api/* chega à API pela rede interna do compose.
+  web:
+    profiles: [app]
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args: { API_URL: 'http://api:3001' }
+    image: lubyvet-web:local
+    environment:
+      CLINIC_NAME: ${CLINIC_NAME:-}
+      CLINIC_LOGO_URL: ${CLINIC_LOGO_URL:-}
+    ports: ['${WEB_PORT:-8088}:3000']
+    depends_on:
+      api: { condition: service_healthy }
+    restart: unless-stopped
+
 volumes:
   pgdata:
