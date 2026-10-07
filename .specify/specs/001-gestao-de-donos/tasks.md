@@ -113,7 +113,7 @@
       *satisfaz:* CA-7.3
       *depende de:* T014
 
-- [ ] **T016** Teste de integração de edição concorrente, com dois processos sobre o mesmo
+- [x] **T016** Teste de integração de edição concorrente, com dois processos sobre o mesmo
       banco
       *entrega:* um teste de integração que abre a mesma ficha em duas sessões, grava nas
       duas em sequência e espera que a segunda seja recusada. **Não é verificável por teste
