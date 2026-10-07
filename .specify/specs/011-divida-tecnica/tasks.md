@@ -55,7 +55,7 @@
 
 ## US-1 Dar domínio próprio à identidade
 
-- [ ] **T007** Modelar a conta de acesso no domínio
+- [x] **T007** Modelar a conta de acesso no domínio
       *entrega:* `modules/identity/domain/account.ts` com a tentativa de login (aceita, recusada,
       bloqueada até) e o desbloqueio pelo tempo (P-15), com teste de unidade sem infraestrutura
       cobrindo a quinta tentativa, a sexta e o fim do bloqueio

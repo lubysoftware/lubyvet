@@ -3,6 +3,8 @@ import { ListVetPatients } from '../../src/modules/vets/application/list-vet-pat
 import { AnonymizationController } from '../../src/modules/owners/interface/http/anonymization.controller';
 import { OwnersController } from '../../src/modules/owners/interface/http/owners.controller';
 import { anOwnerInput } from '../builders/owner.builder';
+import request from 'supertest';
+import { Account } from '../../src/modules/identity/domain/account';
 import { bootApp, idem, type TestApp } from '../support/app';
 import { testDb } from '../support/test-db';
 
@@ -15,7 +17,10 @@ describe('011 Dívida técnica: critérios de aceite', () => {
   beforeAll(async () => {
     t = await bootApp('2026-10-07T12:00:00-03:00');
   });
-  beforeEach(() => testDb.truncate());
+  beforeEach(async () => {
+    t.clock.set('2026-10-07T12:00:00-03:00');
+    await testDb.truncate();
+  });
   afterAll(async () => {
     await t.close();
     await testDb.close();
@@ -79,5 +84,22 @@ describe('011 Dívida técnica: critérios de aceite', () => {
         'src/modules/vets/application/ports/vet-catalog.port.ts',
       ),
     ).toBe(false);
+  });
+
+  it('011/CA-1.1 o bloqueio por tentativas é regra do domínio, e a API segue o que ele decide', async () => {
+    const login = (password: string) =>
+      request(t.http).post('/api/session').send({ login: 'reader@lubyvet.test', password });
+    for (let i = 0; i < 5; i++) await login('errada').expect(401);
+    await login('senha-de-teste-123').expect(401);
+    t.clock.set('2026-10-07T12:15:00-03:00');
+    await login('senha-de-teste-123').expect(200);
+    const locked = Account.restore({
+      id: 3,
+      status: 'active',
+      failedAttempts: 5,
+      lockedUntil: new Date('2026-10-07T15:15:00Z'),
+    });
+    expect(locked.canTry(new Date('2026-10-07T15:14:59Z'))).toBe(false);
+    expect(locked.canTry(new Date('2026-10-07T15:15:00Z'))).toBe(true);
   });
 });
