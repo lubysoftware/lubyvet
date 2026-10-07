@@ -130,7 +130,7 @@
       *satisfaz:* CA-3.2, CA-3.3
       *depende de:* T007
 
-- [ ] **T018** Testes do aviso de similaridade e da dupla submissão
+- [x] **T018** Testes do aviso de similaridade e da dupla submissão
       *entrega:* `UT-003-1` a `UT-003-3` passando, incluindo dois donos homônimos com contatos
       distintos aceitos sem alarme e a coincidência tratada como indício, nunca como identidade
       *satisfaz:* CA-3.2, CA-3.3
