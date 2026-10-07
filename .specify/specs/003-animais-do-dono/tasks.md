@@ -150,7 +150,7 @@
       *satisfaz:* CA-2.1, CA-2.2, CA-2.3, CA-2.5
       *depende de:* T009
 
-- [ ] **T019** Teste de integração de cadastro concorrente do mesmo nome para o mesmo dono
+- [x] **T019** Teste de integração de cadastro concorrente do mesmo nome para o mesmo dono
       *entrega:* um teste de integração que dispara dois cadastros simultâneos do mesmo nome
       para o mesmo dono contra um banco de verdade e espera que exatamente um sobreviva e o
       outro receba a mensagem de nome já em uso, nunca falha genérica. **Não é verificável por
