@@ -30,7 +30,12 @@
     "pets": "Animais",
     "page": "Página {page} de {pages}",
     "next": "Próxima",
-    "previous": "Anterior"
+    "previous": "Anterior",
+    "register": "Cadastrar dono",
+    "firstName": "Nome",
+    "address": "Endereço",
+    "cpf": "CPF",
+    "email": "E-mail"
   },
   "errors": {
     "unauthenticated": "Entre para continuar.",
@@ -77,5 +82,28 @@
     "unknown_species": "Espécie fora da lista.",
     "appointment_not_schedulable": "Este agendamento não pode ser alterado.",
     "species_in_use": "Espécie em uso."
+  },
+  "result": {
+    "ownerSaved": "Dono gravado",
+    "petSaved": "Animal gravado",
+    "appointmentSaved": "Visita agendada",
+    "encounterSaved": "Atendimento registrado",
+    "saveFailed": "Não foi possível gravar"
+  },
+  "pets": {
+    "name": "Nome do animal",
+    "birthDate": "Data de nascimento",
+    "species": "Espécie",
+    "save": "Salvar animal"
+  },
+  "visits": {
+    "schedule": "Agendar visita",
+    "scheduledAt": "Data e hora",
+    "description": "Descrição",
+    "record": "Registrar atendimento",
+    "date": "Data do atendimento",
+    "chiefComplaint": "Queixa principal",
+    "scheduledSection": "Visitas agendadas",
+    "attendedSection": "Atendimentos realizados"
   }
 }

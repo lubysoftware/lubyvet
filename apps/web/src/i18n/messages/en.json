@@ -30,7 +30,12 @@
     "pets": "Pets",
     "page": "Page {page} of {pages}",
     "next": "Next",
-    "previous": "Previous"
+    "previous": "Previous",
+    "register": "Register owner",
+    "firstName": "First name",
+    "address": "Address",
+    "cpf": "CPF",
+    "email": "E-mail"
   },
   "errors": {
     "unauthenticated": "Sign in to continue.",
@@ -77,5 +82,28 @@
     "unknown_species": "Species not in the list.",
     "appointment_not_schedulable": "This appointment cannot be changed.",
     "species_in_use": "Species in use."
+  },
+  "result": {
+    "ownerSaved": "Owner saved",
+    "petSaved": "Pet saved",
+    "appointmentSaved": "Visit scheduled",
+    "encounterSaved": "Encounter recorded",
+    "saveFailed": "Could not save"
+  },
+  "pets": {
+    "name": "Pet name",
+    "birthDate": "Birth date",
+    "species": "Species",
+    "save": "Save pet"
+  },
+  "visits": {
+    "schedule": "Schedule visit",
+    "scheduledAt": "Date and time",
+    "description": "Description",
+    "record": "Record encounter",
+    "date": "Encounter date",
+    "chiefComplaint": "Chief complaint",
+    "scheduledSection": "Scheduled visits",
+    "attendedSection": "Completed encounters"
   }
 }

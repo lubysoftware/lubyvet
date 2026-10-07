@@ -49,7 +49,7 @@
       *satisfaz:* — (infraestrutura, pré-requisito de CA-3.1)
       *depende de:* T001
 
-- [ ] **T006** Levar ao catálogo as 6 mensagens de gravação e os 2 rótulos de formulário que o
+- [x] **T006** Levar ao catálogo as 6 mensagens de gravação e os 2 rótulos de formulário que o
       legado escrevia em texto fixo
       *entrega:* as oito chaves novas traduzidas nos 10 idiomas, consumidas pelo código que
       produz a confirmação e o erro de gravação e pelos rótulos dos quatro formulários, de modo
@@ -74,7 +74,7 @@
       *satisfaz:* CA-1.1, CA-1.2, CA-1.3
       *depende de:* T002, T004
 
-- [ ] **T009** Testes da tradução das mensagens de gravação e dos rótulos
+- [x] **T009** Testes da tradução das mensagens de gravação e dos rótulos
       *entrega:* `UT-030-1` a `UT-030-4` passando, incluindo a confirmação e o erro de gravação
       resolvidos no idioma escolhido, os quatro formulários sem nenhum campo entregando texto
       igual nos dois idiomas por ser literal, a verificação acusando a chave retirada de um

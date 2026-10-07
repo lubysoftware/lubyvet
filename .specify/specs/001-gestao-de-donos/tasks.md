@@ -99,13 +99,13 @@
       CA-6.3, CA-6.4, CA-6.5
       *depende de:* T011, T012
 
-- [ ] **T014** Publicar a mensagem de resultado na mesma resposta da operação
+- [x] **T014** Publicar a mensagem de resultado na mesma resposta da operação
       *entrega:* confirmação de gravação de dono, animal e visita e mensagem de erro de
       gravação viajando na resposta da própria requisição, junto do formulário que a produziu
       *satisfaz:* CA-7.1, CA-7.2
       *depende de:* T012
 
-- [ ] **T015** Teste de interface do tempo de vida da mensagem de resultado
+- [x] **T015** Teste de interface do tempo de vida da mensagem de resultado
       *entrega:* `UT-007-3` e `UT-007-4` passando contra a página renderizada, cobrindo a
       mensagem ativa no limite do tempo, inativa no instante seguinte, e nenhum agendamento
       quando não existe mensagem a esconder. **É teste de interface, não de unidade**: a

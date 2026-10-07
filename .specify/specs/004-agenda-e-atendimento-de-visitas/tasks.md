@@ -81,7 +81,7 @@
       *satisfaz:* CA-2.1, CA-2.2, CA-2.3
       *depende de:* T003
 
-- [ ] **T010** Fazer o rótulo da seção corresponder ao recorte que ela aplica
+- [x] **T010** Fazer o rótulo da seção corresponder ao recorte que ela aplica
       *entrega:* ou o recorte exclui as visitas futuras e o rótulo fala de visitas anteriores,
       ou as duas aparecem e o rótulo fala do histórico, com o texto vindo do catálogo de
       traduções e **nunca** a combinação contrária. É o único critério do pacote que fixa a

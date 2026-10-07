@@ -64,7 +64,7 @@
       *satisfaz:* CA-2.2
       *depende de:* T001
 
-- [ ] **T007** Implementar o modelo de erro do formulário, com identificador de campo e texto
+- [x] **T007** Implementar o modelo de erro do formulário, com identificador de campo e texto
       *entrega:* para cada campo recusado pela validação, o identificador do campo e o texto do
       erro vindo do catálogo de traduções, com os campos aceitos **não** marcados, e a marcação
       acompanhada de texto, para que não dependa apenas de cor. É a substituição das catorze
@@ -72,7 +72,7 @@
       *satisfaz:* CA-3.1, CA-3.2
       *depende de:* a feature 006 ter o catálogo de tradução em T001 de lá
 
-- [ ] **T008** Teste de interface do destaque de erro nos quatro formulários
+- [x] **T008** Teste de interface do destaque de erro nos quatro formulários
       *entrega:* um teste de interface que percorre os quatro formulários do sistema e verifica
       que o campo recusado fica destacado, com a mensagem junto dele e com o texto que a torna
       perceptível sem depender de cor. **É teste de interface, não de unidade**, e isso está no
