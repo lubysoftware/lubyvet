@@ -7,7 +7,7 @@
 > infraestrutura, e está dito nela. Os identificadores `UT-nnn-n` são os testes que os
 > cards do backlog já traziam, preservados como tarefa de teste própria.
 
-- [ ] **T001** Trazer os 10 idiomas traduzidos do legado para o projeto novo, mantendo os 11
+- [x] **T001** Trazer os 10 idiomas traduzidos do legado para o projeto novo, mantendo os 11
       arquivos de catálogo
       *entrega:* os 11 arquivos no projeto novo, com o arquivo de recurso vazio preservado
       vazio por decisão da Pergunta 25, e **sem** as 3 chaves órfãs do legado, que são o card
@@ -15,7 +15,7 @@
       *satisfaz:* — (infraestrutura, e é a tarefa que colhe o investimento de tradução já
       feito: copiar arquivo, não traduzir de novo)
 
-- [ ] **T002** Implementar a resolução do idioma de uma requisição num único ponto
+- [x] **T002** Implementar a resolução do idioma de uma requisição num único ponto
       *entrega:* a resolução que serve o idioma padrão quando não houve escolha, passa ao
       idioma escolhido quando ele é suportado, persiste a escolha para as requisições
       seguintes, e **recai no padrão sem erro** quando o idioma pedido não é suportado. A
@@ -24,7 +24,7 @@
       *satisfaz:* CA-1.1, CA-1.2, CA-1.3
       *depende de:* T001
 
-- [ ] **T003** [P] Declarar explicitamente, na verificação de catálogo, a exceção do arquivo
+- [x] **T003** [P] Declarar explicitamente, na verificação de catálogo, a exceção do arquivo
       de recurso vazio
       *entrega:* a exceção escrita em arquivo, com o motivo ao lado, em vez de viver no
       comportamento de um teste. No legado o teste de sincronia pulava o arquivo com o motivo
@@ -32,7 +32,7 @@
       *satisfaz:* — (infraestrutura, pré-requisito de CA-2.3 e CA-4.2)
       *depende de:* T001
 
-- [ ] **T004** Implementar a verificação de catálogo que falha nos **dois** sentidos
+- [x] **T004** Implementar a verificação de catálogo que falha nos **dois** sentidos
       *entrega:* uma verificação que falha quando uma chave usada falta em algum idioma
       suportado **e** quando uma chave existe em arquivo sem ser referenciada por código ou
       template, apontando a chave e o idioma. Ela cobre as duas origens de texto visível, o
@@ -41,7 +41,7 @@
       *satisfaz:* CA-2.3, CA-4.1, CA-4.2
       *depende de:* T003
 
-- [ ] **T005** [P] Declarar a lista de idiomas suportados como configuração legível pela
+- [x] **T005** [P] Declarar a lista de idiomas suportados como configuração legível pela
       aplicação
       *entrega:* a lista em arquivo, com o idioma padrão indicado, substituindo o arranjo do
       legado em que o conjunto de idiomas suportados era **o que havia na pasta de recursos** e
@@ -58,14 +58,14 @@
       *satisfaz:* CA-2.1, CA-2.2
       *depende de:* T004
 
-- [ ] **T007** Implementar o controle de troca de idioma, ligado ao mesmo ponto de resolução
+- [x] **T007** Implementar o controle de troca de idioma, ligado ao mesmo ponto de resolução
       *entrega:* um controle visível em todas as telas, listando os idiomas suportados, com o
       idioma em uso marcado, e que chama **o mesmo** ponto de resolução que o parâmetro de
       endereço chama, em vez de uma segunda implementação
       *satisfaz:* CA-3.1, CA-3.2, CA-3.3
       *depende de:* T002, T005
 
-- [ ] **T008** Testes da resolução do idioma
+- [x] **T008** Testes da resolução do idioma
       *entrega:* `UT-029-1` a `UT-029-5` passando, cobrindo as três requisições resolvidas no
       idioma escolhido sem repetir a escolha, o idioma fora da lista recaindo no padrão sem
       erro, a preferência declarada pelo cliente perdendo do padrão configurado por decisão
@@ -82,7 +82,7 @@
       *satisfaz:* CA-2.1, CA-2.2, CA-2.3
       *depende de:* T006
 
-- [ ] **T010** Testes do controle de troca de idioma
+- [x] **T010** Testes do controle de troca de idioma
       *entrega:* `UT-031-1` a `UT-031-4` passando, incluindo o modelo comum de qualquer tela
       carregando os idiomas suportados, as duas sessões terminando no mesmo idioma pelo mesmo
       caminho de resolução, o idioma em uso marcado entre os suportados, e a escolha feita pelo

@@ -1,0 +1,81 @@
+{
+  "app": {
+    "name": "LubyVet",
+    "skipToContent": "Pular para o conteúdo"
+  },
+  "nav": {
+    "owners": "Donos",
+    "schedule": "Agenda",
+    "vets": "Veterinários",
+    "admin": "Administração"
+  },
+  "language": {
+    "label": "Idioma",
+    "pt-BR": "Português",
+    "en": "English"
+  },
+  "theme": {
+    "label": "Tema",
+    "light": "Claro",
+    "dark": "Escuro",
+    "system": "Sistema"
+  },
+  "owners": {
+    "search": "Buscar por sobrenome",
+    "searchAction": "Buscar",
+    "notFound": "Nenhum dono com esse sobrenome.",
+    "lastName": "Sobrenome",
+    "city": "Cidade",
+    "telephone": "Celular",
+    "pets": "Animais",
+    "page": "Página {page} de {pages}",
+    "next": "Próxima",
+    "previous": "Anterior"
+  },
+  "errors": {
+    "unauthenticated": "Entre para continuar.",
+    "forbidden": "Seu papel não permite esta ação.",
+    "invalid_credentials": "Login ou senha não conferem.",
+    "session_expired": "Sua sessão expirou. Entre de novo.",
+    "not_found": "Não encontrado.",
+    "owner_not_found": "Dono não encontrado.",
+    "pet_not_found": "Animal não encontrado.",
+    "appointment_not_found": "Agendamento não encontrado.",
+    "vet_not_found": "Veterinário não encontrado.",
+    "species_not_found": "Espécie não encontrada.",
+    "specialty_not_found": "Especialidade não encontrada.",
+    "validation_failed": "Revise os campos marcados.",
+    "stale_version": "Este cadastro foi alterado por outra pessoa. Revise os valores atuais.",
+    "invalid_transition": "Esta mudança de situação não é permitida.",
+    "idempotency_key_required": "Envie o formulário de novo.",
+    "request_in_progress": "O mesmo envio ainda está em andamento.",
+    "unsupported_format": "Formato não suportado.",
+    "similar_owner": "Já existe um dono com este celular.",
+    "internal_error": "Algo falhou do nosso lado. Informe o código {occurrenceId}."
+  },
+  "fields": {
+    "required": "Preencha este campo.",
+    "too_long": "Texto longo demais.",
+    "too_short": "Texto curto demais.",
+    "invalid_format": "Formato inválido.",
+    "invalid_phone": "Informe um celular brasileiro com DDD.",
+    "invalid_cpf": "CPF inválido.",
+    "cpf_taken": "Este CPF já pertence a outro dono.",
+    "invalid_email": "E-mail inválido.",
+    "pet_name_taken": "Este dono já tem um animal com esse nome.",
+    "species_required": "Escolha a espécie.",
+    "species_inactive": "Esta espécie não está mais em uso.",
+    "species_name_taken": "Já existe uma espécie com esse nome.",
+    "date_in_future": "A data não pode ser futura.",
+    "date_in_past": "A data precisa ser futura.",
+    "date_out_of_range": "Data fora da faixa permitida.",
+    "pet_not_schedulable": "Este animal não aceita agendamento.",
+    "vet_inactive": "Veterinário indisponível.",
+    "specialty_already_linked": "Especialidade já vinculada.",
+    "out_of_range": "Valor fora da faixa.",
+    "id_mismatch": "O cadastro enviado não é o desta página.",
+    "unknown_species": "Espécie fora da lista.",
+    "appointment_not_schedulable": "Este agendamento não pode ser alterado.",
+    "species_in_use": "Espécie em uso."
+  }
+}

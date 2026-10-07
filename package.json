@@ -8,19 +8,20 @@
   },
   "workspaces": [
     "packages/contracts",
-    "apps/api"
+    "apps/api",
+    "apps/web"
   ],
   "scripts": {
-    "build": "bun run --cwd packages/contracts build && bun run --cwd apps/api build",
+    "build": "bun run --cwd packages/contracts build && bun run --cwd apps/api build && bun run --cwd apps/web build",
     "lint": "eslint . --max-warnings=0",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "bun run --cwd packages/contracts typecheck && bun run --cwd apps/api typecheck",
+    "typecheck": "bun run --cwd packages/contracts typecheck && bun run --cwd apps/api typecheck && bun run --cwd apps/web typecheck",
     "boundaries": "bun run --cwd apps/api boundaries",
-    "test:unit": "bun run --cwd packages/contracts test:unit && bun run --cwd apps/api test:unit",
+    "test:unit": "bun run --cwd packages/contracts test:unit && bun run --cwd apps/api test:unit && bun run --cwd apps/web test:unit",
     "test:int": "bun run --cwd apps/api test:int",
     "test:e2e": "bun run --cwd apps/api test:e2e",
-    "test:cov": "bun run --cwd packages/contracts test:cov && bun run --cwd apps/api test:cov",
+    "test:cov": "bun run --cwd packages/contracts test:cov && bun run --cwd apps/api test:cov && bun run --cwd apps/web test:unit",
     "verify": "bun run --cwd packages/contracts build && bun run secrets && bun run lint && bun run format:check && bun run typecheck && bun run boundaries && bun run test:cov && bun run test:int && bun run test:e2e",
     "verify:perf": "bun run --cwd apps/api test:perf",
     "secrets": "node scripts/check-secrets.mjs"

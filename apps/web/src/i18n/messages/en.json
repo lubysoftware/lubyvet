@@ -1,0 +1,81 @@
+{
+  "app": {
+    "name": "LubyVet",
+    "skipToContent": "Skip to content"
+  },
+  "nav": {
+    "owners": "Owners",
+    "schedule": "Schedule",
+    "vets": "Vets",
+    "admin": "Administration"
+  },
+  "language": {
+    "label": "Language",
+    "pt-BR": "Português",
+    "en": "English"
+  },
+  "theme": {
+    "label": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "owners": {
+    "search": "Search by last name",
+    "searchAction": "Search",
+    "notFound": "No owner with that last name.",
+    "lastName": "Last name",
+    "city": "City",
+    "telephone": "Mobile",
+    "pets": "Pets",
+    "page": "Page {page} of {pages}",
+    "next": "Next",
+    "previous": "Previous"
+  },
+  "errors": {
+    "unauthenticated": "Sign in to continue.",
+    "forbidden": "Your role does not allow this action.",
+    "invalid_credentials": "Login or password do not match.",
+    "session_expired": "Your session expired. Sign in again.",
+    "not_found": "Not found.",
+    "owner_not_found": "Owner not found.",
+    "pet_not_found": "Pet not found.",
+    "appointment_not_found": "Appointment not found.",
+    "vet_not_found": "Vet not found.",
+    "species_not_found": "Species not found.",
+    "specialty_not_found": "Specialty not found.",
+    "validation_failed": "Check the highlighted fields.",
+    "stale_version": "Someone else changed this record. Review the current values.",
+    "invalid_transition": "This status change is not allowed.",
+    "idempotency_key_required": "Send the form again.",
+    "request_in_progress": "The same submission is still in progress.",
+    "unsupported_format": "Unsupported format.",
+    "similar_owner": "An owner with this mobile already exists.",
+    "internal_error": "Something failed on our side. Quote code {occurrenceId}."
+  },
+  "fields": {
+    "required": "Fill in this field.",
+    "too_long": "Too long.",
+    "too_short": "Too short.",
+    "invalid_format": "Invalid format.",
+    "invalid_phone": "Enter a Brazilian mobile with area code.",
+    "invalid_cpf": "Invalid CPF.",
+    "cpf_taken": "This CPF belongs to another owner.",
+    "invalid_email": "Invalid e-mail.",
+    "pet_name_taken": "This owner already has a pet with that name.",
+    "species_required": "Choose the species.",
+    "species_inactive": "This species is no longer in use.",
+    "species_name_taken": "A species with that name already exists.",
+    "date_in_future": "The date cannot be in the future.",
+    "date_in_past": "The date must be in the future.",
+    "date_out_of_range": "Date out of range.",
+    "pet_not_schedulable": "This pet cannot be scheduled.",
+    "vet_inactive": "Vet unavailable.",
+    "specialty_already_linked": "Specialty already linked.",
+    "out_of_range": "Value out of range.",
+    "id_mismatch": "The record sent is not the one on this page.",
+    "unknown_species": "Species not in the list.",
+    "appointment_not_schedulable": "This appointment cannot be changed.",
+    "species_in_use": "Species in use."
+  }
+}

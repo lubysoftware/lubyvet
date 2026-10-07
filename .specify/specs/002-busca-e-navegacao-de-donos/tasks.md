@@ -19,7 +19,7 @@
       *satisfaz:* CA-1.2, CA-1.3
       *depende de:* T001
 
-- [ ] **T003** [P] Implementar o retorno ao formulário com erro de campo quando a busca não
+- [x] **T003** [P] Implementar o retorno ao formulário com erro de campo quando a busca não
       encontra nenhum dono
       *entrega:* busca sem resultado devolvendo o próprio formulário com erro no campo de
       sobrenome, com o texto vindo do catálogo de traduções, e nenhuma listagem de zero
@@ -43,7 +43,7 @@
       *satisfaz:* CA-2.2, CA-2.3
       *depende de:* T001
 
-- [ ] **T006** Fazer o termo procurado acompanhar o endereço de cada link de navegação da
+- [x] **T006** Fazer o termo procurado acompanhar o endereço de cada link de navegação da
       listagem
       *entrega:* todo link de página da listagem carregando o sobrenome procurado, de forma
       que avançar de página não desfaça o filtro. **É a correção do defeito BUG-UI-01 do
@@ -65,7 +65,7 @@
       *satisfaz:* CA-2.4
       *depende de:* T005
 
-- [ ] **T009** [P] Implementar o atalho de resultado único
+- [x] **T009** [P] Implementar o atalho de resultado único
       *entrega:* busca com exatamente um resultado apresentando a ficha daquele dono sem
       montar listagem; com dois ou mais, a listagem; e a ficha alcançada pelo atalho sem
       nenhuma mensagem de confirmação de gravação
@@ -95,7 +95,7 @@
       *satisfaz:* CA-2.1, CA-2.2, CA-2.3, CA-2.4
       *depende de:* T008, T010
 
-- [ ] **T013** [P] Testes do atalho de resultado único
+- [x] **T013** [P] Testes do atalho de resultado único
       *entrega:* `UT-010-1` a `UT-010-4` passando, inclusive o caso que distingue um
       resultado de nenhum: um vai à ficha, nenhum volta ao formulário com erro
       *satisfaz:* CA-3.1, CA-3.2, CA-3.3

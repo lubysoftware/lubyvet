@@ -10,7 +10,7 @@
 > Um dos nove critérios desta feature **não tem tarefa**, por faltar uma decisão humana. Ver a
 > seção `Sem tarefa` no fim.
 
-- [ ] **T001** Pôr a geração do estilo no build canônico, antes de existir a primeira folha
+- [x] **T001** Pôr a geração do estilo no build canônico, antes de existir a primeira folha
       *entrega:* o estilo servido sendo produto do build, gerado por um compilador em
       manutenção, e **nenhum arquivo de estilo compilado no versionamento**. No legado a
       ferramenta de geração estava abandonada, o perfil que a executava não era ativado por
@@ -18,7 +18,7 @@
       *satisfaz:* CA-1.1
       *depende de:* a decisão de stack sobre o compilador de estilo
 
-- [ ] **T002** [P] Impedir que arquivo de estilo gerado entre no versionamento
+- [x] **T002** [P] Impedir que arquivo de estilo gerado entre no versionamento
       *entrega:* a exclusão declarada no versionamento e uma verificação no build que falha se
       um arquivo de estilo gerado for comitado. A primeira sozinha é esquecível; a segunda é o
       que torna CA-1.1 durável
@@ -97,7 +97,7 @@
       *satisfaz:* CA-2.1
       *depende de:* T005
 
-- [ ] **T011** Modo escuro e troca de tema
+- [x] **T011** Modo escuro e troca de tema
       *entrega:* o tema segue a preferência do sistema, com troca manual (claro, escuro,
       sistema) guardada em cookie e aplicada sem piscar na primeira renderização do Next;
       a verificação de contraste e o axe rodam nos dois modos (D38)

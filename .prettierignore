@@ -11,3 +11,4 @@ index.md
 *.md
 package-lock.json
 deploy/helm
+apps/web/next-env.d.ts
