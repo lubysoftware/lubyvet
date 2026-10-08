@@ -231,6 +231,23 @@
       "stories": 5,
       "tasks": 16,
       "tasks_file": "specs/011-divida-tecnica/tasks.md"
+    },
+    {
+      "cards": [],
+      "criteria": 24,
+      "depends_on": [
+        "001-gestao-de-donos",
+        "009-vocabularios-do-dominio",
+        "011-divida-tecnica"
+      ],
+      "epic": "—",
+      "id": "012-normalizacao-do-cadastro",
+      "name": "Normalização do cadastro",
+      "plan": "specs/012-normalizacao-do-cadastro/plan.md",
+      "spec": "specs/012-normalizacao-do-cadastro/spec.md",
+      "stories": 4,
+      "tasks": 8,
+      "tasks_file": "specs/012-normalizacao-do-cadastro/tasks.md"
     }
   ],
   "excluded": [],

@@ -519,3 +519,56 @@ usa, porque sobrescreveria os tokens do `globals.css`.
 para a tela atribuí-las a um veterinário (009/CA-2.1 e CA-2.2), que a API já aceitava e a tela
 não oferecia. É rota nova e só de leitura; criar, renomear ou inativar especialidade continua
 fora (P-11 fica para quando houver tela de manutenção).
+
+## 13. Normalização do cadastro (2026-10-08, sétima sessão)
+
+A análise de normalização de 08/10/2026 apontou quatro lacunas de modelo que o usuário mandou
+implementar (feature 012). As formas abaixo foram tomadas pela recomendação da análise, com
+autorização para seguir sem nova consulta; cada uma é revisável.
+
+**D49. O dono tem um celular principal e até quatro telefones adicionais.**
+- O celular de D05 continua obrigatório, único por dono e destino do WhatsApp (D12). No
+  contrato ele segue como `telephone`.
+- Os adicionais são opcionais, no máximo quatro, e cada um é celular **ou fixo** brasileiro.
+  Fixo é DDD válido mais oito dígitos começando de 2 a 5. São gravados em E.164 e na ordem em
+  que foram informados, numa tabela própria (`owner_phones`), sem repetir número dentro do
+  mesmo dono, contando o principal.
+- No contrato o campo é `otherPhones: string[]`, aditivo (P9). Na alteração, a lista presente
+  substitui a anterior inteira; a ausente não muda nada.
+- D14 se amplia: há dono parecido quando qualquer telefone do dono gravado, principal ou
+  adicional, coincide com qualquer telefone de outro dono.
+- Na anonimização (D24) as linhas de telefone adicional são removidas. A linha só existe para
+  guardar o dado pessoal, nada do histórico clínico aponta para ela, e é a forma de anonimizar
+  um valor que não pode ser substituído por marcador sem violar a unicidade por dono.
+
+**D50. O endereço do dono é estruturado.**
+- Campos: logradouro (`address`, o campo que já existia), número (`addressNumber`, até 10,
+  aceita "S/N"), complemento (`addressComplement`, opcional, até 60), bairro (`district`, até
+  80), cidade (`city`, o que já existia), UF (`state`, uma das 27 siglas) e CEP (`postalCode`,
+  aceita máscara e é gravado com os oito dígitos).
+- Na criação todos são obrigatórios, menos o complemento. A alteração continua parcial
+  (Pergunta 22).
+- Os donos já cadastrados não têm como ser convertidos com segurança, porque o texto livre não
+  se divide sem adivinhar. As colunas novas ficam nulas neles, a saída as devolve nulas e a
+  tela mostra o endereço como estava, pedindo para completar na próxima edição.
+- UF e CEP também são CHECK no banco. Não há consulta de CEP a serviço externo.
+
+**D51. A dispensa do aviso de dono parecido tem histórico.**
+- Cada dispensa grava uma linha por candidato apresentado: o dono gravado, o dono parecido,
+  quem dispensou (D02) e quando (`owner_similarity_dismissals`, só identificadores, P-16).
+- A coluna `owners.similarity_dismissed_at` continua como a data da última dispensa, uma
+  redundância de propósito que a consulta de consistência confere.
+- A leitura é `GET /api/owners/:ownerId/similarity-dismissals`, só para o Administrador
+  (auditoria, D18). A ficha do dono mostra a lista a ele.
+
+**D52. O Administrador mantém as especialidades.** *(fecha P-11)*
+- A especialidade ganha situação (ativa ou inativa) e versão, como a espécie (P-10).
+- `POST /api/admin/specialties` inclui e `PATCH /api/admin/specialties/:id` renomeia e muda a
+  situação, com a versão lida (US-5). O nome continua único sem diferenciar maiúsculas.
+- Especialidade inativa não se atribui mais. Ela continua nos veterinários que já a têm e no
+  catálogo, como a espécie inativa continua nos animais.
+- `GET /api/admin/specialties` (D48) passa a devolver também situação, versão e quantos
+  veterinários a têm.
+- `PATCH /api/admin/vets/:id` aceita `removeSpecialtyId`. Desfazer um vínculo não é apagar
+  dado pessoal (P2): o vínculo é o estado atual do quadro, e o histórico de atendimentos não
+  depende dele.
