@@ -57,3 +57,20 @@ atendimento (D26 define 2000, então ali é `VARCHAR(2000)`).
 - `prisma migrate diff` roda no `verify` e falha se o schema e as migrações divergirem.
 - Dados de exemplo para desenvolvimento ficam em `apps/api/prisma/seed.ts`, sintéticos, e
   nunca rodam em produção.
+
+## Integridade garantida pelo banco (08/10/2026)
+
+O banco recusa sozinho o que antes só a aplicação impedia; a regra mora na aplicação e o banco é
+a última linha:
+
+- **Toda coluna de relacionamento tem chave estrangeira**, inclusive autoria (`created_by`,
+  `updated_by` → `users`), anonimização e caixa de saída. Todas com `ON DELETE RESTRICT` (P2).
+- **Atendimento só se liga a agendamento do mesmo animal (P1):** chave estrangeira composta
+  `encounters (appointment_id, pet_id) → appointments (id, pet_id)`.
+- **Domínios fechados por CHECK:** situações, papéis, tipos de mensagem, login em minúsculas,
+  peso de D26 e versões não negativas. O `schema.prisma` não declara CHECK, então cada uma está em
+  `prisma/raw-sql-objects.json`, e o teste de divergência confere que existe no banco migrado.
+- **Duas redundâncias de propósito:** a situação do agendamento está na coluna e é também a
+  última linha do histórico; "Realizada" equivale a ter atendimento ligado. As duas ficam por
+  desempenho de leitura e são vigiadas pela consulta `test/support/consistency.ts`, que o teste
+  de aceitação da 004 roda depois dos fluxos e que serve à operação para auditar o banco.

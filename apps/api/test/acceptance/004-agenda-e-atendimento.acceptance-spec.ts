@@ -12,6 +12,7 @@ import { appointmentAccepts, encounterAccepts, todayIn } from '../../src/modules
 import { bootApp, idem, type TestApp } from '../support/app';
 import { aPetInput, anOwner, patchPet, postPet } from '../support/pets';
 import { readRepo } from '../support/structural';
+import { CONSISTENCY } from '../support/consistency';
 import { testDb } from '../support/test-db';
 
 const NOW = '2026-10-07T12:00:00-03:00';
@@ -259,5 +260,13 @@ describe('004 Agenda e atendimento de visitas: critérios de aceite', () => {
     expect(await testDb.count('appointments')).toBe(1);
     const h = (await visits()).appointments[0].history.at(-1);
     expect(h).toMatchObject({ to: 'cancelled', at: '2026-10-10T11:00:00.000Z' });
+  });
+
+  it('004 o fluxo da API deixa situação, histórico e atendimento coerentes (redundâncias de propósito)', async () => {
+    const a = (await schedule('2026-10-20T10:00:00-03:00')).body;
+    const b = (await schedule('2026-10-21T10:00:00-03:00')).body;
+    await t.api.post(`${base}/appointments/${b.id}/cancel`).set(idem()).send({ version: 0 }).expect(200);
+    await record({ appointmentId: a.id, appointmentVersion: 0 }).expect(201);
+    expect((await testDb.sql.query(CONSISTENCY)).rows).toEqual([]);
   });
 });

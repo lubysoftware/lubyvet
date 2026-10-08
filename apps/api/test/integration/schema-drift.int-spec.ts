@@ -4,6 +4,7 @@ import { join } from 'node:path';
 
 const root = join(__dirname, '../..');
 const raw = JSON.parse(readFileSync(join(root, 'prisma/raw-sql-objects.json'), 'utf8')) as {
+  checks: Record<string, string>;
   indexes: Record<string, string>;
 };
 
@@ -36,5 +37,16 @@ describe('migrações versionadas (P5)', () => {
     await pool.end();
     const present = new Set(rows.map((r) => r.indexname));
     expect(Object.keys(raw.indexes).filter((n) => !present.has(n))).toEqual([]);
+  });
+
+  it('toda restrição CHECK declarada existe no banco migrado (012)', async () => {
+    const { Pool } = await import('pg');
+    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+    const { rows } = await pool.query<{ conname: string }>(
+      "select conname from pg_constraint where contype = 'c' and connamespace = 'public'::regnamespace",
+    );
+    await pool.end();
+    const present = new Set(rows.map((r) => r.conname));
+    expect(Object.keys(raw.checks).filter((n) => !present.has(n))).toEqual([]);
   });
 });

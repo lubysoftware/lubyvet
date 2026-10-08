@@ -11,29 +11,33 @@ datasource db {
 
 /// Dono: raiz do agregado (P1). Limites iguais aos de OWNER_LIMITS (P3, P6).
 model Owner {
-  id        Int      @id @default(autoincrement()) @map("id")
-  firstName String   @map("first_name") @db.VarChar(30)
-  lastName  String   @map("last_name") @db.VarChar(30)
-  address   String   @map("address") @db.VarChar(255)
-  city      String   @map("city") @db.VarChar(80)
+  id                    Int       @id @default(autoincrement()) @map("id")
+  firstName             String    @map("first_name") @db.VarChar(30)
+  lastName              String    @map("last_name") @db.VarChar(30)
+  address               String    @map("address") @db.VarChar(255)
+  city                  String    @map("city") @db.VarChar(80)
   /// E.164 (D05)
-  telephone String   @map("telephone") @db.VarChar(14)
+  telephone             String    @map("telephone") @db.VarChar(14)
   /// Só dígitos (D13); único enquanto presente, por índice parcial em SQL cru (D15)
-  cpf                String?   @map("cpf") @db.Char(11)
-  email              String?   @map("email") @db.VarChar(254)
+  cpf                   String?   @map("cpf") @db.Char(11)
+  email                 String?   @map("email") @db.VarChar(254)
   /// Data do consentimento de mensagens; nulo significa sem consentimento (D12)
-  messagingConsentAt DateTime? @map("messaging_consent_at") @db.Timestamptz(3)
+  messagingConsentAt    DateTime? @map("messaging_consent_at") @db.Timestamptz(3)
   /// CA-3.2: o aviso de dono parecido foi visto e dispensado nesta data (D14)
   similarityDismissedAt DateTime? @map("similarity_dismissed_at") @db.Timestamptz(3)
-  version   Int      @default(0) @map("version")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  version               Int       @default(0) @map("version")
+  createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt             DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  pets Pet[]
+  pets          Pet[]
+  anonymization OwnerAnonymization?
 
   /// D02: autoria por pessoa, preenchida pela identidade da requisição
-  createdBy Int? @map("created_by")
-  updatedBy Int? @map("updated_by")
+  createdBy Int?  @map("created_by")
+  creator   User? @relation("OwnerCreatedBy", fields: [createdBy], references: [id], onDelete: Restrict, map: "owners_created_by_fkey")
+  updatedBy Int?  @map("updated_by")
+  updater   User? @relation("OwnerUpdatedBy", fields: [updatedBy], references: [id], onDelete: Restrict, map: "owners_updated_by_fkey")
+
   @@map("owners")
 }
 
@@ -65,46 +69,55 @@ model Species {
 
 /// Animal: sempre dentro do dono (P1). Nome único por dono sem diferenciar maiúsculas (SQL cru).
 model Pet {
-  id        Int      @id @default(autoincrement()) @map("id")
-  ownerId   Int      @map("owner_id")
-  name      String   @map("name") @db.VarChar(30)
-  birthDate DateTime @map("birth_date") @db.Date
-  speciesId Int      @map("species_id")
+  id           Int           @id @default(autoincrement()) @map("id")
+  ownerId      Int           @map("owner_id")
+  name         String        @map("name") @db.VarChar(30)
+  birthDate    DateTime      @map("birth_date") @db.Date
+  speciesId    Int           @map("species_id")
   /// D09: active | deceased | transferred
-  status    String   @default("active") @map("status") @db.VarChar(12)
-  version   Int      @default(0) @map("version")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
-  owner     Owner    @relation(fields: [ownerId], references: [id], onDelete: Restrict, map: "pets_owner_id_fkey")
-  species   Species  @relation(fields: [speciesId], references: [id], onDelete: Restrict, map: "pets_species_id_fkey")
+  status       String        @default("active") @map("status") @db.VarChar(12)
+  version      Int           @default(0) @map("version")
+  createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+  owner        Owner         @relation(fields: [ownerId], references: [id], onDelete: Restrict, map: "pets_owner_id_fkey")
+  species      Species       @relation(fields: [speciesId], references: [id], onDelete: Restrict, map: "pets_species_id_fkey")
   appointments Appointment[]
   encounters   Encounter[]
 
   /// D02: autoria por pessoa, preenchida pela identidade da requisição
-  createdBy Int? @map("created_by")
-  updatedBy Int? @map("updated_by")
+  createdBy Int?  @map("created_by")
+  creator   User? @relation("PetCreatedBy", fields: [createdBy], references: [id], onDelete: Restrict, map: "pets_created_by_fkey")
+  updatedBy Int?  @map("updated_by")
+  updater   User? @relation("PetUpdatedBy", fields: [updatedBy], references: [id], onDelete: Restrict, map: "pets_updated_by_fkey")
+
   @@index([ownerId], map: "pets_owner_id_idx")
   @@map("pets")
 }
 
 /// Agendamento (004, Pergunta 1): compromisso futuro do animal. Situações de D10.
 model Appointment {
-  id          Int      @id @default(autoincrement()) @map("id")
-  petId       Int      @map("pet_id")
-  scheduledAt DateTime @map("scheduled_at") @db.Timestamptz(3)
-  description String   @map("description") @db.VarChar(255)
+  id          Int                       @id @default(autoincrement()) @map("id")
+  petId       Int                       @map("pet_id")
+  scheduledAt DateTime                  @map("scheduled_at") @db.Timestamptz(3)
+  description String                    @map("description") @db.VarChar(255)
   /// scheduled | done | cancelled | no_show
-  status      String   @default("scheduled") @map("status") @db.VarChar(12)
-  version     Int      @default(0) @map("version")
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
-  pet         Pet      @relation(fields: [petId], references: [id], onDelete: Restrict, map: "appointments_pet_id_fkey")
+  status      String                    @default("scheduled") @map("status") @db.VarChar(12)
+  version     Int                       @default(0) @map("version")
+  createdAt   DateTime                  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime                  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  pet         Pet                       @relation(fields: [petId], references: [id], onDelete: Restrict, map: "appointments_pet_id_fkey")
   changes     AppointmentStatusChange[]
   encounter   Encounter?
+  outbox      NotificationOutbox[]
 
   /// D02: autoria por pessoa, preenchida pela identidade da requisição
-  createdBy Int? @map("created_by")
-  updatedBy Int? @map("updated_by")
+  createdBy Int?  @map("created_by")
+  creator   User? @relation("AppointmentCreatedBy", fields: [createdBy], references: [id], onDelete: Restrict, map: "appointments_created_by_fkey")
+  updatedBy Int?  @map("updated_by")
+  updater   User? @relation("AppointmentUpdatedBy", fields: [updatedBy], references: [id], onDelete: Restrict, map: "appointments_updated_by_fkey")
+
+  /// 012: o atendimento só se liga a agendamento do mesmo animal (P1), pela chave composta.
+  @@unique([id, petId], map: "appointments_id_pet_id_key")
   @@index([petId, scheduledAt], map: "appointments_pet_id_scheduled_at_idx")
   @@map("appointments")
 }
@@ -140,11 +153,16 @@ model Encounter {
   updatedAt      DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
   pet            Pet          @relation(fields: [petId], references: [id], onDelete: Restrict, map: "encounters_pet_id_fkey")
   vet            Vet?         @relation(fields: [vetId], references: [id], onDelete: Restrict, map: "encounters_vet_id_fkey")
-  appointment    Appointment? @relation(fields: [appointmentId], references: [id], onDelete: Restrict, map: "encounters_appointment_id_fkey")
+  appointment    Appointment? @relation(fields: [appointmentId, petId], references: [id, petId], onDelete: Restrict, map: "encounters_appointment_id_fkey")
 
   /// D02: autoria por pessoa, preenchida pela identidade da requisição
-  createdBy Int? @map("created_by")
-  updatedBy Int? @map("updated_by")
+  createdBy Int?  @map("created_by")
+  creator   User? @relation("EncounterCreatedBy", fields: [createdBy], references: [id], onDelete: Restrict, map: "encounters_created_by_fkey")
+  updatedBy Int?  @map("updated_by")
+  updater   User? @relation("EncounterUpdatedBy", fields: [updatedBy], references: [id], onDelete: Restrict, map: "encounters_updated_by_fkey")
+
+  /// 012: exigido pelo Prisma para a relação 1:1 composta com o agendamento do mesmo animal.
+  @@unique([appointmentId, petId], map: "encounters_appointment_id_pet_id_key")
   @@index([petId, date], map: "encounters_pet_id_date_idx")
   @@index([vetId], map: "encounters_vet_id_idx")
   @@map("encounters")
@@ -152,14 +170,14 @@ model Encounter {
 
 /// Veterinário (005): catálogo institucional; atende opcionalmente (D01).
 model Vet {
-  id          Int              @id @default(autoincrement()) @map("id")
-  firstName   String           @map("first_name") @db.VarChar(30)
-  lastName    String           @map("last_name") @db.VarChar(30)
+  id          Int            @id @default(autoincrement()) @map("id")
+  firstName   String         @map("first_name") @db.VarChar(30)
+  lastName    String         @map("last_name") @db.VarChar(30)
   /// P-09: active | dismissed
-  status      String           @default("active") @map("status") @db.VarChar(10)
-  version     Int              @default(0) @map("version")
-  createdAt   DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt   DateTime         @updatedAt @map("updated_at") @db.Timestamptz(3)
+  status      String         @default("active") @map("status") @db.VarChar(10)
+  version     Int            @default(0) @map("version")
+  createdAt   DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
   specialties VetSpecialty[]
   encounters  Encounter[]
 
@@ -189,18 +207,28 @@ model VetSpecialty {
 
 /// Usuário da equipe da clínica (007, D17): identidade própria, um papel por usuário (D18).
 model User {
-  id             Int       @id @default(autoincrement()) @map("id")
-  name           String    @map("name") @db.VarChar(80)
-  login          String    @map("login") @db.VarChar(120)
-  passwordHash   String    @map("password_hash") @db.VarChar(255)
+  id                     Int                  @id @default(autoincrement()) @map("id")
+  name                   String               @map("name") @db.VarChar(80)
+  login                  String               @map("login") @db.VarChar(120)
+  passwordHash           String               @map("password_hash") @db.VarChar(255)
   /// reader | writer | admin
-  role           String    @map("role") @db.VarChar(10)
+  role                   String               @map("role") @db.VarChar(10)
   /// active | inactive
-  status         String    @default("active") @map("status") @db.VarChar(10)
-  failedAttempts Int       @default(0) @map("failed_attempts")
-  lockedUntil    DateTime? @map("locked_until") @db.Timestamptz(3)
-  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  status                 String               @default("active") @map("status") @db.VarChar(10)
+  failedAttempts         Int                  @default(0) @map("failed_attempts")
+  lockedUntil            DateTime?            @map("locked_until") @db.Timestamptz(3)
+  createdAt              DateTime             @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt              DateTime             @updatedAt @map("updated_at") @db.Timestamptz(3)
+  ownersCreated          Owner[]              @relation("OwnerCreatedBy")
+  ownersUpdated          Owner[]              @relation("OwnerUpdatedBy")
+  petsCreated            Pet[]                @relation("PetCreatedBy")
+  petsUpdated            Pet[]                @relation("PetUpdatedBy")
+  appointmentsCreated    Appointment[]        @relation("AppointmentCreatedBy")
+  appointmentsUpdated    Appointment[]        @relation("AppointmentUpdatedBy")
+  encountersCreated      Encounter[]          @relation("EncounterCreatedBy")
+  encountersUpdated      Encounter[]          @relation("EncounterUpdatedBy")
+  anonymizationsDone     OwnerAnonymization[] @relation("AnonymizedBy")
+  anonymizationsReviewed OwnerAnonymization[] @relation("ReviewedBy")
 
   @@unique([login], map: "users_login_key")
   @@map("users")
@@ -208,30 +236,34 @@ model User {
 
 /// 007/T011: registro de cada anonimização, com data e Administrador (D24, D25).
 model OwnerAnonymization {
-  id            Int      @id @default(autoincrement()) @map("id")
-  ownerId       Int      @unique(map: "owner_anonymizations_owner_id_key") @map("owner_id")
-  anonymizedAt  DateTime @map("anonymized_at") @db.Timestamptz(3)
-  anonymizedBy  Int      @map("anonymized_by")
+  id           Int       @id @default(autoincrement()) @map("id")
+  ownerId      Int       @unique(map: "owner_anonymizations_owner_id_key") @map("owner_id")
+  anonymizedAt DateTime  @map("anonymized_at") @db.Timestamptz(3)
+  anonymizedBy Int       @map("anonymized_by")
   /// D25: posições de texto livre a revisar (entidade, id, campo, início, fim), nunca o dado em si
-  pendingSpans  Json     @map("pending_spans")
-  reviewedAt    DateTime? @map("reviewed_at") @db.Timestamptz(3)
-  reviewedBy    Int?     @map("reviewed_by")
+  pendingSpans Json      @map("pending_spans")
+  reviewedAt   DateTime? @map("reviewed_at") @db.Timestamptz(3)
+  reviewedBy   Int?      @map("reviewed_by")
+  owner        Owner     @relation(fields: [ownerId], references: [id], onDelete: Restrict, map: "owner_anonymizations_owner_id_fkey")
+  anonymizer   User      @relation("AnonymizedBy", fields: [anonymizedBy], references: [id], onDelete: Restrict, map: "owner_anonymizations_anonymized_by_fkey")
+  reviewer     User?     @relation("ReviewedBy", fields: [reviewedBy], references: [id], onDelete: Restrict, map: "owner_anonymizations_reviewed_by_fkey")
 
   @@map("owner_anonymizations")
 }
 
 /// 004/T023, D12: caixa de saída das mensagens ao dono, gravada na mesma transação do agendamento.
 model NotificationOutbox {
-  id            Int       @id @default(autoincrement()) @map("id")
+  id            Int         @id @default(autoincrement()) @map("id")
   /// confirmation | reminder
-  kind          String    @map("kind") @db.VarChar(20)
-  appointmentId Int       @map("appointment_id")
+  kind          String      @map("kind") @db.VarChar(20)
+  appointmentId Int         @map("appointment_id")
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Restrict, map: "notification_outbox_appointment_id_fkey")
   /// pending | published | sent | skipped | failed
-  status        String    @default("pending") @map("status") @db.VarChar(12)
-  attempts      Int       @default(0) @map("attempts")
-  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
-  publishedAt   DateTime? @map("published_at") @db.Timestamptz(3)
-  sentAt        DateTime? @map("sent_at") @db.Timestamptz(3)
+  status        String      @default("pending") @map("status") @db.VarChar(12)
+  attempts      Int         @default(0) @map("attempts")
+  createdAt     DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
+  publishedAt   DateTime?   @map("published_at") @db.Timestamptz(3)
+  sentAt        DateTime?   @map("sent_at") @db.Timestamptz(3)
 
   @@unique([appointmentId, kind], map: "notification_outbox_appointment_kind_key")
   @@index([status], map: "notification_outbox_status_idx")

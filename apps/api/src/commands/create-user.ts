@@ -21,7 +21,8 @@ async function main(): Promise<void> {
     `insert into users (name, login, password_hash, role, updated_at) values ($1, $2, $3, $4, now())
      on conflict (login) do update set name = $1, password_hash = $3, role = $4, status = 'active',
        failed_attempts = 0, locked_until = null, updated_at = now()`,
-    [name, login, hash, role as Role],
+    // A autenticação procura o login em minúsculas (users_login_lower_check).
+    [name, login.trim().toLowerCase(), hash, role as Role],
   );
   await pool.end();
   logger.info({ role }, 'usuário gravado');
