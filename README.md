@@ -15,24 +15,15 @@ e registrada antes de virar código.
 
 ## Como o projeto foi construído
 
-1. **Análise do sistema de origem.** O spring-petclinic foi lido inteiro. Saíram dele as
-   regras de negócio (REG-01 a REG-48), as contradições entre camadas (C1 a C5), a matriz de
-   permissões e uma lista de perguntas que só uma pessoa podia responder.
-2. **Decisão humana.** As perguntas foram respondidas e viraram
-   [`memory/decisoes.md`](memory/decisoes.md) (decisões D01 em diante, padrões P-01 em
-   diante). Os problemas estruturais do sistema de origem viraram os 9 princípios de
-   [`memory/constitution.md`](memory/constitution.md).
-3. **Especificação por feature.** Em [`.specify/specs/`](.specify/specs/), cada feature tem
-   `spec.md` (o quê e por quê, com critérios de aceite numerados), `plan.md` (como) e
-   `tasks.md` (o que se executa, uma tarefa por commit).
-4. **Implementação guiada por teste.** Cada critério de aceite `NNN/CA-x.y` tem um teste de
-   aceitação com esse nome, rodando contra a pilha real. Nenhuma tarefa é entregue sem o
-   veredito verde.
+O spring-petclinic foi lido por inteiro, e dele saíram as regras de negócio, as
+contradições entre camadas e as perguntas que só uma pessoa podia responder. As respostas
+viraram decisões registradas, e os problemas estruturais do sistema de origem viraram nove
+princípios que nenhuma mudança pode violar. Cada funcionalidade foi descrita com critérios
+de aceite numerados antes de existir código, e cada critério tem um teste de aceitação com
+o mesmo nome, rodando contra a pilha real. Nada é entregue sem o veredito verde.
 
-O spring-petclinic continua clonado ao lado (`~/projects/spring-petclinic`). Ele serve de
-referência executável: a suíte dele foi rodada sobre o commit `500158f` e passou com 79
-testes, 0 falhas e 2 pulados (`memory/decisoes.md` §8). Também serviu de dicionário de
-nomes de coluna e de referência de telas.
+A suíte do spring-petclinic também foi executada, para servir de referência do
+comportamento original: 79 testes, 0 falhas e 2 pulados, no commit `500158f` do upstream.
 
 ## Os dois sistemas lado a lado
 
@@ -62,7 +53,7 @@ não são descuido. São o que acontece quando regras importantes ficam implíci
 estrutura do código, e uma aplicação de exemplo nunca precisou torná-las explícitas. Cada
 princípio do LubyVet nasceu de um desses pontos e tem um teste que reprova quem o violar.
 
-### Isolamento entre clientes (P1)
+### Isolamento entre clientes
 
 - **No spring-petclinic,** o isolamento existia por acidente. Todo acesso a animal passava
   por `owner.getPet(petId)`, que só varre os animais daquele dono, e não havia repositório
@@ -73,7 +64,7 @@ princípio do LubyVet nasceu de um desses pontos e tem um teste que reprova quem
   teste que pede o animal de um dono com o identificador de outro e espera recusa. Esse
   teste foi escrito antes da implementação.
 
-### Uma regra, um limite (P3, P5, P6)
+### Uma regra, um limite
 
 - **No spring-petclinic,** havia três esquemas mantidos à mão, um por dialeto, e quatro
   comportamentos mudavam conforme o perfil escolhido. Não existia "o comportamento do
@@ -91,7 +82,7 @@ princípio do LubyVet nasceu de um desses pontos e tem um teste que reprova quem
   unicidade), e um teste de integridade tenta violar cada uma. O erro é reconhecido pelo
   tipo, nunca pelo texto da exceção.
 
-### Identificador e "registro novo" (P4)
+### Identificador e "registro novo"
 
 - **No spring-petclinic,** o predicado "ainda não foi gravado" tinha nove consumidores, três
   deles em templates que nenhum compilador verifica, e governava seis comportamentos. Se a
@@ -100,7 +91,7 @@ princípio do LubyVet nasceu de um desses pontos e tem um teste que reprova quem
 - **No LubyVet,** o identificador nasce no banco e "novo" é exatamente "sem id". Cada
   comportamento que depende disso tem um teste que nomeia essa dependência.
 
-### Dado pessoal (P2)
+### Dado pessoal
 
 - **No spring-petclinic,** nome, endereço e telefone de pessoa física eram guardados sem data
   de criação e sem nenhum caminho de exclusão. As chaves estrangeiras não declaravam o que
@@ -109,7 +100,7 @@ princípio do LubyVet nasceu de um desses pontos e tem um teste que reprova quem
   um teste que anonimiza um registro e confere três coisas: o dado identificável saiu, o
   histórico vinculado continuou existindo e a data de alteração mudou.
 
-### Contrato e erros (P9)
+### Contrato e erros
 
 - **No spring-petclinic,** renomear um parâmetro de fragmento de template mudava o contrato
   HTTP sem tocar em uma linha de Java. O endpoint do catálogo expunha estado interno de
@@ -117,7 +108,7 @@ princípio do LubyVet nasceu de um desses pontos e tem um teste que reprova quem
 - **No LubyVet,** rota, campo, envelope e status são contrato escrito antes do código, em
   zod, e mudam só com decisão registrada. Cada rota tem teste de contrato.
 
-### Textos da interface (P7)
+### Textos da interface
 
 - **No spring-petclinic,** a interface tinha 10 idiomas, com teste de completude. Mesmo
   assim, as seis mensagens de confirmação de gravação estavam em inglês literal no código.
@@ -126,7 +117,7 @@ princípio do LubyVet nasceu de um desses pontos e tem um teste que reprova quem
 - **No LubyVet,** todo texto visível sai do catálogo. A verificação falha tanto com chave
   faltando quanto com chave sem uso.
 
-### Um veredito só (P8)
+### Um veredito só
 
 - **No spring-petclinic,** Maven e Gradle conviviam com dependências divergentes e dois
   fluxos de CI. A cobertura era medida em só um deles, e por isso nenhum número de
@@ -144,22 +135,22 @@ princípio do LubyVet nasceu de um desses pontos e tem um teste que reprova quem
   9. Playwright no web, com axe nos dois temas
   10. aceitação por critério
 
-  A cobertura mínima é de 90% de linhas e de ramos em domínio e casos de uso (D44). A
-  aceitação também confere a rastreabilidade: todo critério de uma feature entregue precisa
-  ter teste.
+  A cobertura mínima é de 90% de linhas e de ramos em domínio e casos de uso. A
+  aceitação também confere a rastreabilidade: todo critério de uma funcionalidade entregue
+  precisa ter teste.
 
 ### Em números
 
-Medido em 2026-10-08, depois da tarefa 012/T002.
+Medido em 2026-10-08.
 
 | | spring-petclinic | LubyVet |
 |---|---|---|
-| código de produção | 1.899 linhas Java + 536 linhas de template | 8.820 linhas TypeScript (API 4.840, web 3.381, contratos 599) |
-| código de teste | 2.398 linhas, 18 suítes | 8.734 linhas |
-| testes | 79 executados (2 pulados sem Docker) | 645: contratos 15, unidade da API 113, componentes do web 86, integração 42, e2e da API 170, Playwright 32, aceitação 187 |
+| código de produção | 1.899 linhas Java + 536 linhas de template | 9.022 linhas TypeScript (API 4.973, web 3.439, contratos 610) |
+| código de teste | 2.398 linhas, 18 suítes | 8.967 linhas |
+| testes | 79 executados (2 pulados sem Docker) | 657: contratos 15, unidade da API 115, componentes do web 89, integração 45, e2e da API 171, Playwright 32, aceitação 190 |
 | cobertura mínima exigida | nenhuma | 90% em domínio e casos de uso |
-| critérios de aceite rastreados até um teste | não há critérios escritos | 176 nas features 001–011 (3 fora do escopo por D22), mais os da 012 |
-| decisões registradas | não há registro | D01–D52 e P-01–P-25 |
+| critérios de aceite rastreados até um teste | não há critérios escritos | todos os das funcionalidades entregues |
+| decisões de projeto registradas | não há registro | mais de 70, entre decisões e padrões |
 
 ### O que o LubyVet custa a mais
 
@@ -170,7 +161,7 @@ A comparação não é de graça, e vale dizer o que se trocou:
   H2 em memória. Parte da diferença vem do que o spring-petclinic simplesmente não tinha
   (acesso, LGPD, lembretes, concorrência). A outra parte é o preço da separação entre API,
   web e contratos.
-- **Menos idiomas.** São dois idiomas, contra dez. Foi uma escolha de escopo da feature 006.
+- **Menos idiomas.** São dois idiomas, contra dez. Foi uma escolha de escopo.
   O catálogo e o teste de completude estão prontos para receber mais.
 - **Verificação mais lenta.** O veredito completo sobe contêineres e roda navegador, e leva
   minutos. `bun run test:unit` é o ciclo rápido, em segundos e sem Docker.
@@ -199,10 +190,7 @@ apps/web/              Next.js (App Router), shadcn/ui, Tailwind 4; só apresent
 packages/contracts/    schemas zod de entrada, saída e erro de cada rota
 deploy/                Helm chart, painéis Grafana e ensaio de restauração
 docs/padroes/          como o código é escrito e testado
-memory/                constituição e decisões
-.specify/specs/        spec, plano e tarefas de cada feature (001–012)
 ```
 
-Para contribuir, comece pelo [`AGENTS.md`](AGENTS.md), pela
-[constituição](memory/constitution.md) e pelas [decisões](memory/decisoes.md). Os padrões
-de código e de teste estão em [`docs/padroes/`](docs/padroes/).
+Para contribuir, comece pelo [`AGENTS.md`](AGENTS.md). Os padrões de código e de teste
+estão em [`docs/padroes/`](docs/padroes/).
