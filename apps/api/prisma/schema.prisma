@@ -187,6 +187,9 @@ model Vet {
 model Specialty {
   id        Int            @id @default(autoincrement()) @map("id")
   name      String         @map("name") @db.VarChar(80)
+  /// D52: active | inactive
+  status    String         @default("active") @map("status") @db.VarChar(10)
+  version   Int            @default(0) @map("version")
   createdAt DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
   vets      VetSpecialty[]

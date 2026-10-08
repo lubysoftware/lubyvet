@@ -47,6 +47,8 @@ export const FIELD_ERROR_CODES = [
   'pet_not_schedulable',
   'vet_inactive',
   'specialty_already_linked',
+  'specialty_name_taken',
+  'specialty_inactive',
   'out_of_range',
   'id_mismatch',
   'unknown_species',

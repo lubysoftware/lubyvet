@@ -74,6 +74,7 @@ describe('integridade de dados no banco', () => {
       ['concluido', appt],
       'appointments_status_check',
     );
+    await rejects(`update specialties set status = 'extinta' where id = 1`, [], 'specialties_status_check');
     await rejects(`update users set role = 'root' where id = 1`, [], 'users_role_check');
     await rejects(`update users set login = 'Ana@X' where id = 1`, [], 'users_login_lower_check');
     await rejects(

@@ -91,6 +91,8 @@
     "pet_not_schedulable": "This pet cannot be scheduled.",
     "vet_inactive": "Vet unavailable.",
     "specialty_already_linked": "Specialty already linked.",
+    "specialty_name_taken": "A specialty with that name already exists.",
+    "specialty_inactive": "This specialty is no longer in use.",
     "out_of_range": "Value out of range.",
     "id_mismatch": "The record sent is not the one on this page.",
     "unknown_species": "Species not in the list.",

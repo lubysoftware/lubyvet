@@ -12,6 +12,7 @@
     "appointments_status_check": "D10: Agendada, Realizada, Cancelada, Não compareceu",
     "appointment_status_changes_status_check": "D10: o histórico só registra situações válidas",
     "species_status_check": "P-10: espécie Ativa ou Inativa",
+    "specialties_status_check": "D52: especialidade Ativa ou Inativa",
     "vets_status_check": "P-09: veterinário Ativo ou Desligado",
     "users_role_check": "D18: Leitura, Escrita, Administrador",
     "users_status_check": "007: usuário ativo ou inativo",

@@ -2,7 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { FieldRuleViolation } from '../../../shared/domain/errors';
 import { PrismaService } from '../../../shared/infra/prisma.service';
 import { isUniqueViolation, violatedUniqueConstraint } from '../../../shared/infra/unique-violation';
-import type { SpeciesRow, VetRow, VocabularyRepository } from '../application/ports/vocabulary.port';
+import type {
+  SpecialtyRow,
+  SpeciesRow,
+  VetRow,
+  VocabularyRepository,
+} from '../application/ports/vocabulary.port';
 
 /** P6: violação reconhecida pelo tipo e pelo nome da restrição. */
 function translate(error: unknown): never {
@@ -18,6 +23,28 @@ function translate(error: unknown): never {
   }
   throw error;
 }
+
+/** D52: o nome da especialidade é único sem diferenciar maiúsculas (specialties_lower_name_key). */
+function translateSpecialty(error: unknown): never {
+  if (isUniqueViolation(error) && violatedUniqueConstraint(error) === 'specialties_lower_name_key')
+    throw new FieldRuleViolation([{ path: 'name', code: 'specialty_name_taken' }]);
+  throw error;
+}
+
+const specialtyRow = (r: {
+  id: number;
+  name: string;
+  status: string;
+  version: number;
+  _count: { vets: number };
+}): SpecialtyRow => ({
+  id: r.id,
+  name: r.name,
+  status: r.status,
+  version: r.version,
+  vetsCount: r._count.vets,
+});
+const withVetsCount = { _count: { select: { vets: true } } } as const;
 
 @Injectable()
 export class PrismaVocabularyRepository implements VocabularyRepository {
@@ -86,11 +113,44 @@ export class PrismaVocabularyRepository implements VocabularyRepository {
   findVet(id: number): Promise<VetRow | null> {
     return this.vet(id);
   }
-  listSpecialties(): Promise<{ id: number; name: string }[]> {
-    return this.db.specialty.findMany({
-      select: { id: true, name: true },
+  async listSpecialties(): Promise<SpecialtyRow[]> {
+    const rows = await this.db.specialty.findMany({
+      include: withVetsCount,
       orderBy: [{ name: 'asc' }, { id: 'asc' }],
     });
+    return rows.map(specialtyRow);
+  }
+  async findSpecialty(id: number): Promise<SpecialtyRow | null> {
+    const r = await this.db.specialty.findUnique({ where: { id }, include: withVetsCount });
+    return r ? specialtyRow(r) : null;
+  }
+  async createSpecialty(name: string): Promise<SpecialtyRow> {
+    const r = await this.db.specialty.create({ data: { name } }).catch(translateSpecialty);
+    return { id: r.id, name: r.name, status: r.status, version: r.version, vetsCount: 0 };
+  }
+  async updateSpecialty(
+    id: number,
+    version: number,
+    data: { name?: string | undefined; status?: string | undefined },
+  ): Promise<SpecialtyRow | null> {
+    const { count } = await this.db.specialty
+      .updateMany({
+        where: { id, version },
+        data: {
+          ...(data.name ? { name: data.name } : {}),
+          ...(data.status ? { status: data.status } : {}),
+          version: { increment: 1 },
+        },
+      })
+      .catch(translateSpecialty);
+    return count ? this.findSpecialty(id) : null;
+  }
+  async inactiveSpecialtyIds(ids: number[]): Promise<number[]> {
+    const rows = await this.db.specialty.findMany({
+      where: { id: { in: ids }, status: 'inactive' },
+      select: { id: true },
+    });
+    return rows.map((r) => r.id);
   }
   async listVets(): Promise<VetRow[]> {
     const ids = await this.db.vet.findMany({
@@ -119,6 +179,7 @@ export class PrismaVocabularyRepository implements VocabularyRepository {
       lastName?: string | undefined;
       status?: string | undefined;
       addSpecialtyId?: number | undefined;
+      removeSpecialtyId?: number | undefined;
     },
   ): Promise<VetRow | null> {
     const ok = await this.db
@@ -134,6 +195,9 @@ export class PrismaVocabularyRepository implements VocabularyRepository {
         });
         if (count && data.addSpecialtyId)
           await tx.vetSpecialty.create({ data: { vetId: id, specialtyId: data.addSpecialtyId } });
+        // D52: desfazer o vínculo não apaga dado pessoal (P2); o histórico de atendimentos não depende dele.
+        if (count && data.removeSpecialtyId)
+          await tx.vetSpecialty.deleteMany({ where: { vetId: id, specialtyId: data.removeSpecialtyId } });
         return count > 0;
       })
       .catch(translate);

@@ -6,7 +6,7 @@
 
 ## US-4 Manter as especialidades (D52)
 
-- [ ] **T001** Manutenção de especialidade na API
+- [x] **T001** Manutenção de especialidade na API
       *entrega:* migração com `status` e `version` em `specialties` e o CHECK; rotas `POST` e
       `PATCH /api/admin/specialties`; `GET` com situação, versão e contagem; `removeSpecialtyId`
       no veterinário; recusa de especialidade inativa; matriz de papéis; testes de aceitação

@@ -1,9 +1,11 @@
 import { Body, Controller, Get, HttpCode, Param, Patch, Post } from '@nestjs/common';
 import {
+  type AdminSpecialtyOutput,
+  ChangeSpecialtyInput,
   ChangeSpeciesInput,
   ChangeVetInput,
+  SpecialtyInput,
   SpeciesInput,
-  type SpecialtyOutput,
   VetInput,
 } from '@lubyvet/contracts';
 import { IdParamPipe } from '../../../../shared/interface/http/id-param.pipe';
@@ -31,10 +33,24 @@ export class AdminController {
   ): Promise<SpeciesRow> {
     return this.vocab.changeSpecies(id, body.version, { name: body.name, status: body.status });
   }
-  /** 009/US-2: especialidades para atribuir a um veterinário na tela de administração. */
+  /** 009/US-2, D52: especialidades com situação, versão e quantos veterinários a têm. */
   @Get('specialties')
-  listSpecialties(): Promise<SpecialtyOutput[]> {
+  listSpecialties(): Promise<AdminSpecialtyOutput[]> {
     return this.vocab.listSpecialties();
+  }
+  @Post('specialties')
+  @HttpCode(201)
+  createSpecialty(
+    @Body(new ZodValidationPipe(SpecialtyInput)) body: SpecialtyInput,
+  ): Promise<AdminSpecialtyOutput> {
+    return this.vocab.createSpecialty(body.name);
+  }
+  @Patch('specialties/:specialtyId')
+  changeSpecialty(
+    @Param('specialtyId', new IdParamPipe('specialty_not_found')) id: number,
+    @Body(new ZodValidationPipe(ChangeSpecialtyInput)) body: ChangeSpecialtyInput,
+  ): Promise<AdminSpecialtyOutput> {
+    return this.vocab.changeSpecialty(id, body.version, { name: body.name, status: body.status });
   }
   @Get('vets')
   listVets(): Promise<VetRow[]> {

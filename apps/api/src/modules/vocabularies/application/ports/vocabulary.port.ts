@@ -5,6 +5,14 @@ export interface SpeciesRow {
   version: number;
   petsCount: number;
 }
+/** D52: especialidade com situação, versão e quantos veterinários a têm. */
+export interface SpecialtyRow {
+  id: number;
+  name: string;
+  status: string;
+  version: number;
+  vetsCount: number;
+}
 export interface VetRow {
   id: number;
   firstName: string;
@@ -26,7 +34,16 @@ export interface VocabularyRepository {
   findSpecies(id: number): Promise<SpeciesRow | null>;
   listVets(): Promise<VetRow[]>;
   /** 009/US-2: as especialidades que se atribuem a um veterinário, em ordem alfabética. */
-  listSpecialties(): Promise<{ id: number; name: string }[]>;
+  listSpecialties(): Promise<SpecialtyRow[]>;
+  createSpecialty(name: string): Promise<SpecialtyRow>;
+  updateSpecialty(
+    id: number,
+    version: number,
+    data: { name?: string | undefined; status?: string | undefined },
+  ): Promise<SpecialtyRow | null>;
+  findSpecialty(id: number): Promise<SpecialtyRow | null>;
+  /** D52: dos ids informados, os de especialidade inativa (id inexistente não entra). */
+  inactiveSpecialtyIds(ids: number[]): Promise<number[]>;
   createVet(firstName: string, lastName: string, specialtyIds: number[]): Promise<VetRow>;
   updateVet(
     id: number,
@@ -36,6 +53,7 @@ export interface VocabularyRepository {
       lastName?: string | undefined;
       status?: string | undefined;
       addSpecialtyId?: number | undefined;
+      removeSpecialtyId?: number | undefined;
     },
   ): Promise<VetRow | null>;
   findVet(id: number): Promise<VetRow | null>;

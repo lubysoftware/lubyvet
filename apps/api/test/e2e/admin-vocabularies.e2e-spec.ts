@@ -82,4 +82,33 @@ describe('administração de vocabulários', () => {
     ).body;
     expect(ok.specialtyIds).toEqual([1, 2]);
   });
+
+  it('012/T001: inclui, renomeia e inativa especialidade; o veterinário perde o vínculo sem perder a especialidade', async () => {
+    const s = (await post('/api/admin/specialties', { name: 'Dermatologia' }).expect(201)).body;
+    expect(s).toEqual({ id: 4, name: 'Dermatologia', status: 'active', version: 0, vetsCount: 0 });
+    expect((await post('/api/admin/specialties', { name: '' }).expect(422)).body.error.fields).toEqual([
+      { path: 'name', code: 'required' },
+    ]);
+    const renamed = (
+      await patch(`/api/admin/specialties/${s.id}`, { version: 0, name: 'Dermato' }).expect(200)
+    ).body;
+    expect(
+      (await patch(`/api/admin/specialties/${s.id}`, { version: 1, status: 'extinct' }).expect(422)).body
+        .error.fields,
+    ).toEqual([{ path: 'status', code: 'invalid_format' }]);
+    const vet = (
+      await post('/api/admin/vets', { firstName: 'Paula', lastName: 'Rezende', specialtyIds: [s.id] }).expect(
+        201,
+      )
+    ).body;
+    await patch(`/api/admin/specialties/${s.id}`, { version: renamed.version, status: 'inactive' }).expect(
+      200,
+    );
+    const unlinked = (
+      await patch(`/api/admin/vets/${vet.id}`, { version: vet.version, removeSpecialtyId: s.id }).expect(200)
+    ).body;
+    expect(unlinked.specialtyIds).toEqual([]);
+    expect(await testDb.count('vet_specialties')).toBe(0);
+    expect(await testDb.count('specialties', { id: s.id, status: 'inactive' })).toBe(1);
+  });
 });

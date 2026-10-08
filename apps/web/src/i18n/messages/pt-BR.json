@@ -91,6 +91,8 @@
     "pet_not_schedulable": "Este animal não aceita agendamento.",
     "vet_inactive": "Veterinário indisponível.",
     "specialty_already_linked": "Especialidade já vinculada.",
+    "specialty_name_taken": "Já existe uma especialidade com esse nome.",
+    "specialty_inactive": "Esta especialidade não está mais em uso.",
     "out_of_range": "Valor fora da faixa.",
     "id_mismatch": "O cadastro enviado não é o desta página.",
     "unknown_species": "Espécie fora da lista.",
