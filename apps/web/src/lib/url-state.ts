@@ -12,7 +12,7 @@ import {
  * de busca é o começo de um sobrenome, e o resto são identificadores e códigos.
  */
 export const RESULTS = ['ownerSaved', 'petSaved', 'appointmentSaved', 'encounterSaved'] as const;
-export const ADMIN_TABS = ['indicators', 'species', 'vets'] as const;
+export const ADMIN_TABS = ['indicators', 'species', 'specialties', 'vets'] as const;
 
 const ownersSearch = {
   lastName: parseAsString.withDefault(''),

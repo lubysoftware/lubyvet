@@ -1,10 +1,12 @@
 'use client';
 
 import {
+  type AdminSpecialtyOutput,
+  ChangeSpecialtyInput,
   ChangeSpeciesInput,
   ChangeVetInput,
+  SpecialtyInput,
   SpeciesInput,
-  type SpecialtyOutput,
   VetInput,
 } from '@lubyvet/contracts';
 import { useTranslations } from 'next-intl';
@@ -24,6 +26,7 @@ export interface SpeciesRow {
   version: number;
   petsCount: number;
 }
+export type SpecialtyRow = AdminSpecialtyOutput;
 export interface VetRow {
   id: number;
   firstName: string;
@@ -149,11 +152,138 @@ export function SpeciesAdmin({ rows }: { rows: SpeciesRow[] }) {
   );
 }
 
+/** 012/CA-4.7: renomear em linha, com a versão lida; o erro de nome repetido fica no campo. */
+function RenameSpecialty({ row, onDone }: { row: SpecialtyRow; onDone: () => void }) {
+  const t = useTranslations('admin');
+  const tf = useTranslations('fields');
+  const form = useApiForm(
+    ChangeSpecialtyInput,
+    (input, key) => apiSend('PATCH', `/api/admin/specialties/${row.id}`, input, key),
+    reload,
+  );
+  const id = `rename-specialty-${row.id}`;
+  const code = form.errors.name;
+  return (
+    <form
+      noValidate
+      aria-label={t('renameNamed', { name: row.name })}
+      onSubmit={(e) => void form.submit({ version: row.version, name: formValues(e).name })}
+      className="flex flex-wrap items-start justify-end gap-2"
+    >
+      <div className="grid gap-1 text-left">
+        <label htmlFor={id} className="sr-only">
+          {t('newNameFor', { name: row.name })}
+        </label>
+        <input
+          id={id}
+          name="name"
+          defaultValue={row.name}
+          aria-invalid={code ? true : undefined}
+          aria-describedby={code ? `${id}-error` : undefined}
+          className="h-11 rounded-md border border-input bg-surface-raised px-3 aria-invalid:border-2 aria-invalid:border-destructive"
+        />
+        {code && (
+          <p id={`${id}-error`} className="text-sm font-semibold text-destructive">
+            {tf(code)}
+          </p>
+        )}
+      </div>
+      <button type="submit" disabled={form.pending} className={buttonClass()}>
+        {t('saveName')}
+      </button>
+      <Button variant="secondary" onClick={onDone}>
+        {t('cancel')}
+      </Button>
+    </form>
+  );
+}
+
+/**
+ * 012/US-4 (D52): especialidades. Inativar tira da oferta de atribuição; os veterinários que já a
+ * têm continuam com ela, como a espécie inativa nos animais.
+ */
+export function SpecialtiesAdmin({ rows }: { rows: SpecialtyRow[] }) {
+  const t = useTranslations('admin');
+  const tr = useTranslations();
+  const row = useRowChange();
+  const [renaming, setRenaming] = useState<number | null>(null);
+  return (
+    <div className="grid gap-4">
+      <CreateForm
+        label={t('includeSpecialty')}
+        schema={SpecialtyInput}
+        path="/api/admin/specialties"
+        fields={[{ name: 'name', label: t('specialtyName') }]}
+        toInput={(raw) => ({ name: raw.name })}
+      />
+      <FailureMessage failure={row.failure} />
+      <div className="overflow-x-auto rounded-md border border-border bg-surface-raised">
+        <table className="w-full min-w-[520px]">
+          <thead className="bg-surface">
+            <tr>
+              <th className={th}>{t('specialtyName')}</th>
+              <th className={th}>{t('status')}</th>
+              <th className={th}>{t('vetsCount')}</th>
+              <th className={th}>
+                <span className="sr-only">{t('actions')}</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((s) => {
+              const next = s.status === 'active' ? 'inactive' : 'active';
+              return (
+                <tr key={s.id} className="h-11 border-t border-border">
+                  <td className="px-3 font-semibold">{s.name}</td>
+                  <td className="px-3">{tr(`vocabularyStatus.${s.status as 'active'}`)}</td>
+                  <td className="tabular px-3">{s.vetsCount}</td>
+                  <td className="px-3 py-1 text-right">
+                    {renaming === s.id ? (
+                      <RenameSpecialty row={s} onDone={() => setRenaming(null)} />
+                    ) : (
+                      <span className="inline-flex flex-wrap justify-end gap-2">
+                        <Button
+                          variant="secondary"
+                          aria-label={t('renameNamed', { name: s.name })}
+                          onClick={() => setRenaming(s.id)}
+                        >
+                          {t('rename')}
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          disabled={row.pending}
+                          aria-label={t(next === 'inactive' ? 'deactivateNamed' : 'activateNamed', {
+                            name: s.name,
+                          })}
+                          onClick={() =>
+                            void row.change(`/api/admin/specialties/${s.id}`, ChangeSpecialtyInput, {
+                              version: s.version,
+                              status: next,
+                            })
+                          }
+                        >
+                          {t(next === 'inactive' ? 'deactivate' : 'activate')}
+                        </Button>
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 /** 009/US-2: o quadro de veterinários; desligar tira do catálogo sem apagar o histórico (P2). */
 /** 009/CA-2.1: inclusão com nome, sobrenome e nenhuma, uma ou várias especialidades. */
-function VetCreateForm({ specialties }: { specialties: SpecialtyOutput[] }) {
+function VetCreateForm({ specialties }: { specialties: SpecialtyRow[] }) {
   const t = useTranslations('admin');
   const form = useApiForm(VetInput, (input, key) => apiSend('POST', '/api/admin/vets', input, key), reload);
+  // D52: especialidade inativa não se atribui mais.
+  const offered = specialties.filter((s) => s.status === 'active');
   return (
     <form
       noValidate
@@ -170,10 +300,10 @@ function VetCreateForm({ specialties }: { specialties: SpecialtyOutput[] }) {
         <Field name="firstName" label={t('firstName')} errors={form.errors} />
         <Field name="lastName" label={t('lastName')} errors={form.errors} />
       </div>
-      {specialties.length > 0 && (
+      {offered.length > 0 && (
         <fieldset className="flex flex-wrap gap-4">
           <legend className="mb-2 text-sm font-semibold">{t('specialties')}</legend>
-          {specialties.map((s) => (
+          {offered.map((s) => (
             <label key={s.id} className="flex min-h-11 items-center gap-2">
               <input type="checkbox" name="specialtyIds" value={s.id} className="size-5 accent-primary" />
               {s.name}
@@ -198,12 +328,12 @@ function AddSpecialty({
   pending,
 }: {
   vet: VetRow;
-  specialties: SpecialtyOutput[];
+  specialties: SpecialtyRow[];
   change: (path: string, schema: z.ZodType, body: unknown) => Promise<void>;
   pending: boolean;
 }) {
   const t = useTranslations('admin');
-  const options = specialties.filter((s) => !vet.specialtyIds.includes(s.id));
+  const options = specialties.filter((s) => s.status === 'active' && !vet.specialtyIds.includes(s.id));
   const [chosen, setChosen] = useState('');
   if (options.length === 0) return null;
   const name = `${vet.firstName} ${vet.lastName}`;
@@ -239,7 +369,7 @@ function AddSpecialty({
 }
 
 /** 009/US-2: o quadro de veterinários; desligar tira do catálogo sem apagar o histórico (P2). */
-export function VetsAdmin({ rows, specialties }: { rows: VetRow[]; specialties: SpecialtyOutput[] }) {
+export function VetsAdmin({ rows, specialties }: { rows: VetRow[]; specialties: SpecialtyRow[] }) {
   const t = useTranslations('admin');
   const tr = useTranslations();
   const row = useRowChange();
@@ -268,7 +398,29 @@ export function VetsAdmin({ rows, specialties }: { rows: VetRow[]; specialties: 
                 <tr key={v.id} className="h-11 border-t border-border">
                   <td className="px-3 font-semibold">{name}</td>
                   <td className="px-3">
-                    {v.specialtyIds.map((id) => specialtyNames[id] ?? `#${id}`).join(', ')}
+                    <ul className="flex flex-wrap gap-2">
+                      {v.specialtyIds.map((id) => {
+                        const specialty = specialtyNames[id] ?? `#${id}`;
+                        return (
+                          <li key={id} className="inline-flex items-center gap-1">
+                            {specialty}
+                            <Button
+                              variant="secondary"
+                              disabled={row.pending}
+                              aria-label={t('removeSpecialtyNamed', { specialty, name })}
+                              onClick={() =>
+                                void row.change(`/api/admin/vets/${v.id}`, ChangeVetInput, {
+                                  version: v.version,
+                                  removeSpecialtyId: id,
+                                })
+                              }
+                            >
+                              {t('removeSpecialty')}
+                            </Button>
+                          </li>
+                        );
+                      })}
+                    </ul>
                   </td>
                   <td className="px-3">{tr(`vocabularyStatus.${v.status as 'active'}`)}</td>
                   <td className="flex flex-wrap justify-end gap-2 px-3 py-1">

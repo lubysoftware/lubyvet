@@ -13,7 +13,7 @@
       *satisfaz:* CA-4.1 a CA-4.6
       *depende de:* —
 
-- [ ] **T002** Aba de especialidades e retirada no veterinário
+- [x] **T002** Aba de especialidades e retirada no veterinário
       *entrega:* aba "Especialidades" na administração e botão de retirar especialidade do
       veterinário, com teste de componente e Playwright
       *satisfaz:* CA-4.7

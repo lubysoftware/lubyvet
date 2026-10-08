@@ -1,11 +1,12 @@
-import type { SpecialtyOutput } from '@lubyvet/contracts';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { PageHeader } from '@/components/ui/page-header';
 import { type Metrics, Indicators } from '@/features/admin/components/indicators';
 import {
+  type SpecialtyRow,
   type SpeciesRow,
   type VetRow,
+  SpecialtiesAdmin,
   SpeciesAdmin,
   VetsAdmin,
 } from '@/features/admin/components/vocabulary-admin';
@@ -25,7 +26,7 @@ export default async function AdminPage({
   return (
     <>
       <PageHeader title={t('nav.admin')} />
-      <nav aria-label={t('admin.sections')} className="flex gap-4 border-b border-border">
+      <nav aria-label={t('admin.sections')} className="flex flex-wrap gap-x-4 border-b border-border">
         {ADMIN_TABS.map((x) => (
           <a
             key={x}
@@ -41,6 +42,9 @@ export default async function AdminPage({
       </nav>
       {tab === 'indicators' && <Indicators metrics={await load<Metrics>('/api/admin/metrics')} />}
       {tab === 'species' && <SpeciesAdmin rows={await load<SpeciesRow[]>('/api/admin/species')} />}
+      {tab === 'specialties' && (
+        <SpecialtiesAdmin rows={await load<SpecialtyRow[]>('/api/admin/specialties')} />
+      )}
       {tab === 'vets' && <VetsTab />}
     </>
   );
@@ -49,7 +53,7 @@ export default async function AdminPage({
 async function VetsTab() {
   const [rows, specialties] = await Promise.all([
     load<VetRow[]>('/api/admin/vets'),
-    load<SpecialtyOutput[]>('/api/admin/specialties'),
+    load<SpecialtyRow[]>('/api/admin/specialties'),
   ]);
   return <VetsAdmin rows={rows} specialties={specialties} />;
 }

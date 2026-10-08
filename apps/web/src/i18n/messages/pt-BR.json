@@ -215,11 +215,22 @@
     "appointmentsByStatus": "Agendamentos por situação",
     "specialtyFor": "Especialidade para {name}",
     "chooseSpecialty": "Escolha a especialidade",
-    "addSpecialty": "Acrescentar especialidade"
+    "addSpecialty": "Acrescentar especialidade",
+    "includeSpecialty": "Incluir especialidade",
+    "specialtyName": "Especialidade",
+    "vetsCount": "Veterinários",
+    "rename": "Renomear",
+    "renameNamed": "Renomear {name}",
+    "newNameFor": "Novo nome de {name}",
+    "saveName": "Salvar nome",
+    "cancel": "Cancelar",
+    "removeSpecialty": "Retirar",
+    "removeSpecialtyNamed": "Retirar {specialty} de {name}"
   },
   "adminTabs": {
     "indicators": "Indicadores",
     "species": "Espécies",
+    "specialties": "Especialidades",
     "vets": "Veterinários"
   },
   "vocabularyStatus": {

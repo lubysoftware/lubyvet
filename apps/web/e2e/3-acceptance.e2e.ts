@@ -1,7 +1,7 @@
 import { businessToday } from '@lubyvet/contracts';
 import { type Page, expect, test } from '@playwright/test';
 import en from '../src/i18n/messages/en.json';
-import { login, validCpf, validMobile } from './support';
+import { expectAccessible, login, validCpf, validMobile } from './support';
 
 /**
  * Critérios de aceite que só se verificam na tela, contra a pilha inteira. Os da API ficam em
@@ -217,5 +217,51 @@ test.describe('002 e 004 na tela', () => {
     await page.getByLabel('Descrição').fill('Vacina');
     await page.getByRole('button', { name: 'Agendar visita' }).click();
     await expect(when).toHaveAccessibleDescription('A data precisa ser futura.');
+  });
+});
+
+test.describe('012 na tela', () => {
+  test('012/CA-4.7 a administração inclui, renomeia, inativa e reativa especialidade, e retira do veterinário', async ({
+    page,
+  }) => {
+    const n = Date.now() % 100000;
+    const first = `Dermato${n}`;
+    const renamed = `Dermatologia ${n}`;
+    const tab = (name: string) =>
+      page.getByRole('navigation', { name: 'Seções da administração' }).getByRole('link', { name }).click();
+    await login(page, 'admin');
+    await page.goto('/admin');
+    await tab('Especialidades');
+    await page.getByLabel('Especialidade', { exact: true }).fill(first);
+    await page.getByRole('button', { name: 'Incluir especialidade' }).click();
+    await expect(page.getByRole('row', { name: new RegExp(first) })).toBeVisible();
+
+    await page.getByRole('button', { name: `Renomear ${first}` }).click();
+    await page.getByLabel(`Novo nome de ${first}`).fill(renamed);
+    await page.getByRole('button', { name: 'Salvar nome' }).click();
+    await expect(page.getByRole('row', { name: new RegExp(renamed) })).toBeVisible();
+    await expectAccessible(page);
+
+    await tab('Veterinários');
+    await page.getByLabel('Nome', { exact: true }).fill('Paula');
+    await page.getByLabel('Sobrenome').fill(`Ramos${n}`);
+    await page.getByRole('checkbox', { name: renamed }).check();
+    await page.getByRole('button', { name: 'Incluir veterinário' }).click();
+    const remove = page.getByRole('button', { name: `Retirar ${renamed} de Paula Ramos${n}` });
+    await expect(remove).toBeVisible();
+    await expectAccessible(page);
+    await remove.click();
+    await expect(remove).toHaveCount(0);
+
+    await tab('Especialidades');
+    await page.getByRole('button', { name: `Inativar ${renamed}` }).click();
+    await expect(page.getByRole('row', { name: new RegExp(renamed) })).toContainText('Inativa');
+    await tab('Veterinários');
+    await expect(page.getByRole('row', { name: new RegExp(`Ramos${n}`) })).toBeVisible();
+    await expect(page.getByRole('checkbox', { name: renamed })).toHaveCount(0);
+
+    await tab('Especialidades');
+    await page.getByRole('button', { name: `Reativar ${renamed}` }).click();
+    await expect(page.getByRole('row', { name: new RegExp(renamed) })).toContainText('Ativa');
   });
 });
