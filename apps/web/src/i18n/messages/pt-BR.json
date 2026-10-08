@@ -210,7 +210,10 @@
     "pendingRecord": "Pendentes de registro",
     "anonymizations": "Anonimizações",
     "noShowRate": "Taxa de não comparecimento",
-    "appointmentsByStatus": "Agendamentos por situação"
+    "appointmentsByStatus": "Agendamentos por situação",
+    "specialtyFor": "Especialidade para {name}",
+    "chooseSpecialty": "Escolha a especialidade",
+    "addSpecialty": "Acrescentar especialidade"
   },
   "adminTabs": {
     "indicators": "Indicadores",

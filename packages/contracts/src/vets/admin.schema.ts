@@ -25,6 +25,10 @@ export const AdminSpeciesOutput = z.object({
   petsCount: z.number().int(),
 });
 
+/** 009/US-2, D48: especialidade que se atribui a um veterinário. */
+export const SpecialtyOutput = z.object({ id: z.number().int(), name: z.string() });
+export type SpecialtyOutput = z.infer<typeof SpecialtyOutput>;
+
 /** 009: manutenção do quadro de veterinários (Administrador, D18). */
 export const VetInput = z.object({
   firstName: vetName(VET_LIMITS.firstName),

@@ -86,6 +86,12 @@ export class PrismaVocabularyRepository implements VocabularyRepository {
   findVet(id: number): Promise<VetRow | null> {
     return this.vet(id);
   }
+  listSpecialties(): Promise<{ id: number; name: string }[]> {
+    return this.db.specialty.findMany({
+      select: { id: true, name: true },
+      orderBy: [{ name: 'asc' }, { id: 'asc' }],
+    });
+  }
   async listVets(): Promise<VetRow[]> {
     const ids = await this.db.vet.findMany({
       select: { id: true },

@@ -14,6 +14,7 @@ const vet = {
 };
 const repo = (found: boolean, updated: boolean): VocabularyRepository => ({
   listSpecies: async () => [sp],
+  listSpecialties: async () => [{ id: 1, name: 'Cirurgia' }],
   createSpecies: async (name) => ({ ...sp, name }),
   updateSpecies: async () => (updated ? sp : null),
   findSpecies: async () => (found ? sp : null),

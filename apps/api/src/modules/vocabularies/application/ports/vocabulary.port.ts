@@ -25,6 +25,8 @@ export interface VocabularyRepository {
   ): Promise<SpeciesRow | null>;
   findSpecies(id: number): Promise<SpeciesRow | null>;
   listVets(): Promise<VetRow[]>;
+  /** 009/US-2: as especialidades que se atribuem a um veterinário, em ordem alfabética. */
+  listSpecialties(): Promise<{ id: number; name: string }[]>;
   createVet(firstName: string, lastName: string, specialtyIds: number[]): Promise<VetRow>;
   updateVet(
     id: number,

@@ -54,28 +54,43 @@ describe('vocabulário de espécies (009/US-1)', () => {
 });
 
 describe('quadro de veterinários (009/US-2)', () => {
-  it('inclui e desliga; especialidades pelo nome conhecido', async () => {
-    const fetch = mockFetch({ status: 201, body: {} }, { status: 200, body: {} });
-    renderWithIntl(
-      <VetsAdmin
-        rows={[
-          {
-            id: 3,
-            firstName: 'Helena',
-            lastName: 'Costa',
-            status: 'active',
-            version: 1,
-            specialtyIds: [1, 2],
-          },
-        ]}
-        specialtyNames={{ 1: 'Radiologia' }}
-      />,
-    );
-    expect(screen.getByRole('row', { name: /Helena Costa/ })).toHaveTextContent('Radiologia, #2');
+  const specialties = [
+    { id: 1, name: 'Cirurgia' },
+    { id: 2, name: 'Odontologia' },
+    { id: 3, name: 'Radiologia' },
+  ];
+  const helena = {
+    id: 3,
+    firstName: 'Helena',
+    lastName: 'Costa',
+    status: 'active',
+    version: 1,
+    specialtyIds: [3],
+  };
+
+  it('009/CA-2.1 a tela inclui veterinário com nenhuma, uma ou várias especialidades', async () => {
+    const fetch = mockFetch({ status: 201, body: {} }, { status: 201, body: {} });
+    renderWithIntl(<VetsAdmin rows={[helena]} specialties={specialties} />);
+    expect(screen.getByRole('row', { name: /Helena Costa/ })).toHaveTextContent('Radiologia');
     await userEvent.type(screen.getByLabelText('Nome'), 'Rui');
     await userEvent.type(screen.getByLabelText('Sobrenome'), 'Lima');
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Cirurgia' }));
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Odontologia' }));
     await userEvent.click(screen.getByRole('button', { name: 'Incluir veterinário' }));
-    expect(sentBody(fetch)).toEqual({ firstName: 'Rui', lastName: 'Lima', specialtyIds: [] });
+    expect(sentBody(fetch)).toEqual({ firstName: 'Rui', lastName: 'Lima', specialtyIds: [1, 2] });
+  });
+
+  it('009/CA-2.2 a tela acrescenta especialidade a um veterinário cadastrado, com a versão lida, e desliga', async () => {
+    const fetch = mockFetch({ status: 200, body: {} }, { status: 200, body: {} });
+    renderWithIntl(<VetsAdmin rows={[helena]} specialties={specialties} />);
+    const select = screen.getByLabelText('Especialidade para Helena Costa');
+    expect(within(select).queryByRole('option', { name: 'Radiologia' })).toBeNull();
+    const add = screen.getByRole('button', { name: 'Acrescentar especialidade' });
+    expect(add).toBeDisabled();
+    await userEvent.selectOptions(select, 'Cirurgia');
+    await userEvent.click(add);
+    expect(fetch.mock.calls[0]?.[0]).toBe('/api/admin/vets/3');
+    expect(sentBody(fetch)).toEqual({ version: 1, addSpecialtyId: 1 });
     await userEvent.click(screen.getByRole('button', { name: 'Desligar Helena Costa' }));
     expect(sentBody(fetch, 1)).toEqual({ version: 1, status: 'dismissed' });
   });

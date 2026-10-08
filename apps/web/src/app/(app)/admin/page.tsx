@@ -1,4 +1,4 @@
-import type { VetCatalogOutput } from '@lubyvet/contracts';
+import type { SpecialtyOutput } from '@lubyvet/contracts';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { PageHeader } from '@/components/ui/page-header';
@@ -10,7 +10,7 @@ import {
   VetsAdmin,
 } from '@/features/admin/components/vocabulary-admin';
 import { currentSession, load } from '@/lib/api';
-import { ADMIN_TABS, adminUrl, loadAdmin, vetCatalogApiUrl } from '@/lib/url-state';
+import { ADMIN_TABS, adminUrl, loadAdmin } from '@/lib/url-state';
 
 /** D18 e D03: a superfície de gestão é só do Administrador; a aba fica na URL. */
 export default async function AdminPage({
@@ -47,13 +47,9 @@ export default async function AdminPage({
 }
 
 async function VetsTab() {
-  const [rows, catalog] = await Promise.all([
+  const [rows, specialties] = await Promise.all([
     load<VetRow[]>('/api/admin/vets'),
-    load<VetCatalogOutput>(vetCatalogApiUrl('/api/vets', { page: 1, pageSize: 50 })),
+    load<SpecialtyOutput[]>('/api/admin/specialties'),
   ]);
-  // Não há rota de especialidades; os nomes vêm das especialidades que o catálogo já mostra.
-  const specialtyNames = Object.fromEntries(
-    catalog.items.flatMap((v) => v.specialties.map((s) => [s.id, s.name])),
-  );
-  return <VetsAdmin rows={rows} specialtyNames={specialtyNames} />;
+  return <VetsAdmin rows={rows} specialties={specialties} />;
 }

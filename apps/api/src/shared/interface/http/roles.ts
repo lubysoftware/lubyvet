@@ -38,6 +38,7 @@ export const ROUTE_ROLES: Readonly<Record<string, readonly Role[] | 'public'>> =
   'GET /api/admin/species': ADMIN,
   'POST /api/admin/species': ADMIN,
   'PATCH /api/admin/species/:speciesId': ADMIN,
+  'GET /api/admin/specialties': ADMIN,
   'GET /api/admin/vets': ADMIN,
   'POST /api/admin/vets': ADMIN,
   'PATCH /api/admin/vets/:vetId': ADMIN,

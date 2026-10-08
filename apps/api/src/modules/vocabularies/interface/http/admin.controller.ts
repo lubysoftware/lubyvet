@@ -1,5 +1,11 @@
 import { Body, Controller, Get, HttpCode, Param, Patch, Post } from '@nestjs/common';
-import { ChangeSpeciesInput, ChangeVetInput, SpeciesInput, VetInput } from '@lubyvet/contracts';
+import {
+  ChangeSpeciesInput,
+  ChangeVetInput,
+  SpeciesInput,
+  type SpecialtyOutput,
+  VetInput,
+} from '@lubyvet/contracts';
 import { IdParamPipe } from '../../../../shared/interface/http/id-param.pipe';
 import { ZodValidationPipe } from '../../../../shared/interface/http/zod-validation.pipe';
 import { type SpeciesRow, type VetRow, Vocabularies } from '../../application/vocabularies.use-cases';
@@ -24,6 +30,11 @@ export class AdminController {
     @Body(new ZodValidationPipe(ChangeSpeciesInput)) body: ChangeSpeciesInput,
   ): Promise<SpeciesRow> {
     return this.vocab.changeSpecies(id, body.version, { name: body.name, status: body.status });
+  }
+  /** 009/US-2: especialidades para atribuir a um veterinário na tela de administração. */
+  @Get('specialties')
+  listSpecialties(): Promise<SpecialtyOutput[]> {
+    return this.vocab.listSpecialties();
   }
   @Get('vets')
   listVets(): Promise<VetRow[]> {

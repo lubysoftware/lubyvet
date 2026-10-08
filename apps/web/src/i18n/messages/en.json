@@ -210,7 +210,10 @@
     "pendingRecord": "Pending record",
     "anonymizations": "Anonymizations",
     "noShowRate": "No-show rate",
-    "appointmentsByStatus": "Appointments by status"
+    "appointmentsByStatus": "Appointments by status",
+    "specialtyFor": "Specialty for {name}",
+    "chooseSpecialty": "Choose a specialty",
+    "addSpecialty": "Add specialty"
   },
   "adminTabs": {
     "indicators": "Indicators",

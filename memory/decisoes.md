@@ -513,3 +513,9 @@ react-hook-form numa tela nova reabre esta decisão.
 `npx` não). As peças geradas ficam em `components/ui/base/`, ajustadas aos tokens (D42) e à
 densidade de D39; as peças do design system em `components/ui/` se apoiam nelas. O `init` não se
 usa, porque sobrescreveria os tokens do `globals.css`.
+
+**D48. Rota de leitura das especialidades para a administração.**
+`GET /api/admin/specialties` (Administrador, D18) devolve as especialidades em ordem alfabética,
+para a tela atribuí-las a um veterinário (009/CA-2.1 e CA-2.2), que a API já aceitava e a tela
+não oferecia. É rota nova e só de leitura; criar, renomear ou inativar especialidade continua
+fora (P-11 fica para quando houver tela de manutenção).

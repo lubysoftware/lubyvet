@@ -40,6 +40,10 @@ export class Vocabularies {
     return updated;
   }
 
+  listSpecialties(): Promise<{ id: number; name: string }[]> {
+    return this.repo.listSpecialties();
+  }
+
   listVets(): Promise<VetRow[]> {
     return this.repo.listVets();
   }

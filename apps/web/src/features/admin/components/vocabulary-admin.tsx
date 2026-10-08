@@ -1,6 +1,12 @@
 'use client';
 
-import { ChangeSpeciesInput, ChangeVetInput, SpeciesInput, VetInput } from '@lubyvet/contracts';
+import {
+  ChangeSpeciesInput,
+  ChangeVetInput,
+  SpeciesInput,
+  type SpecialtyOutput,
+  VetInput,
+} from '@lubyvet/contracts';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import type { z } from 'zod';
@@ -144,28 +150,103 @@ export function SpeciesAdmin({ rows }: { rows: SpeciesRow[] }) {
 }
 
 /** 009/US-2: o quadro de veterinários; desligar tira do catálogo sem apagar o histórico (P2). */
-export function VetsAdmin({
-  rows,
-  specialtyNames,
+/** 009/CA-2.1: inclusão com nome, sobrenome e nenhuma, uma ou várias especialidades. */
+function VetCreateForm({ specialties }: { specialties: SpecialtyOutput[] }) {
+  const t = useTranslations('admin');
+  const form = useApiForm(VetInput, (input, key) => apiSend('POST', '/api/admin/vets', input, key), reload);
+  return (
+    <form
+      noValidate
+      aria-label={t('addVet')}
+      onSubmit={(e) => {
+        const ids = new FormData(e.currentTarget).getAll('specialtyIds').map(Number);
+        const raw = formValues(e);
+        void form.submit({ firstName: raw.firstName, lastName: raw.lastName, specialtyIds: ids });
+      }}
+      className="grid gap-3"
+    >
+      <FailureMessage failure={form.failure} />
+      <div className="flex flex-wrap items-end gap-2">
+        <Field name="firstName" label={t('firstName')} errors={form.errors} />
+        <Field name="lastName" label={t('lastName')} errors={form.errors} />
+      </div>
+      {specialties.length > 0 && (
+        <fieldset className="flex flex-wrap gap-4">
+          <legend className="mb-2 text-sm font-semibold">{t('specialties')}</legend>
+          {specialties.map((s) => (
+            <label key={s.id} className="flex min-h-11 items-center gap-2">
+              <input type="checkbox" name="specialtyIds" value={s.id} className="size-5 accent-primary" />
+              {s.name}
+            </label>
+          ))}
+        </fieldset>
+      )}
+      <div>
+        <button type="submit" disabled={form.pending} className={buttonClass()}>
+          {t('addVet')}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+/** 009/CA-2.2: acrescentar uma especialidade a um veterinário já cadastrado, com a versão lida. */
+function AddSpecialty({
+  vet,
+  specialties,
+  change,
+  pending,
 }: {
-  rows: VetRow[];
-  specialtyNames: Record<number, string>;
+  vet: VetRow;
+  specialties: SpecialtyOutput[];
+  change: (path: string, schema: z.ZodType, body: unknown) => Promise<void>;
+  pending: boolean;
 }) {
+  const t = useTranslations('admin');
+  const options = specialties.filter((s) => !vet.specialtyIds.includes(s.id));
+  const [chosen, setChosen] = useState('');
+  if (options.length === 0) return null;
+  const name = `${vet.firstName} ${vet.lastName}`;
+  return (
+    <span className="inline-flex gap-2">
+      <select
+        aria-label={t('specialtyFor', { name })}
+        value={chosen}
+        onChange={(e) => setChosen(e.target.value)}
+        className="h-11 rounded-md border border-input bg-surface-raised px-2"
+      >
+        <option value="">{t('chooseSpecialty')}</option>
+        {options.map((s) => (
+          <option key={s.id} value={s.id}>
+            {s.name}
+          </option>
+        ))}
+      </select>
+      <Button
+        variant="secondary"
+        disabled={pending || chosen === ''}
+        onClick={() =>
+          void change(`/api/admin/vets/${vet.id}`, ChangeVetInput, {
+            version: vet.version,
+            addSpecialtyId: Number(chosen),
+          })
+        }
+      >
+        {t('addSpecialty')}
+      </Button>
+    </span>
+  );
+}
+
+/** 009/US-2: o quadro de veterinários; desligar tira do catálogo sem apagar o histórico (P2). */
+export function VetsAdmin({ rows, specialties }: { rows: VetRow[]; specialties: SpecialtyOutput[] }) {
   const t = useTranslations('admin');
   const tr = useTranslations();
   const row = useRowChange();
+  const specialtyNames = Object.fromEntries(specialties.map((s) => [s.id, s.name]));
   return (
     <div className="grid gap-4">
-      <CreateForm
-        label={t('addVet')}
-        schema={VetInput}
-        path="/api/admin/vets"
-        fields={[
-          { name: 'firstName', label: t('firstName') },
-          { name: 'lastName', label: t('lastName') },
-        ]}
-        toInput={(raw) => ({ firstName: raw.firstName, lastName: raw.lastName })}
-      />
+      <VetCreateForm specialties={specialties} />
       <FailureMessage failure={row.failure} />
       <div className="overflow-x-auto rounded-md border border-border bg-surface-raised">
         <table className="w-full min-w-[560px]">
@@ -190,7 +271,13 @@ export function VetsAdmin({
                     {v.specialtyIds.map((id) => specialtyNames[id] ?? `#${id}`).join(', ')}
                   </td>
                   <td className="px-3">{tr(`vocabularyStatus.${v.status as 'active'}`)}</td>
-                  <td className="px-3 py-1 text-right">
+                  <td className="flex flex-wrap justify-end gap-2 px-3 py-1">
+                    <AddSpecialty
+                      vet={v}
+                      specialties={specialties}
+                      change={row.change}
+                      pending={row.pending}
+                    />
                     <Button
                       variant="secondary"
                       disabled={row.pending}
