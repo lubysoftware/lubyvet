@@ -28,6 +28,7 @@ export const PERSONAL_DATA_ROUTES: readonly InventoryRoute[] = [
   { method: 'get', path: '/api/owners/:ownerId' },
   { method: 'patch', path: '/api/owners/:ownerId' },
   { method: 'get', path: '/api/owners/:ownerId/record' },
+  { method: 'get', path: '/api/owners/:ownerId/similarity-dismissals' },
   { method: 'post', path: '/api/owners/:ownerId/pets' },
   ...OWNER_PET_ROUTES,
   { method: 'get', path: '/api/vets/:vetId/patients' },

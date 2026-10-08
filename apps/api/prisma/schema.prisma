@@ -31,6 +31,9 @@ model Owner {
 
   pets          Pet[]
   anonymization OwnerAnonymization?
+  /// D51: histórico das dispensas do aviso de dono parecido, deste dono e contra ele
+  dismissals    OwnerSimilarityDismissal[] @relation("DismissalOwner")
+  dismissedAs   OwnerSimilarityDismissal[] @relation("DismissalSimilarOwner")
 
   /// D02: autoria por pessoa, preenchida pela identidade da requisição
   createdBy Int?  @map("created_by")
@@ -210,28 +213,29 @@ model VetSpecialty {
 
 /// Usuário da equipe da clínica (007, D17): identidade própria, um papel por usuário (D18).
 model User {
-  id                     Int                  @id @default(autoincrement()) @map("id")
-  name                   String               @map("name") @db.VarChar(80)
-  login                  String               @map("login") @db.VarChar(120)
-  passwordHash           String               @map("password_hash") @db.VarChar(255)
+  id                     Int                        @id @default(autoincrement()) @map("id")
+  name                   String                     @map("name") @db.VarChar(80)
+  login                  String                     @map("login") @db.VarChar(120)
+  passwordHash           String                     @map("password_hash") @db.VarChar(255)
   /// reader | writer | admin
-  role                   String               @map("role") @db.VarChar(10)
+  role                   String                     @map("role") @db.VarChar(10)
   /// active | inactive
-  status                 String               @default("active") @map("status") @db.VarChar(10)
-  failedAttempts         Int                  @default(0) @map("failed_attempts")
-  lockedUntil            DateTime?            @map("locked_until") @db.Timestamptz(3)
-  createdAt              DateTime             @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt              DateTime             @updatedAt @map("updated_at") @db.Timestamptz(3)
-  ownersCreated          Owner[]              @relation("OwnerCreatedBy")
-  ownersUpdated          Owner[]              @relation("OwnerUpdatedBy")
-  petsCreated            Pet[]                @relation("PetCreatedBy")
-  petsUpdated            Pet[]                @relation("PetUpdatedBy")
-  appointmentsCreated    Appointment[]        @relation("AppointmentCreatedBy")
-  appointmentsUpdated    Appointment[]        @relation("AppointmentUpdatedBy")
-  encountersCreated      Encounter[]          @relation("EncounterCreatedBy")
-  encountersUpdated      Encounter[]          @relation("EncounterUpdatedBy")
-  anonymizationsDone     OwnerAnonymization[] @relation("AnonymizedBy")
-  anonymizationsReviewed OwnerAnonymization[] @relation("ReviewedBy")
+  status                 String                     @default("active") @map("status") @db.VarChar(10)
+  failedAttempts         Int                        @default(0) @map("failed_attempts")
+  lockedUntil            DateTime?                  @map("locked_until") @db.Timestamptz(3)
+  createdAt              DateTime                   @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt              DateTime                   @updatedAt @map("updated_at") @db.Timestamptz(3)
+  ownersCreated          Owner[]                    @relation("OwnerCreatedBy")
+  ownersUpdated          Owner[]                    @relation("OwnerUpdatedBy")
+  petsCreated            Pet[]                      @relation("PetCreatedBy")
+  petsUpdated            Pet[]                      @relation("PetUpdatedBy")
+  appointmentsCreated    Appointment[]              @relation("AppointmentCreatedBy")
+  appointmentsUpdated    Appointment[]              @relation("AppointmentUpdatedBy")
+  encountersCreated      Encounter[]                @relation("EncounterCreatedBy")
+  encountersUpdated      Encounter[]                @relation("EncounterUpdatedBy")
+  anonymizationsDone     OwnerAnonymization[]       @relation("AnonymizedBy")
+  anonymizationsReviewed OwnerAnonymization[]       @relation("ReviewedBy")
+  similarityDismissals   OwnerSimilarityDismissal[] @relation("DismissedBy")
 
   @@unique([login], map: "users_login_key")
   @@map("users")
@@ -252,6 +256,21 @@ model OwnerAnonymization {
   reviewer     User?     @relation("ReviewedBy", fields: [reviewedBy], references: [id], onDelete: Restrict, map: "owner_anonymizations_reviewed_by_fkey")
 
   @@map("owner_anonymizations")
+}
+
+/// 012/T003, D51: uma linha por candidato dispensado no aviso de dono parecido; só identificadores (P-16), nunca apagada (P2).
+model OwnerSimilarityDismissal {
+  id             Int      @id @default(autoincrement()) @map("id")
+  ownerId        Int      @map("owner_id")
+  similarOwnerId Int      @map("similar_owner_id")
+  dismissedBy    Int      @map("dismissed_by")
+  dismissedAt    DateTime @map("dismissed_at") @db.Timestamptz(3)
+  owner          Owner    @relation("DismissalOwner", fields: [ownerId], references: [id], onDelete: Restrict, map: "owner_similarity_dismissals_owner_id_fkey")
+  similarOwner   Owner    @relation("DismissalSimilarOwner", fields: [similarOwnerId], references: [id], onDelete: Restrict, map: "owner_similarity_dismissals_similar_owner_id_fkey")
+  dismisser      User     @relation("DismissedBy", fields: [dismissedBy], references: [id], onDelete: Restrict, map: "owner_similarity_dismissals_dismissed_by_fkey")
+
+  @@index([ownerId, dismissedAt], map: "owner_similarity_dismissals_owner_id_dismissed_at_idx")
+  @@map("owner_similarity_dismissals")
 }
 
 /// 004/T023, D12: caixa de saída das mensagens ao dono, gravada na mesma transação do agendamento.

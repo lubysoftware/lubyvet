@@ -125,8 +125,12 @@ describe('Owner', () => {
 
     it('registra a dispensa do aviso de dono parecido (CA-3.2)', () => {
       const owner = persisted();
-      owner.dismissSimilarity(NOW);
+      expect(owner.dismissedSimilarOwnerIds).toEqual([]);
+      owner.dismissSimilarity(NOW, [4, 9]);
       expect(owner.snapshot().similarityDismissedAt).toEqual(NOW);
+      // 012/D51: os candidatos dispensados ficam para o histórico, fora das colunas do dono.
+      expect(owner.dismissedSimilarOwnerIds).toEqual([4, 9]);
+      expect(owner.snapshot()).not.toHaveProperty('dismissed');
       expect(owner.version).toBe(3);
       expect(owner.telephone).toBe('+5511987654321');
     });

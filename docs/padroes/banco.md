@@ -70,7 +70,10 @@ a última linha:
 - **Domínios fechados por CHECK:** situações, papéis, tipos de mensagem, login em minúsculas,
   peso de D26 e versões não negativas. O `schema.prisma` não declara CHECK, então cada uma está em
   `prisma/raw-sql-objects.json`, e o teste de divergência confere que existe no banco migrado.
-- **Duas redundâncias de propósito:** a situação do agendamento está na coluna e é também a
-  última linha do histórico; "Realizada" equivale a ter atendimento ligado. As duas ficam por
-  desempenho de leitura e são vigiadas pela consulta `test/support/consistency.ts`, que o teste
-  de aceitação da 004 roda depois dos fluxos e que serve à operação para auditar o banco.
+- **Três redundâncias de propósito:** a situação do agendamento está na coluna e é também a
+  última linha do histórico; "Realizada" equivale a ter atendimento ligado; a data da última
+  dispensa do aviso de dono parecido (`owners.similarity_dismissed_at`) é a da linha mais recente
+  de `owner_similarity_dismissals` (D51). Ficam por desempenho de leitura e são vigiadas pela
+  consulta `test/support/consistency.ts`, que os testes de aceitação da 004 e da 012 rodam depois
+  dos fluxos e que serve à operação para auditar o banco. O dono anonimizado fica fora da
+  terceira: a anonimização limpa a coluna e mantém o histórico, que só tem identificadores.

@@ -101,6 +101,21 @@ describe('integridade de dados no banco', () => {
     );
     // O teste de consistência é a consulta que a operação roda; aqui ela acusa o caso fabricado.
     const { rows } = await sql(CONSISTENCY);
-    expect(rows).toEqual([{ appointment_id: appt, problem: 'atendido sem Realizada' }]);
+    expect(rows).toEqual([{ entity: 'appointment', id: appt, problem: 'atendido sem Realizada' }]);
+  });
+
+  it('dispensa do aviso de dono parecido aponta para donos e usuário que existem, e nunca para o próprio dono (D51)', async () => {
+    const { owner } = await fixture();
+    const insert = (similar: number, by: number) =>
+      sql(
+        `insert into owner_similarity_dismissals (owner_id, similar_owner_id, dismissed_by, dismissed_at) values ($1, $2, $3, now())`,
+        [owner, similar, by],
+      );
+    await expect(insert(999, 1)).rejects.toMatchObject({
+      constraint: 'owner_similarity_dismissals_similar_owner_id_fkey',
+    });
+    await expect(insert(owner, 999)).rejects.toMatchObject({
+      constraint: 'owner_similarity_dismissals_other_owner_check',
+    });
   });
 });

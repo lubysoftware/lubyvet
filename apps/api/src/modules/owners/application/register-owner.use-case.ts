@@ -24,7 +24,10 @@ export class RegisterOwner {
         this.events.publish({ type: 'similar_owner_warned' });
         throw new SimilarOwnerFound(similar);
       }
-      owner.dismissSimilarity(now);
+      owner.dismissSimilarity(
+        now,
+        similar.map((c) => c.id),
+      );
       this.events.publish({ type: 'similar_owner_dismissed' });
     }
     const saved = await this.owners.insert(owner);

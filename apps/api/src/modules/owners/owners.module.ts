@@ -16,7 +16,14 @@ import {
 import { PrismaAnonymization } from './infra/prisma-anonymization';
 import { PrismaOwnerAuthorship } from './infra/prisma-owner-authorship';
 import { GetAuthorship } from './application/get-authorship.use-case';
-import { OWNER_AUTHORSHIP, type OwnerAuthorshipReader } from './application/ports/owner-repository.port';
+import {
+  OWNER_AUTHORSHIP,
+  type OwnerAuthorshipReader,
+  SIMILARITY_DISMISSALS,
+  type SimilarityDismissalReader,
+} from './application/ports/owner-repository.port';
+import { ListSimilarityDismissals } from './application/list-similarity-dismissals.use-case';
+import { PrismaSimilarityDismissals } from './infra/prisma-similarity-dismissals';
 import { PrismaOwnerRepository } from './infra/prisma-owner.repository';
 import { AnonymizationController } from './interface/http/anonymization.controller';
 import { OwnersController } from './interface/http/owners.controller';
@@ -28,6 +35,12 @@ import { OwnersController } from './interface/http/owners.controller';
     { provide: OWNER_SEARCH, useClass: PrismaOwnerSearch },
     { provide: ANONYMIZATION, useClass: PrismaAnonymization },
     { provide: OWNER_AUTHORSHIP, useClass: PrismaOwnerAuthorship },
+    { provide: SIMILARITY_DISMISSALS, useClass: PrismaSimilarityDismissals },
+    {
+      provide: ListSimilarityDismissals,
+      useFactory: (r: SimilarityDismissalReader) => new ListSimilarityDismissals(r),
+      inject: [SIMILARITY_DISMISSALS],
+    },
     {
       provide: AnonymizeOwner,
       useFactory: (a: AnonymizationPort, c: Clock, m: DomainEvents) => new AnonymizeOwner(a, c, m),

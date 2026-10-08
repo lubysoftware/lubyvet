@@ -25,6 +25,7 @@
     "owners_version_check": "US-5: versão não negativa",
     "pets_version_check": "US-5: versão não negativa",
     "appointments_version_check": "US-5: versão não negativa",
-    "encounters_version_check": "US-5: versão não negativa"
+    "encounters_version_check": "US-5: versão não negativa",
+    "owner_similarity_dismissals_other_owner_check": "D51: o dono parecido dispensado é sempre outro dono"
   }
 }

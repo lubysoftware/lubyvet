@@ -139,3 +139,14 @@ export const FreeTextItemOutput = FreeTextSpan.extend({ text: z.string() });
 export type FreeTextItemOutput = z.infer<typeof FreeTextItemOutput>;
 export const RedactFreeTextInput = z.object({ spans: z.array(FreeTextSpan) });
 export type RedactFreeTextInput = z.infer<typeof RedactFreeTextInput>;
+
+/**
+ * 012/US-3, D51: uma dispensa do aviso de dono parecido, contra um candidato. Leitura só do
+ * Administrador (D18), da mais recente para a mais antiga.
+ */
+export const SimilarityDismissalOutput = z.object({
+  similarOwner: z.object({ id: z.number().int(), firstName: z.string(), lastName: z.string() }),
+  dismissedBy: z.object({ id: z.number().int(), name: z.string() }),
+  dismissedAt: z.string(),
+});
+export type SimilarityDismissalOutput = z.infer<typeof SimilarityDismissalOutput>;

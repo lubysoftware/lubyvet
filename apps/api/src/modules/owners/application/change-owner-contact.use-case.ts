@@ -40,7 +40,10 @@ export class ChangeOwnerContact {
           this.events.publish({ type: 'similar_owner_warned' });
           throw new SimilarOwnerFound(similar);
         }
-        owner.dismissSimilarity(now);
+        owner.dismissSimilarity(
+          now,
+          similar.map((c) => c.id),
+        );
         dismissed = true;
       }
     }

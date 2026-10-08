@@ -21,7 +21,7 @@
 
 ## US-3 Histórico da dispensa (D51)
 
-- [ ] **T003** Gravar e ler o histórico da dispensa
+- [x] **T003** Gravar e ler o histórico da dispensa
       *entrega:* tabela `owner_similarity_dismissals`; registrar e alterar gravam uma linha por
       candidato; rota de leitura do Administrador; consulta de consistência acrescentada;
       testes de aceitação

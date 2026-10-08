@@ -94,6 +94,7 @@ describe('ChangeOwnerContact', () => {
       confirmSimilar: true,
     });
     expect(updated.snapshot().similarityDismissedAt).toEqual(clock.now());
+    expect(updated.dismissedSimilarOwnerIds).toEqual(other.map((c) => c.id));
   });
 
   it('celular novo sem coincidência grava sem aviso', async () => {

@@ -16,15 +16,18 @@ const fields = {
   messagingConsent: true,
 };
 
-function memoryRepo(): OwnerRepository & { rows: Owner[] } {
+function memoryRepo(): OwnerRepository & { rows: Owner[]; received: Owner[] } {
   const rows: Owner[] = [];
+  const received: Owner[] = [];
   const byPhone = (tel: string) =>
     rows
       .filter((r) => r.telephone === tel)
       .map((r) => ({ id: r.id ?? 0, firstName: 'Mariana', lastName: 'Teixeira', city: 'São Paulo' }));
   return {
     rows,
+    received,
     insert: async (o) => {
+      received.push(o);
       const saved = Owner.restore({
         ...o.snapshot(),
         id: rows.length + 1,
@@ -85,11 +88,14 @@ describe('RegisterOwner: dono parecido (D14)', () => {
     await new RegisterOwner(repo, clock).execute(fields);
     const second = await new RegisterOwner(repo, clock).execute({ ...fields, cpf: '111.444.777-35' }, true);
     expect(second.snapshot().similarityDismissedAt).toEqual(clock.now());
+    // 012/D51: um registro por candidato apresentado.
+    expect(repo.received[1]?.dismissedSimilarOwnerIds).toEqual([1]);
   });
 
   it('sem coincidência, grava sem aviso e sem registro de dispensa', async () => {
     const repo = memoryRepo();
     const owner = await new RegisterOwner(repo, clock).execute(fields, true);
     expect(owner.snapshot().similarityDismissedAt).toBeNull();
+    expect(owner.dismissedSimilarOwnerIds).toEqual([]);
   });
 });

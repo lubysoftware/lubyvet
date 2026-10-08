@@ -30,3 +30,15 @@ export interface OwnerAuthorshipReader {
 export const OWNER_AUTHORSHIP = Symbol('OwnerAuthorship');
 
 export const OWNER_REPOSITORY = Symbol('OwnerRepository');
+
+/** 012/T003, D51: uma dispensa do aviso de dono parecido, contra um candidato. */
+export interface SimilarityDismissal {
+  similarOwner: { id: number; firstName: string; lastName: string };
+  dismissedBy: { id: number; name: string };
+  dismissedAt: Date;
+}
+export interface SimilarityDismissalReader {
+  /** Dispensas do dono, da mais recente para a mais antiga; null quando o dono não existe. */
+  dismissalsOf(ownerId: number): Promise<SimilarityDismissal[] | null>;
+}
+export const SIMILARITY_DISMISSALS = Symbol('SimilarityDismissals');

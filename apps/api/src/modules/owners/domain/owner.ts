@@ -81,6 +81,9 @@ function checkEmail(value: string | undefined, violations: FieldViolation[]): st
 
 /** Dono: raiz do agregado (P1). Animais e visitas só se alcançam por ele. */
 export class Owner {
+  /** D51: candidatos dispensados nesta gravação; não é coluna, vira uma linha de histórico cada. */
+  private dismissed: readonly number[] = [];
+
   private constructor(private props: OwnerProps) {}
 
   static register(fields: RegisterOwnerFields, now: Date): Owner {
@@ -133,9 +136,18 @@ export class Owner {
     return { ...this.props };
   }
 
-  /** CA-3.2: o aviso de dono parecido foi visto e dispensado. */
-  dismissSimilarity(now: Date): void {
+  /**
+   * CA-3.2: o aviso de dono parecido foi visto e dispensado. D51: guarda os candidatos
+   * apresentados, para gravar uma linha por candidato com a mesma data da coluna (012/CA-3.4).
+   */
+  dismissSimilarity(now: Date, similarOwnerIds: readonly number[]): void {
     this.props.similarityDismissedAt = now;
+    this.dismissed = [...similarOwnerIds];
+  }
+
+  /** D51: donos parecidos dispensados nesta gravação, ainda não gravados no histórico. */
+  get dismissedSimilarOwnerIds(): readonly number[] {
+    return this.dismissed;
   }
 
   /**

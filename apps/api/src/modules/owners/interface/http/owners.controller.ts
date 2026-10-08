@@ -6,7 +6,9 @@ import {
   type OwnerSearchOutput,
   RegisterOwnerInput,
   SearchOwnersQuery,
+  type SimilarityDismissalOutput,
 } from '@lubyvet/contracts';
+import { ListSimilarityDismissals } from '../../application/list-similarity-dismissals.use-case';
 import { SearchOwners } from '../../application/search-owners.use-case';
 import { IdParamPipe } from '../../../../shared/interface/http/id-param.pipe';
 import { ZodValidationPipe } from '../../../../shared/interface/http/zod-validation.pipe';
@@ -25,7 +27,20 @@ export class OwnersController {
     private readonly changeOwnerContact: ChangeOwnerContact,
     private readonly searchOwners: SearchOwners,
     private readonly getAuthorship: GetAuthorship,
+    private readonly listSimilarityDismissals: ListSimilarityDismissals,
   ) {}
+
+  /** 012/US-3, D51: histórico da dispensa do aviso de dono parecido (Administrador, pela matriz). */
+  @Get(':ownerId/similarity-dismissals')
+  async similarityDismissals(
+    @Param('ownerId', new IdParamPipe('owner_not_found')) ownerId: number,
+  ): Promise<SimilarityDismissalOutput[]> {
+    return (await this.listSimilarityDismissals.execute(ownerId)).map((d) => ({
+      similarOwner: d.similarOwner,
+      dismissedBy: d.dismissedBy,
+      dismissedAt: d.dismissedAt.toISOString(),
+    }));
+  }
 
   /** 007/T018: autoria consultável por cadastro, para todos os papéis. */
   @Get(':ownerId/authorship')
