@@ -49,7 +49,10 @@
     "updatedBy": "updated by {name} on {when}",
     "similarFound": "This mobile number already belongs to another owner. Check it is not the same person:",
     "saveAnyway": "Save anyway",
-    "reloadCurrent": "See the current values"
+    "reloadCurrent": "See the current values",
+    "dismissals": "Dismissed similar-owner warnings",
+    "dismissalsEmpty": "No similar-owner warning was dismissed for this owner.",
+    "dismissedBy": "dismissed by {name} on {when}"
   },
   "errors": {
     "unauthenticated": "Sign in to continue.",

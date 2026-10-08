@@ -3,6 +3,7 @@ import type {
   OwnerOutput,
   OwnerRecordOutput,
   PetVisitsOutput,
+  SimilarityDismissalOutput,
   VetCatalogOutput,
 } from '@lubyvet/contracts';
 import { getTranslations } from 'next-intl/server';
@@ -10,7 +11,7 @@ import { LinkButton } from '@/components/ui/button';
 import { PageHeader } from '@/components/ui/page-header';
 import { type ResultCode, ResultMessage } from '@/features/forms/components/result-message';
 import { AnonymizeOwner } from '@/features/owners/components/anonymization';
-import { OwnerContact, PetList } from '@/features/owners/components/owner-record-view';
+import { OwnerContact, PetList, SimilarityDismissals } from '@/features/owners/components/owner-record-view';
 import { VisitHistory } from '@/features/visits/components/visit-history';
 import { currentSession, load } from '@/lib/api';
 import { loadOwnerRecord, vetCatalogApiUrl } from '@/lib/url-state';
@@ -33,6 +34,11 @@ export default async function OwnerRecordPage({
     load<AuthorshipOutput>(`/api/owners/${ownerId}/authorship`),
   ]);
   const canWrite = session.role !== 'reader';
+  // 012/CA-3.3, D51: o histórico da dispensa é auditoria do Administrador; os outros papéis nem o pedem.
+  const dismissals =
+    session.role === 'admin'
+      ? await load<SimilarityDismissalOutput[]>(`/api/owners/${owner.id}/similarity-dismissals`)
+      : null;
   const pet = record.pets.find((p) => p.id === sp.pet) ?? record.pets[0] ?? null;
   const [visits, vets] = pet
     ? await Promise.all([
@@ -65,6 +71,7 @@ export default async function OwnerRecordPage({
       />
       <ResultMessage code={saved} />
       <OwnerContact owner={owner} authorship={authorship} />
+      <SimilarityDismissals role={session.role} dismissals={dismissals} />
       <section aria-labelledby="h-pets" className="grid gap-4 md:grid-cols-[280px_1fr]">
         <div className="grid content-start gap-2">
           <h2 id="h-pets" className="text-lg font-semibold">

@@ -28,7 +28,7 @@
       *satisfaz:* CA-3.1, CA-3.2, CA-3.4
       *depende de:* —
 
-- [ ] **T004** Histórico da dispensa na ficha do dono
+- [x] **T004** Histórico da dispensa na ficha do dono
       *entrega:* seção na ficha visível só ao Administrador, com teste de componente
       *satisfaz:* CA-3.3
       *depende de:* T003

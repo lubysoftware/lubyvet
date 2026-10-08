@@ -1,4 +1,10 @@
-import type { AuthorshipOutput, OwnerOutput, OwnerRecordOutput } from '@lubyvet/contracts';
+import type {
+  AuthorshipOutput,
+  OwnerOutput,
+  OwnerRecordOutput,
+  Role,
+  SimilarityDismissalOutput,
+} from '@lubyvet/contracts';
 import { useFormatter, useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';
 import { SpeciesIcon } from '@/features/shell/components/species-icon';
@@ -55,6 +61,51 @@ export function OwnerContact({ owner, authorship }: { owner: OwnerOutput; author
           when: when(authorship.updatedAt),
         })}
       </p>
+    </section>
+  );
+}
+
+/**
+ * 012/US-3, D51: quem dispensou o aviso de dono parecido, quando e contra qual dono, da mais
+ * recente para a mais antiga (a ordem vem da API). Só o Administrador vê (CA-3.3, D18).
+ */
+export function SimilarityDismissals({
+  role,
+  dismissals,
+}: {
+  role: Role;
+  dismissals: SimilarityDismissalOutput[] | null;
+}) {
+  const t = useTranslations('owners');
+  const format = useFormatter();
+  if (role !== 'admin' || dismissals === null) return null;
+  return (
+    <section
+      aria-labelledby="h-dismissals"
+      className="grid gap-3 rounded-md border border-border bg-surface p-4"
+    >
+      <h2 id="h-dismissals" className="text-lg font-semibold">
+        {t('dismissals')}
+      </h2>
+      {dismissals.length === 0 ? (
+        <p className="text-muted-foreground">{t('dismissalsEmpty')}</p>
+      ) : (
+        <ul className="grid gap-2">
+          {dismissals.map((d, i) => (
+            <li key={`${d.dismissedAt}-${d.similarOwner.id}-${i}`}>
+              <a href={`/owners/${d.similarOwner.id}`} className="font-semibold text-primary underline">
+                {`${d.similarOwner.firstName} ${d.similarOwner.lastName}`}
+              </a>{' '}
+              <span className="text-sm text-muted-foreground">
+                {t('dismissedBy', {
+                  name: d.dismissedBy.name,
+                  when: format.dateTime(new Date(d.dismissedAt), { dateStyle: 'short', timeStyle: 'short' }),
+                })}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }

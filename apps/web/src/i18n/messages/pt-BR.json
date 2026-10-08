@@ -49,7 +49,10 @@
     "updatedBy": "alterado por {name} em {when}",
     "similarFound": "Este celular já pertence a outro dono. Confira se não é a mesma pessoa:",
     "saveAnyway": "Gravar mesmo assim",
-    "reloadCurrent": "Ver os valores atuais"
+    "reloadCurrent": "Ver os valores atuais",
+    "dismissals": "Avisos de dono parecido dispensados",
+    "dismissalsEmpty": "Nenhum aviso de dono parecido foi dispensado neste cadastro.",
+    "dismissedBy": "dispensado por {name} em {when}"
   },
   "errors": {
     "unauthenticated": "Entre para continuar.",

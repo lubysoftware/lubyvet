@@ -1,7 +1,7 @@
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import { renderWithIntl } from '@/test/render';
 import { formatCpf, formatPhone, fromLocalInput, toLocalInput } from '@/lib/format';
-import { OwnerContact, PetList } from './owner-record-view';
+import { OwnerContact, PetList, SimilarityDismissals } from './owner-record-view';
 
 const owner = {
   id: 7,
@@ -56,6 +56,48 @@ describe('ficha do dono (001/US-6, 007/US-4)', () => {
   it('dono sem animal diz isso', () => {
     renderWithIntl(<PetList ownerId={7} pets={[]} selected={null} />);
     expect(screen.getByText('Nenhum animal cadastrado.')).toBeInTheDocument();
+  });
+});
+
+describe('histórico da dispensa do aviso de dono parecido (012/US-3, D51)', () => {
+  const dismissals = [
+    {
+      similarOwner: { id: 9, firstName: 'Marcos', lastName: 'Lima' },
+      dismissedBy: { id: 2, name: 'Carla Escrita' },
+      dismissedAt: '2026-10-09T12:00:00Z',
+    },
+    {
+      similarOwner: { id: 4, firstName: 'Ana', lastName: 'Souza' },
+      dismissedBy: { id: 1, name: 'Ana Admin' },
+      dismissedAt: '2026-10-08T12:00:00Z',
+    },
+  ];
+
+  it('012/CA-3.3 a ficha mostra a lista ao Administrador, na ordem da API, com o dono parecido, quem e quando', () => {
+    renderWithIntl(<SimilarityDismissals role="admin" dismissals={dismissals} />);
+    const section = screen.getByRole('region', { name: 'Avisos de dono parecido dispensados' });
+    const items = within(section).getAllByRole('listitem');
+    expect(items.map((li) => li.textContent)).toEqual([
+      'Marcos Lima dispensado por Carla Escrita em 09/10/2026, 09:00',
+      'Ana Souza dispensado por Ana Admin em 08/10/2026, 09:00',
+    ]);
+    expect(within(section).getByRole('link', { name: 'Marcos Lima' })).toHaveAttribute('href', '/owners/9');
+  });
+
+  it('012/CA-3.3 Escrita e Leitura não veem a seção', () => {
+    for (const role of ['writer', 'reader'] as const) {
+      const { container, unmount } = renderWithIntl(
+        <SimilarityDismissals role={role} dismissals={dismissals} />,
+      );
+      expect(container).toBeEmptyDOMElement();
+      unmount();
+    }
+  });
+
+  it('012/CA-3.3 sem dispensa, o Administrador vê que não houve nenhuma, também em inglês', () => {
+    renderWithIntl(<SimilarityDismissals role="admin" dismissals={[]} />, 'en');
+    expect(screen.getByRole('heading', { name: 'Dismissed similar-owner warnings' })).toBeInTheDocument();
+    expect(screen.getByText('No similar-owner warning was dismissed for this owner.')).toBeInTheDocument();
   });
 });
 
