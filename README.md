@@ -13,6 +13,38 @@ passou de um para o outro foi o conhecimento do domínio: 48 regras de negócio,
 contradições entre camadas e as lacunas do modelo. Cada lacuna foi decidida por uma pessoa
 e registrada antes de virar código.
 
+## Interfaces
+
+As telas abaixo foram capturadas com o perfil de Administrador, sobre dados de
+demonstração.
+
+**Ficha do dono.** Contato, autoria das alterações, animais, visitas agendadas e
+atendimentos realizados, tudo a partir do dono.
+
+![Ficha do dono](docs/imagens/ficha-do-dono.png)
+
+**Lista de donos**, com busca por sobrenome e os animais de cada um.
+
+![Lista de donos](docs/imagens/donos.png)
+
+**Catálogo de veterinários**, com as especialidades de cada um.
+
+![Catálogo de veterinários](docs/imagens/veterinarios.png)
+
+**Administração.** Indicadores de operação, manutenção das especialidades e quadro de
+veterinários.
+
+![Indicadores](docs/imagens/admin-indicadores.png)
+
+![Especialidades](docs/imagens/admin-especialidades.png)
+
+![Quadro de veterinários](docs/imagens/admin-veterinarios.png)
+
+**Tema escuro.** A interface inteira tem os dois temas, e os dois passam pela checagem
+automática de acessibilidade.
+
+![Ficha do dono no tema escuro](docs/imagens/ficha-do-dono-escuro.png)
+
 ## Como o projeto foi construído
 
 O spring-petclinic foi lido por inteiro, e dele saíram as regras de negócio, as
